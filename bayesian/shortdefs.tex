@@ -1,0 +1,359 @@
+\def\opt{{\textsc{OPT}_k}}
+\def\const{{\mathrm{const}}}
+\def\nnz{{\mathrm{nnz}}}
+\def\r{\sfrac{\sigma_{\w}^2}{\sigma_{\xib}^2}}
+\def\rm{\sfrac{\sigma_{\xib}^2}{\sigma_{\w}^2}}
+\def\cmark{\Green{\checkmark}}
+\def\xmark{\Red{\large\sffamily x}}
+\newcommand{\pdet}{{\mathrm{pdet}}}
+\newcommand{\MSPE}[1] {{\mathrm{MSPE}\big[#1\big]}}
+\newcommand{\MSE}[1] {{\mathrm{MSE}\big[#1\big]}}
+\def\Poisson{{\operatorname{Poisson}}}
+\def\PB{{\operatorname{PB}}}
+\newcommand{\DP}[1]{\mathcal{DP}^{#1}}
+\def\Ic{\mathcal{I}}
+\def\Jc{\mathcal{J}}
+\def\Mc{\mathcal M}
+\def\Ec{\mathcal E}
+\def\sr{{\mathrm{sr}}}
+\def\ktd{{k^{\underline{d}}}}
+\def\Det{{\mathrm{Det}}}
+\def\detu{{\widecheck{\mathrm{Det}}_\mu^\gamma}}
+\def\deto{{\widehat{\mathrm{Det}}_\mu^\gamma}}
+\def\Zu{{\widecheck{Z}_\mu^{\gamma}}}
+\def\Zo{{\widehat{Z}_\mu^{\gamma}}}
+\def\Zun{{\widecheck{Z}_\mu^{\gamma_n}}}
+\def\Zon{{\widehat{Z}_\mu^{\gamma_n}}}
+\newcommand{\Er}{\mathrm{Er}}
+\newif\ifDRAFT
+\DRAFTtrue
+\ifDRAFT
+\newcommand{\marrow}{\marginpar[\hfill$\longrightarrow$]{$\longleftarrow$}}
+\newcommand{\niceremark}[3]
+   {\textcolor{red}{\textsc{#1 #2:} \marrow\textsf{#3}}}
+\newcommand{\ken}[2][says]{\niceremark{Ken}{#1}{#2}}
+\newcommand{\manfred}[2][says]{\niceremark{Manfred}{#1}{#2}}
+\newcommand{\michael}[2][says]{\niceremark{Michael}{#1}{#2}}
+\newcommand{\michal}[2][says]{\niceremark{Michal}{#1}{#2}}
+\newcommand{\feynman}[2][says]{\niceremark{Feynman}{#1}{#2}}
+%\usepackage[inline]{showlabels}
+\else
+\newcommand{\ken}[1]{}
+\newcommand{\michael}[1]{}
+\newcommand{\michal}[1]{}
+\newcommand{\feynman}[1]{}
+\fi
+\newcommand{\norm}[1]{{\| #1 \|}}
+
+\newcommand{\deff}{d_{\textnormal{eff}}}
+\def\ee{\mathrm{e}}
+\newcommand\mydots{\makebox[1em][c]{.\hfil.\hfil.}}
+\def\Sd{\mathscr{S}_{\!d}}
+\newcommand{\dx}{\dxy_{\!\cal X}}
+\newcommand{\dxk}{\dxy_{\!\cal X}^k}
+\newcommand{\dk}{\dxy^k}
+\newcommand{\dxy}{\mathrm{D}}
+\def\simiid{\overset{\textnormal{\fontsize{6}{6}\selectfont
+i.i.d.}}{\sim}}
+%\newcommand{\Dxy}{D_{\!\cal X\!,\cal Y}}
+\def\vskx{{\mathrm{VS}_{\!\dx}^k}}
+\def\vsk{{\mathrm{VS}_{\!D}^k}}
+\def\vskxm{{\mathrm{VS}_{\!\dx}^{k-1}}}
+\def\vskm{{\mathrm{VS}_{\!D}^{k-1}}}
+\def\vsdx{{\mathrm{VS}_{\!\dx}^d}}
+\def\vsd{{\mathrm{VS}_{\!D}^d}}
+\newcommand{\vs}[1]{{\mathrm{VS}_{\!D}^{#1}}}
+\newcommand{\sigd}{\boldsymbol\Sigma_{\!\dx}}
+\def\wols{\w_{\mathrm{LS}}}
+\def\wds{\boldsymbol\w_{\!D}^*}
+\def\kd{K_{\!\dx}}
+
+\def\poly{{\mathrm{poly}}}
+\def\polylog{{\mathrm{polylog}}}
+\def\DPP{{\mathrm{DPP}}}
+\def\DPPcor{{\DPP_{\!\mathrm{cor}}}}
+\def\DPPens{{\DPP_{\!\mathrm{ens}}}}
+\newcommand{\DPPreg}[1]{{\DPP_{\!\mathrm{reg}}^{#1}}}
+\def\Vol{{\mathrm{VS}}}
+\def\Lev{{\mathrm{Lev}}}
+\newcommand\todod[1]{\Red{\# DH: #1}}
+\newcommand{\explain}[2]{\mathrel{\overset{\makebox[0pt]{\text{\tiny
+#1}}}{#2}}}
+\def\tot {{\mathrm{tot}}}
+\def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) --
+(1,.7) -- (.25,.15) -- cycle;}
+\newcommand{\mnote}[1]{{\bf\large \Magenta{*}}\marginpar{\small \Magenta{#1}}}
+\newcommand{\bnote}[1]{{\bf #1}}
+
+\newcommand{\sqrtshort}[1]{{\sqrt{\white{\Big|}\!\!\smash{\text{\fontsize{9}{9}\selectfont$#1$}}}}}
+\newenvironment{proofof}[2]{\par\vspace{2mm}\noindent\textbf{Proof of {#1} {#2}}\ }{\hfill\BlackBox}
+\newcommand{\sets}[2]
+{{\hspace{-0.3mm}[\hspace{-0.3mm}#1\hspace{-0.3mm}]\hspace{-0.3mm}\choose
+\hspace{-0.3mm}#2\hspace{-0.3mm}}}
+\DeclareMathOperator{\sgn}{\textnormal{sgn}}
+\DeclareMathOperator{\adj}{\textnormal{adj}}
+\def\Rb{{\mathbf{R}}}
+\DeclareMathOperator{\ws}{\widetilde{\w}}
+\newcommand{\inote}[1]{{\bf {#1}}}
+\def\xib{\boldsymbol\xi}
+\def\Sigmab{\mathbf{\Sigma}}
+\def\Sigmabh{\widehat{\Sigmab}}
+\def\Sigmabt{\widetilde{\Sigmab}}
+\def\S{\mathbf{S}}
+\def\T{\mathbf{T}}
+\def\xt{\tilde{x}}
+\def\xbt{\widetilde{\x}}
+\def\xbh{\widehat{\x}}
+\def\ubh{\widehat{\u}}
+\def\dom {{\mathrm{dom}}}
+\def\val {{\mathrm{val}}}
+\def\out {{\mathrm{out}}}
+\def\iin  {{\mathrm{iin}}}
+\def\s {\mathbf{s}}
+\def\q {\mathbf{q}}
+\def\qt{\tilde{q}}
+\def\itld {j}
+\def\ubt {\tilde{\u}}
+\def\n{\{1..n\}}
+\def\cb {\mathbf{c}}
+\def\cW{\mathcal W}
+\def\Xt{\widetilde{X}}
+\def\Dbt{\widetilde{\D}}
+\def\xtb{\tilde{\mathbf{x}}}
+\def\ytb{\tilde{\mathbf{y}}}
+\def\Xtb{\widetilde{\mathbf{X}}}
+\def\Xbb{\overline{\X}}
+\def\Xb{{\bar{\X}}}
+\def\ybb{\overline{\y}}
+\def\f{{\mathbf{f}}}
+\def\g{{\mathbf{g}}}
+\def\fbb{{\overline{\f}}}
+\def\fb{{\overline{f}}}
+\def\Xc{\mathcal{X}}
+\def\W{\mathbf W}
+\def\L{\mathbf{L}}
+\def\Rb{\mathbf R}
+\def\Pc{\mathcal{P}}
+\def\Nc{\mathcal{N}}
+\def\Pt{\widetilde{P}}
+\def\Hc{\mathcal{H}}
+\def\Wc{\mathcal{W}}
+\def\Cc{\mathcal{C}}
+\def\p{\mathbf p}
+%\def\r{\mathbf r}
+\def\Y{\mathbf Y}
+\def\H{\mathbf H}
+\def\K{\mathbf K}
+\def\Kh{\widehat{K}}
+\def\Kbh{{\widehat{\K}}}
+\def\Q{\mathbf Q}
+\def\Qbar{{\bar{\mathbf Q}}}
+\def\Ytb{\widetilde{\mathbf{Y}}}
+\def\c{{n-d\choose s-d}}
+\DeclareMathOperator{\Proj}{Proj}
+\newcommand{\Span}{\mathrm{span}}
+\newcommand{\ofsubt}[1]{\mbox{\scriptsize \raisebox{0.25pt}{$(#1)$}}}
+%\raisebox{0.5pt}{$($}}#1\mbox{\tiny \raisebox{0.5pt}{$)$}}}
+\newcommand{\ofsub}[1]{\mbox{\small \raisebox{0.0pt}{$(#1)$}}}
+%\newcommand{\ofsubb}[1]{\mbox{\footnotesize \raisebox{0.5pt}{$(#1)$}}}
+%\newcommand{\ofsub}[1]{(#1)}
+%\newcommand{\ofsub}[1]{\mbox{\tiny$|$\hspace{-0.5pt}\raisebox{-0.5pt}{$#1$}}}
+\newcommand{\of}[2]{{#1{\!\ofsub{#2}}}}
+\newcommand{\oft}[2]{{#1{\!\ofsubt{#2}}}}
+\newcommand{\fof}[2]{{#1({#2})}}
+\newcommand{\yof}[2]{{#1{\ofsub{#2}}}}
+%\newcommand{\yofb}[2]{{#1{\ofsubb{#2}}}}
+\newcommand{\lazy}{FastRegVol}
+\newcommand{\volsamp}{RegVol}
+
+\newcommand{\Sm}{{S_{-i}}}
+\newcommand{\Sp}{{S_{+i}}}
+\ifx\BlackBox\undefined
+\newcommand{\BlackBox}{\rule{1.5ex}{1.5ex}}  % end of proof
+\fi
+%\renewcommand{\dagger}{+}
+\DeclareMathOperator*{\argmin}{\mathop{\mathrm{argmin}}}
+\DeclareMathOperator*{\argmax}{\mathop{\mathrm{argmax}}}
+\DeclareMathOperator*{\diag}{\mathop{\mathrm{diag}}}
+\def\x{\mathbf x}
+\def\y{\mathbf y}
+\def\ybh{\widehat{\mathbf y}}
+\def\ybb{\bar{\mathbf y}}
+\def\xbb{\bar{\mathbf x}}
+\def\yb{{\bar y}}
+\def\ybt{\widetilde{\mathbf y}}
+\def\yh{\widehat{y}}
+\def\yhb{\widehat{\y}}
+\def\yt{\widetilde{y}}
+\def\z{\mathbf z}
+\def\a{\mathbf a}
+\def\b{\mathbf b}
+\def\w{\mathbf w}
+\def\v{\mathbf v}
+\def\m{\mathbf m}
+\def\wbh{\widehat{\mathbf w}}
+\def\wh{\widehat{\mathbf w}}
+\def\vbh{\widehat{\mathbf v}}
+\def\wbt{\widetilde{\mathbf w}}
+\def\e{\mathbf e}
+\def\zero{\mathbf 0}
+\def\one{\mathbf 1}
+\def\u{\mathbf u}
+\def\ubbar{\bar{\mathbf u}}
+\def\f{\mathbf f}
+\def\ellb{\boldsymbol\ell}
+
+\def\X{\mathbf X}
+\def\Xs{\widetilde{\X}}
+\def\B{\mathbf B}
+\def\A{\mathbf A}
+\def\C{\mathbf C}
+\def\U{\mathbf U}
+\def\Ubt{\widetilde{\mathbf U}}
+\def\Ubh{\widehat{\mathbf U}}
+\def\Ubbar{\bar{\mathbf U}}
+\def\F{\mathbf F}
+\def\D{\mathbf D}
+\def\V{\mathbf V}
+\def\M{\mathbf M}
+\def\Mh{\widehat{\mathbf M}}
+%\def\S{\mathbf S}
+\def\Stb{\widetilde{\mathbf{S}}}
+\def\Sbh{\widehat{\mathbf{S}}}
+\def\St{\widetilde{\S}}
+\def\Sh{\widehat{S}}
+\def\Sc{\mathcal{S}}
+\def\Fc{\mathcal{F}}
+\def\Vc{\mathcal{V}}
+\def\Bc{\mathcal{B}}
+\def\Dc{\mathcal{D}}
+\def\Z{\mathbf Z}
+\def\Zbh{\widehat{\mathbf Z}}
+\def\Zbt{\widetilde{\mathbf Z}}
+\def\Abh{\widehat{\mathbf A}}
+\def\I{\mathbf I}
+\def\Ic{\mathcal I}
+\def\II{\mathbf {I \!\,I}}
+%\def\II{\boldsymbol {\mathbb I}}
+\def\A{\mathbf A}
+\def\P{\mathbf P}
+\def\Ph{\widehat{\mathbf P}}
+\def\cP{\mathcal P}
+\def\cR{\mathcal R}
+\def\Xt{\widetilde{\mathbf{X}}}
+\def\Xh{\widehat{\mathbf{X}}}
+\def\Rh{\widehat{R}}
+\def\Ot{\widetilde{O}}
+\def\At{\widetilde{\A}}
+
+
+\def\E{\mathbb E}
+\def\R{\mathbb R}
+\def\N{\mathbb N}
+\def\Pr{\mathrm{Pr}}
+%\def\C{\mathbb C}
+\def\tr{\mathrm{tr}}
+\def\Sbar{{\bar{S}}}
+\def\cS{{\mathcal{S}}}
+\def\Tbar{{\bar{T}}}
+\def\Tt{{\widetilde{T}}}
+\def\rank{\mathrm{rank}}
+\def\Prob{\mathrm{Prob}}
+\def\Var{\mathrm{Var}}
+\def\Xinv{(\X^\top\X)^{-1}}
+\def\XinvS{(\X_S\X_S^\top)^{-1}}
+\def\ABinvS{(\A_S\B_S^\top)^{-1}}
+\def\ABinv{(\A\B^\top)^{-1}}
+\def\xinv{\x_i^\top\Xinv\x_i}
+\def\Xinvr{(\lambda\I+\X_{-1}^\top\X_{-1})^{-1}}
+\def\pdet{\mathrm{pdet}}
+\newcommand{\vol}{\mathrm{vol}}
+%\newcommand{\defeq}{:=}
+\newcommand{\defeq}{\stackrel{\textit{\tiny{def}}}{=}}
+\newcommand{\di}{{[d+1]_{-i}}}
+\newcommand{\cov}{\mathrm{cov}}
+\let\origtop\top
+\renewcommand\top{{\scriptscriptstyle{\origtop}}} % this makes transpose not so big
+
+\definecolor{silver}{cmyk}{0,0,0,0.3}
+\definecolor{yellow}{cmyk}{0,0,0.9,0.0}
+\definecolor{reddishyellow}{cmyk}{0,0.22,1.0,0.0}
+\definecolor{black}{cmyk}{0,0,0.0,1.0}
+\definecolor{darkYellow}{cmyk}{0.2,0.4,1.0,0}
+\definecolor{orange}{cmyk}{0.0,0.7,0.9,0}
+\definecolor{darkSilver}{cmyk}{0,0,0,0.1}
+\definecolor{grey}{cmyk}{0,0,0,0.5}
+\definecolor{darkgreen}{cmyk}{0.6,0,0.8,0}
+\newcommand{\Red}[1]{{\color{red}  {#1}}}
+\newcommand{\Purple}[1]{{\color{purple}  {#1}}}
+\newcommand{\Magenta}[1]{{\color{magenta}{#1}}}
+\newcommand{\Green}[1]{{\color{darkgreen}  {#1}}}
+\newcommand{\Blue}[1]{\color{blue}{#1}\color{black}}
+\newcommand{\Orange}[1]{\textcolor{orange}{#1}\color{black}}
+\newcommand{\Brown}[1]{{\color{brown}{#1}\color{black}}}
+\newcommand{\Grey}[1]{{\color{grey}{#1}\color{black}}}
+\newcommand{\white}[1]{{\textcolor{white}{#1}}}
+\newcommand{\yellow}[1]{{\textcolor{reddishyellow}{#1}}}
+\newcommand{\darkYellow}[1]{{\textcolor{darkYellow}{#1}}}
+\newcommand{\grey}[1]{{\textcolor{grey}{#1}}}
+
+\DeclareMathOperator{\half}{\frac{1}{2}}
+
+\ifx\proof\undefined
+\newenvironment{proof}{\par\noindent{\bf Proof\ }}{\hfill\BlackBox\\[2mm]}
+\fi
+
+\ifx\theorem\undefined
+\newtheorem{theorem}{Theorem}
+\fi
+
+\ifx\example\undefined
+\newtheorem{example}{Example}
+\fi
+
+\ifx\condition\undefined
+\newtheorem{condition}{Condition}
+\fi
+\ifx\property\undefined
+\newtheorem{property}{Property}
+\fi
+
+\ifx\lemma\undefined
+\newtheorem{lemma}{Lemma}
+\fi
+
+\ifx\proposition\undefined
+\newtheorem{proposition}{Proposition}
+\fi
+
+\ifx\remark\undefined
+\newtheorem{remark}{Remark}
+\fi
+
+\ifx\corollary\undefined
+\newtheorem{corollary}{Corollary}
+\fi
+
+\ifx\definition\undefined
+\newtheorem{definition}{Definition}
+\fi
+
+\ifx\conjecture\undefined
+\newtheorem{conjecture}{Conjecture}
+\fi
+
+\ifx\axiom\undefined
+\newtheorem{axiom}{Axiom}
+\fi
+
+\ifx\claim\undefined
+\newtheorem{claim}{Claim}
+\fi
+
+\ifx\assumption\undefined
+\newtheorem{assumption}{Assumption}
+\fi
+
+\ifx\condition\undefined
+\newtheorem{condition}{Condition}
+\fi

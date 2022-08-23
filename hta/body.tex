@@ -1,0 +1,566 @@
+\maketitle
+
+\begin{abstract}
+	Despite the successes of probabilistic models based on passing noise through
+	neural networks, recent work has identified that such methods often fail to
+	capture tail behavior accurately unless the tails of the base distribution
+	are appropriately calibrated. To overcome this deficiency, we propose a
+	systematic approach for analyzing the tails of random variables during the
+	static analysis (before drawing samples) pass of a probabilistic programming
+	language (PPL) compiler. To characterize how the tails change under
+	algebraic operations, we develop an algebra acting on a three-parameter
+	family of tail asymptotics based on the generalized Gamma distribution. Our
+	algebraic operations are closed under addition and multiplication, capable
+	of distinguishing sub-Gaussians with differing scales, and handle ratios
+	sufficiently well to reproduce the tails of most important statistical
+	distributions directly from their definitions. Our experiments confirm that
+	inference algorithms leveraging generalized Gamma algebra metadata attain
+	superior performance across a number of density modeling and variational
+	inference tasks.
+\end{abstract}
+
+\section{Introduction}
+
+To facilitate efficient probabilistic modelling and inference, modern probabilistic programming languages (PPLs) draw upon recent developments in functional programming \citep{tolpin2016design},
+programming languages \citep{bernstein2019static}, 
+and deep variational inference \citep{bingham2019pyro}.
+Despite their broadening appeal, common pitfalls such as mismatched
+distribution supports \citep{lee2019towards} and non-integrable expectations
+\citep{wang2018variational,vehtari2015pareto,yao2018yes} remain uncomfortably
+commonplace and challenging to debug.
+Recent innovations aiming to improve PPLs have automated verification of
+distribution constraints \citep{lee2019towards}, tamed noisy gradient estimates
+\citep{eslami2016attend} and unruly density ratios
+\citep{vehtari2015pareto,wang2018variational}, and approximated high-dimensional
+distributions with non-trivial bulks \citep{papamakarios2021normalizing} and non-Gaussian tails \cite{jaini2020tails}. 
+
+Continuing this line of work, here we 
+we consider how to statically analyze a probabilistic program in order to automate the inference of 
+tail behavior for any
+random variables present. At present, correct inference of tail behaviour for target distributions remains an outstanding issue \citep{yao2018yes,wang2018variational}, which causes challenges for downstream Monte Carlo tasks. For example, importance sampling estimators can exhibit infinite variance if the tail of the approximating density is lighter than the target. Most prominant black-box variational inference methods are incapable of changing their tail behaviour from an initial proposal distribution \citep{jaini2020tails,ftvi}. MCMC algorithms may also lose ergodicity when the tail of the target density falls outside of a particular family \citep{roberts1996exponential}. All of these issues could be avoided if the tail of the target is known before runtime.
+
+To classify tail asymptotics and define calibration, we propose a three-parameter
+family based on the generalized Gamma distribution (\cref{eq:GenGammaDensity})
+which interpolates between established asymptotics on sub-Gaussian \citep{ledoux2001concentration}
+and regularly varying \citep{mikosch} random variables.
+Algebraic operations on random variables
+can be lifted to computations on the tail parameters resulting in what we call the \emph{generalized Gamma algebra (GGA)}.
+Through analyzing operations like $X + Y$, $X^2$, and $X / Y$ at the level of densities (e.g.\ additive convolution $p_X \oplus p_Y$), the tail parameters of a target density can be estimated from the parameters of any input distributions using \Cref{tab:gga_operations}.
+
+Operationalizing the GGA, we propose \emph{tail inferential} static analysis analogous to traditional \emph{type inference} and provide a reference implementation using the \texttt{beanmachine graph} \citep{tehrani2020bean}
+PPL compiler. 
+GGA tail metadata can be used to diagnose and address tail-related problems in downstream tasks, such as
+employing Riemannian-manifold methods \citep{girolami2011riemann} to sample heavy tails
+or pre-emptively detect unbounded expectations.
+Here, we consider density estimation and variational inference where we use the GGA-computed tail of the target density to calibrate our density approximation.
+%
+%use it to ensure tail calibration and study its impact in density estimation and variational inference.
+% Given a target random variable $X$ in a probabilistic program (PP) with density
+% $p(x)$, an approximation with density $q(x)$ has calibrated tails if $p(x) \sim c q(x)$ as
+% $\lvert x \rvert \to \infty$. Miscalibrated tails lead to pathological behaviors such as
+% importance ratios $w(X) = \frac{p(X)}{q(X)}$ with unbounded variances.
+%
+%While GGA tail metadata may be more broadly useful, our experiments
+%
+When composed with a learnable Lipschitz pushforward map (\Cref{ssec:repr_dist}),
+the resulting combination is a flexible density approximator with provably calibrated tails.
+%n a range of elementary statistical computations and
+%found that GGA yielded greater gains on targets with heavier tails.
+
+\begin{figure}
+	\includegraphics[width=\textwidth]{figures/schematic.pdf}
+	\caption{Our overall approach for density approximations with calibrated tails.
+		A generative model expressed in a PPL (1) and analyzed using the GGA (2) to
+		compute the tail parameters of the target. A representative distribution
+		with calibrated tails is chosen for the initial approximation (3) and a learnable
+		Lipschitz pushforward (see \Cref{lem:lipschitz}) is optimized (4) to correct the
+		bulk approximation.}
+\end{figure}
+
+
+
+% \begin{wrapfigure}[18]{r}{0.35\textwidth}
+% 	\centering
+% 	\includegraphics[width=.3\textwidth]{figures/pgm_vi.png}
+% 	\caption{Graphical model and PPL API for VI with IID data $x_i$.}
+% 	% 	Digraph fig1 {
+% 	% rankdir = BT; //order things from left to right
+
+% 	% { rank="same"; z; z_guide; }
+
+% 	% //define alpha and beta as existing
+% 	% z [shape=circle];
+% 	% z_guide [shape=circle];
+
+% 	% z->x_i; //quite literally z points at w
+
+% 	% subgraph cluster_N
+% 	% {
+% 	%     label = "i=1,...,N"
+% 	%     x_i [shape=circle, style=filled]
+% 	% }
+% 	% x_i -> params;
+% 	% params -> z_guide
+
+% 	% }
+% \end{wrapfigure}
+
+\textbf{Contributions}
+
+\begin{itemize}[leftmargin=*]
+	\item The GGA is introduced, generalizing prior work on classifying tail asymptotics
+	      while including both sub-Gaussian / sub-exponentials \citep{ledoux2001concentration} as well as power-law / Pareto-based tail indices \citep{clauset2009power}. Composing operations outlined in \cref{tab:gga_operations}, one can compute the
+	      GGA tail class for downstream random variables of interest.
+	\item The GGA is implemented in the static analysis phase of a PPL compiler.
+	      This unlocks the ability to leverage GGA metadata in order to
+	      better tailor the emitted inference algorithm.
+	\item Finally, we propose and evaluate a density estimator which combines GGA tails with normalizing flows
+	      in order to simultaneously achieve good bulk approximation as well as correct tails.
+\end{itemize}
+
+\section{The Generalized Gamma Algebra}\label{sec:gga}
+
+Here we formulate an algebra of random variables that is closed under most standard elementary operations (addition, multiplication, powers) which forms the foundation for our static analysis.
+
+\begin{definition}\label{def:gg_tail}
+A random variable $X$ is said to have a \emph{generalized Gamma tail} if the Lebesgue density of $|X|$ satisfies
+\begin{equation}
+\label{eq:GenGammaTails}
+p_{|X|}(x) \sim c x^\nu e^{-\sigma x^\rho}, \qquad \text{as } x \to \infty,
+\end{equation}
+for some $c > 0$, $\nu \in \mathbb{R}$, $\sigma > 0$ and $\rho \in \mathbb{R}$. Denote the set of all such random variables by $\mathcal{G}$.
+\end{definition}
+Consider the following equivalence relation on $\mathcal{G}$: $X \equiv Y$ if and only if $0 < p_{|X|}(x) / p_{|Y|}(x) < +\infty$ for all sufficiently large $x$. The resulting equivalence classes can be represented by their corresponding parameters $\nu, \sigma, \rho$, and hence, we denote the class of random variables $X$ satisfying \cref{eq:GenGammaTails} by $(\nu,\sigma,\rho)$. In the special case where $\rho = 0$, for a fixed $\nu < -1$, each class $(\nu,\sigma,0)$ for $\sigma > 0$ is equivalent, and is denoted by $\mathcal{R}_{|\nu|}$, representing \emph{regularly varying} tails. Our algebra operates on these equivalence classes of $\mathcal{G}$, characterizing the change in tail behaviour under various operations.
+
+\begin{table}[t]
+    \centering
+    \bgroup
+\def\arraystretch{2.5}
+\tolerance=1
+\emergencystretch=\maxdimen
+\hyphenpenalty=10000
+\hbadness=10000
+\begin{tabular}{|M{0.15\linewidth} | p{0.75\linewidth}|}
+\hline
+\centering \multirow{2}{*}{\textbf{Ordering}} & 
+$\max\{(\nu_1,\sigma_1,\rho_1),(\nu_2,\sigma_2,\rho_2)\}$ \\ & $\qquad \equiv \begin{cases}
+(\nu_1,\sigma_1,\rho_1) & \text{ if } \limsup_{x\to\infty} \frac{x^\nu_1 e^{-\sigma_1 x^{\rho_1}}}{x^\nu_2 e^{-\sigma_2 x^{\rho_2}}} < +\infty \\
+(\nu_2,\sigma_2,\rho_2) & \text{ otherwise.}
+\end{cases}$ \\ \hline
+\centering \multirow{2}{*}{\textbf{Addition}} &  $(\nu_{1},\sigma_{1},\rho_{1})\oplus(\nu_{2},\sigma_{2},\rho_{2})$ \\
+ & $\equiv \begin{cases}
+\max\{(\nu_{1},\sigma_{1},\rho_{1}),(\nu_{2},\sigma_{2},\rho_{2})\} & \text{ if }\rho_{1}\neq\rho_{2}\text{ or }\rho_{1},\rho_{2}<1\\
+\left(\nu_{1}+\nu_{2}+1,\min\{\sigma_{1},\sigma_{2}\},1\right) & \text{ if }\rho_{1}=\rho_{2}=1\\
+(\nu_{1}+\nu_{2}+\frac{2-\rho}{2},(\sigma_{1}^{-\frac{1}{\rho-1}}+\sigma_{2}^{-\frac{1}{\rho-1}})^{1-\rho},\rho) & \text{ if }\rho=\rho_{1}=\rho_{2}>1.
+\end{cases}$ 
+\\ \hline
+\centering \textbf{Powers} & $(\nu,\sigma,\rho)^\beta \equiv (\frac{\nu+1}{\beta} - 1,\sigma,\frac{\rho}{\beta})$ for $\beta > 0$ \\\hline
+\centering \textbf{Reciprocal*} & $(\nu,\sigma,\rho)^{-1} \equiv \begin{cases} (-\nu-2,\sigma,-\rho) & \text{ if } (\nu + 1)/\rho > 0 \text{ and } \rho \neq 0 \\
+\mathcal{R}_2 & \text{ otherwise}
+\end{cases}$ \\ \hline
+\centering \textbf{Scalar \linebreak Multiplication} & $c(\nu,\sigma,\rho) \equiv (\nu,\sigma/|c|^\rho,\rho)$\\\hline
+\multirow{3}{*}{\centering \textbf{Multiplication}} & $(\nu_{1},\sigma_{1},\rho_{1})\otimes(\nu_{2},\sigma_{2},\rho_{2})$ \\
+&$\qquad \equiv\begin{cases}
+\left(\frac{1}{\mu}\left(\frac{\nu_{1}}{|\rho_{1}|}+\frac{\nu_{2}}{|\rho_{2}|}+\frac{1}{2}\right),\sigma,-\frac{1}{\mu}\right) & \text{ if }\rho_{1},\rho_{2}<0\\
+\left(\frac{1}{\mu}\left(\frac{\nu_{1}}{\rho_{1}}+\frac{\nu_{2}}{\rho_{2}}-\frac{1}{2}\right),\sigma,\frac{1}{\mu}\right) & \text{ if }\rho_{1},\rho_{2}>0\\
+\mathcal{R}_{|\nu_1|} & \mbox{ if }\rho_{1}\leq0,\rho_{2}>0 \\
+\mathcal{R}_{\min\{|\nu_1|,|\nu_2|\}} & \mbox{ if }\rho_{1}=0,\rho_{2}=0
+\end{cases}$ \\
+&where $\mu=\frac{1}{|\rho_{1}|}+\frac{1}{|\rho_{2}|}=\frac{|\rho_{1}|+|\rho_{2}|}{|\rho_{1}\rho_{2}|}$, $\sigma=\mu(\sigma_{1}|\rho_{1}|)^{\frac{1}{\mu|\rho_{1}|}}(\sigma_{2}|\rho_{2}|)^{\frac{1}{\mu|\rho_{2}|}}$.\\ \hline
+\centering \textbf{Product of Densities} & $(\nu_1,\sigma_1,\rho_1)\&(\nu_2,\sigma_2,\rho_2) 
+\equiv \begin{cases}
+(\nu_{1}+\nu_{2},\sigma_{1},\rho_{1}) & \text{ if }\rho_{1}<\rho_{2}\\
+(\nu_{1}+\nu_{2},\sigma_{1}+\sigma_{2},\rho) & \text{ if }\rho=\rho_{1}=\rho_{2}\\
+(\nu_{1}+\nu_{2},\sigma_{2},\rho_{2}) & \text{ otherwise.}
+\end{cases}$ \\ \hline
+\centering \textbf{Functions ($L$-Lipschitz)} & 
+$f(X_1,\dots,X_n) \equiv L \max\{X_1,\dots,X_n\}$ \\ \hline
+    \end{tabular}
+    \vspace{.25cm}
+    \caption{\label{tab:gga_operations}Operations on random variables (e.g.$X_1 + X_2$) are 
+    viewed as actions on density functions
+    (e.g. convolution $(\nu_1, \sigma_1, \rho_1)\oplus (\nu_2, \sigma_2, \rho_2)$) and the tail parameters of the result are analyzed and reported.}
+\egroup
+\end{table}
+
+The form of \cref{eq:GenGammaTails} and the name of the algebra is derived from the generalized Gamma distribution. 
+\begin{definition}
+Let $\nu \in \mathbb{R}$, $\sigma > 0$, and $\rho \in \mathbb{R} \backslash \{0\}$ be such that $(\nu+1)/ \rho > 0$.
+A non-negative random variable $X$ is \emph{generalized Gamma distributed} with parameters $\nu,\sigma,\rho$ if it has Lebesgue density
+\begin{equation}
+\label{eq:GenGammaDensity}
+p_{\nu,\sigma,\rho}(x) = c_{\nu,\sigma,\rho} x^\nu e^{-\sigma x^\rho},\qquad x > 0,
+\end{equation}
+where $c_{\nu,\sigma,\rho} = \rho \sigma^{(\nu+1)/\rho} / \Gamma((\nu+1)/\rho)$ is the normalizing constant. %The generalized Gamma density incorporates many other well-known densities, including that of the Gamma distribution ($\rho = 1$), and the Frechet/Weibull distribution ($\nu = \rho - 1$). 
+\end{definition}
+The importance of the generalized Gamma form arises due to a combination of two factors:
+\begin{enumerate}[label={(\roman*)},leftmargin=*]
+    \item The majority of interesting continuous univariate distributions with infinite support satisfy \cref{eq:GenGammaTails}, including
+    Gaussians ($\nu=0$, $\rho=2$),
+    gamma/exponential/chi-squared ($\nu > -1$, $\rho=1$), Weibull/Frechet ($\rho = \nu + 1$), and
+    Student $T$/Cauchy/Pareto ($\mathcal{R}_\nu$).
+    However, some notable exceptions include the log-normal distributions. 
+    \item The set $\mathcal{G}$ is known to be closed under additive convolution, positive powers, and Lipschitz functions --- we will show it is closed under multiplicative convolution as well. This covers the majority of elementary operations on independent random variables, with reciprocals, exponentials and logarithms the only exceptions. However, we will introduce a few ``tricks'' to handle these cases as well. 
+\end{enumerate}
+The full list of operations in GGA is compiled in \cref{tab:gga_operations}. All operations in the GGA can be proven to exhibit identical behaviour with their corresponding operations on random variables, with the sole exception of reciprocals (marked by asterisk), where additional assumptions are required. For further details, refer to the Supplementary Material.
+
+%To incorporate tails which lie outside of $\mathcal{G}$, we let $\mathcal{R}_1$ incorporate \emph{super-heavy tails}, which denote random variables with tails heavier than any random variable in $\mathcal{G}$. All operations remain consistent with this notation. Likewise, we let $\mathcal{L}$ denote \emph{super-light tails}, which are treated in our algebra as a class where $\rho = +\infty$ (effectively constants).
+
+% \paragraph{Exponential and Logarithm.} Tails of the generalized Gamma form are not closed under exponentiation or logarithms. Indeed, if both $X$ and $\exp X$ have generalized Gamma tails, then $X$ is exponentially distributed (and $\exp X$ has power law tails). As a workaround, we can consider an upper bound on the tail by projecting onto the nearest possible exponentially distributed / power law tail. If $\rho > 1$, then a change of variables shows the density of $\exp X$ satisfies
+% \[
+% p_{\exp X}(x) \sim \frac{c}{x}(\log x)^{\nu}\exp\left(-\sigma(\log x)^{\rho}\right)\leq\frac{\tilde{c}}{x}\exp\left(-\sigma(\log x)\right)=cx^{-\sigma-1},\,\mbox{ as }x \to \infty.
+% \]
+% The inverse of this operation sends $\mathcal{R}_{\sigma+1}$ to $(0,\sigma,1)$. With this in mind, we define the exponential and logarithmic operations according to the following: $\exp (\nu, \sigma, \rho) \equiv \mathcal{R}_{\sigma+1}$ if $\rho \geq 1$, otherwise $\mathcal{R}_1$; $\log (\nu, \sigma, \rho) \equiv (0, |\nu|-1, 1)$ if $\nu < -1$ and $\rho \leq 0$, otherwise $\mathcal{L}$.
+
+
+\section{Implementation}\label{sec:impl}
+
+\subsection{Compile-time static analysis}
+
+To illustrate an implementation of GGA for static analysis, we sketch the operation of the PPL compiler at a high-level
+and defer to the supplementary code for details.
+A probabilistic program is first inspected using Python's built-in \texttt{ast} module
+and transformed to static single assignment (SSA) form \citep{rosen1988global}.
+Next, standard compiler optimizations (e.g. dead code elimination, constant propagation)
+are applied and an execution of the optimized program is traced \citep{wingate2011lightweight,bingham2019pyro}
+and accumulated in a directed acyclic graph representation. A breadth-first type checking pass, as seen in Algorithm~\ref{alg:bfs_typecheck}, completes in linear time, and GGA results may be applied to implement \texttt{computeGGA()} using the following steps:
+\begin{itemize}[leftmargin=*]
+	\item If a node has no parents, then it is an atomic distribution and its tail parameters are known (\Cref{tab:dist_list})
+ 	\item Otherwise, the node is an operation taking its potentially stochastic inputs (parents) to its output. Consult \Cref{tab:gga_operations} for the output GGA tails.
+\end{itemize}
+
+%% This declares a command \Comment
+%% The argument will be surrounded by /* ... */
+\SetKwComment{Comment}{/* }{ */}
+
+\begin{algorithm}
+	\caption{Pseudocode for a GGA tails static analysis pass}\label{alg:bfs_typecheck}
+	\KwData{Abstract syntax tree for a PPL program}
+	\KwResult{GGA parameter estimates for all random variables}
+	frontier $\gets$ [rv : Parents(rv) = $\emptyset$]\;
+	GGAs $\gets \{\}$\;
+	\While{\text{frontier} $\neq \emptyset$}{
+		next $\gets$ frontier.popLeft()\;
+		GGAs[next] $\gets$ computeGGA(next.op, next.parent)\;
+		frontier $\gets$ frontier + next.children()\;
+	}
+	\Return{GGAs}
+\end{algorithm}
+
+
+\subsection{Representative distributions}\label{ssec:repr_dist}
+
+For each $(\nu,\sigma,\rho)$ we make a carefully defined choice of $p$ on $\mathbb{R}$ such that if $X \sim p$, then $X \equiv (\nu,\sigma,\rho)$. This way, any random variable $f(X)$, where $f$ is $1$-Lipschitz, will exhibit the correct tail, and so approximations of this form may be used for variational inference or density estimation. Let $X \equiv (\nu,\sigma,\rho)$ and $0 < \epsilon \ll 1$ denote a small parameter such that tails $e^{-x^\epsilon}$ are deemed to be ``very heavy'' (we chose $\epsilon = 0.1$). %We also let $X\equiv(\nu,\sigma,\rho)$ and $\zeta$ denote an independent Rademacher random variable with $\mathbb{P}(\zeta=1)=\mathbb{P}(\zeta=-1)=\frac12$.
+
+\begin{itemize}
+    \item[($\rho \leq 0$)] If $\rho \leq -1$, then $p_X(x) \sim c x^{-|\nu|}$. A prominent distribution on $\mathbb{R}$ with power law tails is the \emph{Student $t$ distribution}, in this case, with $|\nu|-1$ degrees of freedom if $\nu < -1$ (generate $X \sim t_{|\nu|-1})$.
+    \item[($\rho > \epsilon$)] For moderately sized $\rho > 0$, we consider a symmetrized variant of the generalized Gamma density (\Cref{eq:GenGammaDensity}). 
+    \item[($\rho \leq \epsilon$)] If $X \equiv (\nu,\sigma,\rho)$ where $\rho$ is small, then $X$ will exhibit much heavier tails, and the generalized Gamma distribution in Case 1 will become challenging to sample from. In these cases, we expect that the tail of $X$ should be well represented by a power law. 
+    %Letting $\alpha = \sigma \rho - \nu - 1$, using an approximation to the logarithm, $p_{|X}(x) \approx c x^{-\alpha - 1}$ (see the Supplementary Material for more details). Therefore, we represent tails of this form by the Student $t$ distribution with $\alpha$ degrees  
+    The generalized Gamma density (\Cref{eq:GenGammaDensity}) satisfies $\mathbb{E}X^r = \sigma^{-r/\rho} \Gamma(\frac{\nu+1+r}{\rho})/\Gamma(\frac{\nu+1}{\rho})$ for $r > 0$. Let $\alpha > 0$ be such that $\mathbb{E}X^\alpha = 2$. By Markov's inequality, the tail of $X$ satisfies $\mathbb{P}(X>x)\leq 2 x^{-\alpha}$. Therefore, we can represent tails of this form by the Student $t$ distribution with $\alpha+1$ degrees of freedom (generate $X \sim t_{\alpha}$).
+\end{itemize}
+
+\subsection{Bulk correction by Lipschitz mapping}
+
+While a representative distribution will exhibit the desired tails,
+the target distribution's bulk may be very different from a generalized Gamma and result in poor distributional approximation. To address this, we propose splicing together the tails from a generalized Gamma with a flexible density approximation for the bulk.
+While many combinations are possible, in this work we rely on \Cref{lem:lipschitz} and post-compose neural
+spline flows \citep{durkan2019neural} (which are identity functions outside of a bounded interval) after
+properly initialized generalized Gamma distributions.
+Optimizing the parameters of the flow results in good bulk approximation while simultaneously
+preserving the tail correctness guarantees attained by the GGA.
+
+\begin{example}
+	Let $A \in \mathbb{R}^{k \times k}$, $x,y\in\mathbb{R}^k$, with $x_i,y_i,A_{ij} \overset{\text{iid}}{\sim} \mathcal{N}(-1,1)$.
+	The distribution of $x^\top A y = \sum_{i,j} x_i A_{ij} y_j$ is convolution of normal-powers \citep{gupta2008analyzing} and has no convenient
+	closed form expression.
+	Using GGA's closure theorems (\cref{tab:gga_operations}), one can compute
+	its tail parameters to be $(\frac{k}{2}-1,\frac{3}{2}, \frac{2}{3})$.
+
+	\begin{figure}[h]
+		\centering
+		\input{experiments/normal-power-sum.pgf}
+		\input{experiments/lip-nf.pgf}
+		\caption{(Top) $5000$ samples of $\lvert x^\top A y \rvert$ vs the
+		calibrated GGA density $q(x)$. While calibrated tails are provably guarantees,
+		the target distribution's bulk differs from the assumed generalized Gamma representative distribution (\cref{ssec:repr_dist}) for all $k$.
+		To fix the bulk approximation, a normalizing flow is composed with
+		the GGA representative to form $\text{flow}(q)(x)$. The bulk approximation
+		is improved (bottom) while the tails continue to exhibit the same
+		behavior (bottom right).
+		}
+		\label{fig:power_normal}
+	\end{figure}
+
+	The GGA representative is a gamma distribution with the correct tails, but there is non-negligible error in the bulk where $x$ is small. To address this, a learnable bijector can be
+	optimized as in \Cref{fig:power_normal} bottom left to correct the bulk approximation. Guaranteed by \Cref{lem:lipschitz} and
+	visualized in \Cref{fig:power_normal} bottom right, the tails of the overall composition remain calibrated.
+\end{example}
+
+\section{Experiments}\label{sec:experiments}
+
+In this section we demonstrate that GGA-based density estimation yields improvements across a variety of metrics.
+We consider the parametric family defined in \Cref{ssec:repr_dist} and compare against pushfowards of Normal distributions. To understand the individual
+effect of using a GGA base distribution over standard normals versus more expressive pushforward maps \citep{durkan2019neural}, we also report ablation results where
+normalizing flows are replaced by affine transforms as originally
+proposed in \citep{kucukelbir2017automatic}. All experiments are repeated for 50 trials, trained to convergence using the Adam optimizer with manually tuned learning rate,
+and conducted on i7-8700K CPU and GTX 1080 GPU hardware.
+
+All target distributions in this section are expressed as generative PPL programs:
+Cauchy using a reciprocal normal, Chi2 using a sum of squared normals, IG (Inverse Gamma)
+using a reciprocal exponential, Normal using a sum of normals, and StudentT using a
+normal and Cauchy ratio. Doing so tasks the static analyzer to infer the target's tails and makes the analysis non-trivial.
+See supplementary for full details.
+
+Our results in the following tables share a consistent narrative where a GGA base
+distribution rarely hurts and can significantly help with heavy tailed targets.
+Except for when targets are truly light tailed ($\alpha=\infty$ in Chi2 and Normal),
+GGA-based approximations are the only ones to reproduce appropriate GPD tail index $\hat\alpha$ in density estimation and achieve a passing Pareto $\hat{k}$ diagnostic
+\citep{yao2018yes} below $0.2$ in variational inference. When viewed through traditional
+evaluation metrics such as negative cross-entropy $H(p,q) = E_p \log p(X)$,
+ELBO $E_q \log \frac{q(X)}{p(X)}$,
+and importance-weighted autoencoder bound \citep{burda2015importance} $E_q \log \sum_i^{1000} \frac{p(X)}{q(X)}$, GGA-based approximations remain favorable on almost all heavy-tailed
+targets and have negligible difference for light tailed targets. Less surprising is the result that adding a flow improved approximation metrics, as we expect the additional representation flexibility to be beneficial.
+
+%\feynman{explain the targets, generative and marginalized, reference appendix}
+
+\textbf{Density Estimation} We minimize a Monte-Carlo estimate of the cross entropy $H(p,q) = -E_p[\log q(X)] \approx -\frac{1}{N} \sum_{i=1}^N \log q(x_i),\quad x_i \sim p$.
+The results are shown in \Cref{tab:de} along with power-law tail index estimates \citep{clauset2009power} $\hat\alpha$.
+Overall, we see that GGA performs better (lower NLL, $\hat\alpha$ closer to target) when the target
+has heavier tails (lower $\hat\alpha$ target/theory) and that the difference is smaller but still non-negligible
+for distributions such as Chi1 which possess tails heavier than Gaussian.
+
+\begin{table}[h]
+	\centering
+	\caption{Density estimation metrics attained (mean, standard deviation in parenthesis)
+	on targets of varying tail index (smaller $\alpha =$ heavier tails).
+	Higher negative cross entropy $-H(p,q) = E_p \log q(X)$ implies a better overall approximation (row maxes bolded)
+	while close agreement between the target Pareto tail index $\alpha$ \citep{clauset2009power}
+	and its estimate $\hat\alpha$ in $q(x)$ suggest calibrated tails (closest in row bolded).
+	}
+	\label{tab:de}
+	\input{experiments/de_table.tex}
+\end{table}
+
+\textbf{Variational Inference} The optimization objective is the ELBO $E_q \log \frac{p(X)}{q(X)} \approx \frac{1}{N} \sum_{i=1}^N \log \frac{p(x_i)}{q(x_i)},\quad x_i \sim q$. Here, the density $p$ must also be evaluated so for simplicity
+experiments in \cref{tab:vi} use closed-form marginalized densities for targets.
+The overall trends also show that GGA yields consistent improvements as measured by both ELBO and importance-weighted
+estimates of marginal likelihood and that the difference was greater when the tails of $p(z)$ were heavier.
+The $\hat{k}$ diagnostics \citep{yao2018yes} corroborate our findings that variational inference succeeds
+($\hat{k} < -1.2$) when a GGA with appropriately matched tails is used and fails ($\hat{k} > 1$) when
+Gaussian tails are erroneously imposed.
+
+\begin{table}[h]
+	\centering
+	\caption{Variational inference metrics (mean, standard deviation in parenthesis)
+	on targets of varying tail index (smaller $\alpha =$ heavier tails). Both the IWAE bound $E_q \log \sum_i^K \frac{p(X_i)}{q(X_i)}$ and the ELBO ($K=1$) measure (a lower bound) on the marginal likelihood where larger is better (row maxes bolded). In \citet{yao2018yes},
+	a Pareto $\hat{k}$ diagnostic $> 0.2$ is interpreted as potentially problematic so only values below are bolded.}
+	\label{tab:vi}
+	\small\input{experiments/vi_table.tex}
+\end{table}
+
+\subsection{SGD for least-squares linear regression}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.32\textwidth]{figures/Kesten_0.40_1.5.png}
+\includegraphics[width=0.32\textwidth]{figures/Kesten_0.50_1.5.png}
+\includegraphics[width=0.32\textwidth]{figures/Kesten_0.50_2.png}
+\caption{\label{fig:SGD}Density of iterates of SGD vs. predicted tail behaviour}
+\end{figure}
+
+For inputs $X$ and labels $Y$ from a dataset $\mathcal{D}$, the least squares estimator for linear regression satisfies $\beta = \min_\beta \tfrac12 \mathbb{E}_{X,Y\sim\mathcal{D}}(Y - X\beta)^2$. To solve for this estimator, one can apply stochastic gradient descent (SGD) sampling over independent $X_k,Y_k\sim \mathcal{D}$ to obtain the sequence of iterations
+\[
+\beta_{k+1} = (I - \delta X_k X_k^\top) \beta_k + \delta Y_k X_k
+\]
+for a step size $\delta > 0$. For large $\delta$, the iterates $\beta_k$ typically exhibit heavy-tailed fluctuations; in this regard, this sequence of iterates has been used as a simple model for more general stochastic optimization dynamics \citep{gurbuzbalaban2021heavy,hodgkinson2021multiplicative}. In particular, generalization performance has been tied to the heaviness of the tails in the iterates \cite{simsekli2019tail}. Here we use our algebra to predict the tail behaviour in a simple one-dimensional setting where $X_k \sim \mathcal{N}(0,\sigma^2)$ and $Y_k \sim \mathcal{N}(0,1)$. From classical theory \citep{buraczewski2016stochastic}, it is known that $X_k$ converges in distribution to a power law with tail exponent $\alpha > 0$ satisfying $\mathbb{E}|1 - \delta X_k^2|^\alpha = 1$. In \cref{fig:SGD}, we plot the density of the representative obtained using our algebra after $10^4$ iterations against a kernel density estimate of the first $10^6$ iterates when $\sigma \in \{0.4,0.5\}$ and $\delta \in \{1.5,2.0\}$. In all cases, the density obtained from the algebra provides a surprisingly close fit. 
+
+\section{Related Work}
+
+\textbf{Heavy tails and probabilistic machine learning}
+
+For studying heavy tails, methods based on subexponential distributions
+\citep{goldie1998subexponential} and generalized Pareto distributions (GPD) or
+equivalently regularly varying distributions \citep{tajvidi2003confidence}
+have recieved attention historically. \citet{mikosch} presents closure theorems for regularly varying which are special cases of \Cref{prop:gga_add} and \Cref{lem:lipschitz}.
+Heavy tails can impact probabilistic machine learning methods in a number of ways.
+The observation that density ratios $\frac{p(x)}{q(x)}$ tend to be heavy tailed
+has resulted in new methods for smoothing importance sampling \citep{vehtari2015pareto},
+adaptively modifying divergences \citep{wang2018variational}, and
+diagnosing variational inference through the Pareto $\hat{k}$ diagnostic \citep{yao2018yes}.
+These works are complementary to our paper and our reported results include $\hat{k}$
+diagnostics for VI and $\hat\alpha$ tail index estimates based on GPD.
+
+Our work considers heavy-tailed targets $p(x)$ which is the same setting as
+\citet{jaini2020tails,ftvi}. Whereas those respective works
+lump the tail parameter in as another variational parameter and may be more generally applicable, the GGA may be applied before samples are drawn and leads to perfectly calibrated tails when applicable.
+
+\textbf{Probabilistic programming}
+
+PPLs can be characterized by the primary use case optimized for, whether that's
+Gibbs sampling over Bayes nets \citep{spiegelhalter1996bugs,de2017programming},
+stochastic control flow \citep{goodman2012church,wingate2011lightweight},
+deep stochastic variational inference \citep{tran2018simple,bingham2019pyro}, or
+Hamiltonian Monte-Carlo \citep{carpenter2017stan,xu2020advancedhmc}. Our implementation target
+\texttt{beanmachine} \citep{tehrani2020bean} is a declarative PPL selected
+due to availability of a PPL compiler and support for static analysis plugins.
+Similar to \citet{bingham2019pyro,siddharth2017learning}, it uses PyTorch \citep{paszke2019pytorch} for GPU tensors and automatic differentiation.
+Synthesizing an approximating distribution during PPL compilation (\Cref{sec:impl}) is
+also performed in the Stan language by \citet{kucukelbir2017automatic} and normalizing
+flow extensions in \citet{webb2019aml}. We compare directly against these related density approximators in \Cref{sec:experiments}.
+
+\textbf{Static analysis}
+
+There is a long history of formal methods and probabilistic programming
+\cite{kozen1979semantics,jones1989probabilistic}. While much of the research
+\cite{claret2013bayesian}
+is concerned with defining formal semantics
+and establishing invariants \cite{wang2018pmaf}
+See \cite{bernstein2019static} for a recent review.
+Static analysis utilizes the abstract syntax tree (AST)
+representation of a program in order to compute invariants
+(e.g. the return type of a function, the number of classes implementing a trait)
+without executing the underlying program.
+As dynamic analysis in PPs is less reliable due to non-determinism, static analysis
+methods for PPs become increasingly important.
+
+Within PPLs, static analysis has traditionally been applied in the context of formalizing
+semantics \citep{kozen1979semantics} and has been used to verify probabilistic
+programs by ensuring termination, bounding random values values
+\citep{sankaranarayanan2013static}. \cite{lee2019towards} proposes a static analyzer for the
+Pyro PPL \citep{bingham2019pyro} to verify
+distribution supports and avoid $-\texttt{Inf}$ log probabilities.
+
+
+More relevant to our work are applications of static analysis to improve inference. \citet{nori2014r2} statically analyzes a probabilistic program and computes pre-images of observations in order to better adapt MCMC proposal distributions.
+While we also perform static analysis over
+abstract syntax tree (AST) representations of a probabilistic program,
+applying GGA yields an upper bound on the tails of all random variables
+so that calibrated tails can be imposed on distribution estimates.
+
+\section{Conclusion}\label{sec:conclusion}
+
+In this work, we have proposed a novel systematic approach for conducting tail inferential static analysis by implementing a three-parameter generalized Gamma algebra into a PPL compiler. Initial results are promising, showing that improved inference with simpler approximation families is possible when combined with tail metadata.
+While already useful, the generalized Gamma algebra and its implementation currently has
+some notable limitations:
+\begin{itemize}[leftmargin=*]
+\item Since the algebra assumes independence, handling of dependencies between defined random variables must be conducted externally. This will inevitably require interoperability with a symbolic package to decompose complex expressions into operations on independent random variables.
+\item The GGA is formulated for univariate distributions only. Suitably defining multivariate tails is an open problem with interesting alternatives \citep{jaini2020tails,ftvi} all of which
+could extend GGA to higher dimensions. 
+\item Conditioning is arguably the most important feature of a PPL and what distinguishes it from a glorified simulator. Exact marginalization in general is NP-hard \citep{koller2009probabilistic}, so treatment of conditional distributions using symbolic manipulations is a significant open problem, with some basic developments \cite{shan2017exact,cho2019disintegration}. Since only the tails are required in our setup, it may be possible to construct a dual algebra for operations under conditioning; this is left for future work.
+\item Compile-time static analysis only applicable to fixed model structure. While out of scope for our current work, open-universe models \citep{milch2010extending}
+and PPLs to support them \citep{bingham2019pyro} are an important research direction.
+\item The most significant omission to the algebra itself is classification of log-normal tails; while addition may be treated using \cite{gulisashvili2016tail} for example, multiplicative convolution with log-normal tails remains elusive. 
+\item At present, reciprocals are approximated by assuming behaviour near zero. Reciprocals may be better treated by covering near-zero asymptotics separately. 
+\end{itemize}
+
+The GGA provides a necessary first step into the static analysis of tails in
+a probabilistic program.
+As the above limitations are improved in future work and GGA becomes more broadly applicable,
+we are excited to see how improved tail modelling will improve downstream PPL applications
+as well as
+other researchers will utilize GGA metadata to develop
+novel PPL applications.
+
+\begin{ack}
+	Use unnumbered first level headings for the acknowledgments. All acknowledgments
+	go at the end of the paper before the list of references. Moreover, you are required to declare
+	funding (financial activities supporting the submitted work) and competing interests (related financial activities outside the submitted work).
+	More information about this disclosure can be found at: \url{https://neurips.cc/Conferences/2021/PaperInformation/FundingDisclosure}.
+
+	Do {\bf not} include this section in the anonymized submission, only in the final paper. You can use the \texttt{ack} environment provided in the style file to autmoatically hide this section in the anonymized submission.
+\end{ack}
+
+% \subsection{Limitations}
+
+% \todo{Liam: Log-Normal insensitivity, edge case (see example)}
+
+% The GGA is formulated for univariate distributions only. 
+
+{
+\small
+\bibliographystyle{unsrtnat}
+\bibliography{refs}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Checklist}
+
+
+% %%% BEGIN INSTRUCTIONS %%%
+% The checklist follows the references.  Please
+% read the checklist guidelines carefully for information on how to answer these
+% questions.  For each question, change the default \answerTODO{} to \answerYes{},
+% \answerNo{}, or \answerNA{}.  You are strongly encouraged to include a {\bf
+% justification to your answer}, either by referencing the appropriate section of
+% your paper or providing a brief inline description.  For example:
+% \begin{itemize}
+%   \item Did you include the license to the code and datasets? \answerYes{See Section~\ref{gen_inst}.}
+%   \item Did you include the license to the code and datasets? \answerNo{The code and the data are proprietary.}
+%   \item Did you include the license to the code and datasets? \answerNA{}
+% \end{itemize}
+% Please do not modify the questions and only use the provided macros for your
+% answers.  Note that the Checklist section does not count towards the page
+% limit.  In your paper, please delete this instructions block and only keep the
+% Checklist section heading above along with the questions/answers below.
+% %%% END INSTRUCTIONS %%%
+
+
+\begin{enumerate}
+
+\item For all authors...
+\begin{enumerate}
+  \item Do the main claims made in the abstract and introduction accurately reflect the paper's contributions and scope?
+    \answerYes{}
+  \item Did you describe the limitations of your work?
+    \answerYes{See \cref{sec:conclusion}}
+  \item Did you discuss any potential negative societal impacts of your work?
+    \answerYes{See \cref{sec:conclusion}}
+  \item Have you read the ethics review guidelines and ensured that your paper conforms to them?
+    \answerYes{}
+\end{enumerate}
+
+\item If you are including theoretical results...
+\begin{enumerate}
+  \item Did you state the full set of assumptions of all theoretical results?
+    \answerYes{Stated at start of \cref{sec:gga}}
+	\item Did you include complete proofs of all theoretical results?
+    \answerYes{Most are deferred to supplementary materials}
+\end{enumerate}
+
+\item If you ran experiments...
+\begin{enumerate}
+  \item Did you include the code, data, and instructions needed to reproduce the main experimental results (either in the supplemental material or as a URL)?
+    \answerYes{See supplemental, a URL for code will be provided witn camera ready}
+  \item Did you specify all the training details (e.g., data splits, hyperparameters, how they were chosen)?
+    \answerYes{}
+	\item Did you report error bars (e.g., with respect to the random seed after running experiments multiple times)?
+    \answerYes{Standard errors reported in parenthesis on \cref{tab:de} and \cref{tab:vi}}
+	\item Did you include the total amount of compute and the type of resources used (e.g., type of GPUs, internal cluster, or cloud provider)?
+    \answerYes{See \cref{sec:experiments}}
+\end{enumerate}
+
+\item If you are using existing assets (e.g., code, data, models) or curating/releasing new assets...
+\begin{enumerate}
+  \item If your work uses existing assets, did you cite the creators?
+    \answerYes{See citations of \citep{tehrani2020bean}}
+  \item Did you mention the license of the assets?
+    \answerYes{Licence included in code}
+  \item Did you include any new assets either in the supplemental material or as a URL?
+    \answerYes{See supplemental material}
+  \item Did you discuss whether and how consent was obtained from people whose data you're using/curating?
+    \answerNA{}
+  \item Did you discuss whether the data you are using/curating contains personally identifiable information or offensive content?
+    \answerNA{}
+\end{enumerate}
+
+\item If you used crowdsourcing or conducted research with human subjects...
+\begin{enumerate}
+  \item Did you include the full text of instructions given to participants and screenshots, if applicable?
+    \answerNA{}
+  \item Did you describe any potential participant risks, with links to Institutional Review Board (IRB) approvals, if applicable?
+    \answerNA{}
+  \item Did you include the estimated hourly wage paid to participants and the total amount spent on participant compensation?
+    \answerNA{}
+\end{enumerate}
+
+\end{enumerate}

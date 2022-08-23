@@ -1,0 +1,97 @@
+\documentclass{article}
+
+\usepackage{aistats2021_author_response}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % define colors in text
+\usepackage{xspace}         % fix spacing around commands
+\usepackage{mathtools,natbib}
+
+\setlength{\bibsep}{0.0pt}
+
+\bibliographystyle{abbrv}
+
+\begin{document}
+
+We thank our reviewers and will fix all typos/grammar errors. Any
+reproducability issues will be addressed when we release all implementation
+(reviewer 1) and experiment code in early 2021. We will also add additional
+details on $n$-schools notation and motivation (reviewers 2, 6).
+
+\textbf{Reviewer 2}:
+
+We respectfully point out that reviewer 2 may have entirely misunderstood our work as
+posterior adaptation rather than amortized inference and we strongly recommend
+reconsideration of the claims in this review.
+While reviewer 2 summarizes the ``first step'' of LIC as running
+MCMC to sample $p(x \mid y)$, in fact LIC (see equation 2) and other methods
+for amortized inference \cite{le2017inference} sample the joint distribution
+$p(x,y)$ by running the probabilistic program forwards. This misunderstanding
+is further evidenced by reviewer 2's major concern on lack of novelty
+compared against three prior works on posterior adaptation
+\cite{de2001variational,neklyudov2018metropolis,titsias2019gradient}, when in
+fact our work is on amortized inference (see section 1.2). As amortized
+inference must provide speedups (i.e. amortize the upfront compilation
+cost) across many different observations $y$ and not just a single target
+posterior $p(x \mid y)$, the prior works in reviewer 2's first major concern
+are not comparable to our work. Prior work in IC \cite{le2017inference} also
+does not make direct comparison against posterior adaptation methods, and we have
+followed suit.
+Additionally, reviewer 2's second major concern related to being ``safe from
+mode-collapse'' are likely a consequence of misunderstanding the ``first
+step'' as performing MCMC sampling of the posterior. Because no Markov chains
+are actually involved during learning for LIC, there is no concern of any chains getting stuck
+/ collapsing.
+
+\textbf{Reviewer 3}:
+
+The major criticism from the reviewer in ``Appropriateness of Graph Neural Networks in theory''
+is that averaging together nodes in a Markov blanket (e.g. the mean and variance) may
+not yield meaningful signal. While this is true for a 1D-embedding, we point out that
+the vector space embeddings (``embedding net''s in Figure 2) yield multi-dimensional
+embeddings where different dimensions handle how nodes in the Markov blanket ``play
+different roles from one another.'' For the mean/variance example, the
+embedding networks could potentially learn to embed the mean to dimension 1
+and variance to dimension 2 so the resulting sum yields a 2-dimensional
+[mean, variance] vector.
+
+Regarding weakness of empirical validation, we attempted to conduct
+the first experiment of the two ``missing'' experiments
+and found LIC to improve over IC \cite{le2017inference} in terms of 
+compilation/inference times, model size, and ESS/PLL on Bayesian logistic
+regression and $n$-schools. 
+However, we opted to not include these results because IC's reference
+implementation (\texttt{pyprob}, \cite{le2017inference}) lacks support for
+vector-valued random variables (see e.g.
+\texttt{pyprob.distributions.mixture.Mixture.event\_shape}) so we were forced
+to unvectorize our \texttt{pyprob} models. If there is interest, we can
+include these results in the appendix. 
+
+Regarding relation to prior work, we concede that handling the open-universe
+case is not novel and will remove this claim from our paper. However,
+although neural Gibbs proposers are also used in \cite{wang2018meta}, a key
+distinction is that they ``focus on hand-identified common structures'' to
+construct proposers whereas LIC (and related work in IC) automate proposal
+construction. While their framework includes Markov blanket parameterized
+proposers, they raise the issue that ``Markov blankets... might not be
+consistent across all instantiations'' whereas we use permutation-invariance
+to motivate graph neural networks as a solution for summarizing dynamic
+Markov blankets. We will include this discussion in related works.
+
+With respect to additional questions:
+    Infinite-domain discrete random variables -- yes, and we are
+    actively looking at $q(\cdot; \phi) \sim \text{Poisson}(\phi)$ and
+    negative-binomial.
+    ``Is $x_i$ actually part of the input?'' -- yes, see Figure 2.
+    Imperative vs declarative -- agree, will fix in camera-ready.
+    On reproduceability -- GMM components is on page 7.
+\bibliography{response}
+
+\end{document}

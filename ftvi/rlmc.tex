@@ -1,0 +1,137 @@
+\documentclass{scrartcl}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage[bold]{hhtensor}
+
+\usepackage{natbib}
+\bibliographystyle{apalike}
+
+\usepackage{hyperref}
+\usepackage{cleveref}
+
+\usepackage{todonotes}
+
+\input{macros}
+
+\title{Riemann Manifold Langevin Monte Carlo}
+
+
+\begin{document}
+\maketitle
+
+XXX.  MWM TEST PUSH.
+
+A number of samplers arise from discretizations of a stochastic differential equation (SDE) of the form
+\[
+    dX_t = \mu(X_t, t) dt + \sigma(X_t, t) d\eta_t
+\]
+where $\mu$ is a drift term and $\eta_t$ is a noise process.
+
+To sample a target probability density $\pi(X)$, one can set $\mu(X_t) =
+    \nabla \log \pi(\theta)$, $\sigma(X_t, t) \equiv 1$, and take $\eta_t = W_t$
+a Wiener process. This corresponds to overdamped Langevin dynamics with potential $\log \pi(X)$,
+which has $pi(X)$ as stationary solution. First-order Euler discretization of the dynamics
+at scale $\eps$ yields
+\[
+    X_{t+1} \sim q(\cdot\mid X_t) = \cN\left(
+    X_t + \frac{\eps^2}{2} \nabla \log \pi(X_t),
+    \eps^2 \mI_k
+    \right)
+\]
+When used in series with a Metropolis-Hastings accept/reject to correct for discretization error,
+the result is known as the Metropolis Adjusted Langevin Algorithm (MALA, \cite{robert1996exponential}).
+To accommodate  different variances between dimensions, \cite{roberts2002langevin} proposes using a
+preconditioning ``mass'' matrix
+\[
+    q(\cdot\mid X_t) = \cN\left(
+    X_t + \frac{\eps^2}{2} \nabla \log \pi(X_t),
+    \eps^2 \mM
+    \right)
+\]
+To choose $M$, \cite{roberts2002langevin} propose Riemannian-manifold
+Langevin Monte Carlo (RLMC) via a Langevin diffusion on a Riemannian manifold
+with metric tensor $\mM$ the of Fisher information matrix.
+There are a number of choices:
+\begin{description}
+    \item[Expected Fisher Information] $\cov \log \nabla^2 p(\vy \mid \vx) = -E_{\vy \mid \vx} \nabla^2 \log p(\vy \mid \vx)$, which has the disadvantage that integration over the posterior is required
+    \item[Empirical Fisher Information] $\widehat{\cov} \nabla^2 \log p(\vy \mid \vx)$, which only uses observed data
+    \item[Observed Fisher Information] $\nabla^2 \log p(\vy \mid \vx) \mid_{\vx = \vx^{ML}}$, which requires only a single Hessian evaluation, is independent of the current particle position $\vx$, and is ensured to be positive semi-definite (hence PD after regularization).
+\end{description}
+Additionally, \cite{roberts2002langevin} suggest capturing prior informativeness in the metric tensor
+by considering the Fisher information of the joint rather than the posterior, i.e.
+\[
+    -E_{\vy \mid \vx} \nabla^2 \log p(\vy, \vx)
+    = \underbrace{-E_{\vy \mid \vx} \nabla^2 \log p(\vy \mid \vx)}_{\text{expected Fisher information}} - \underbrace{\nabla^2 \log p(\vx)}_{\text{Hessian of prior}}
+\]
+
+Newtonian Monte Carlo (NMC,\cite{arora2020newtonian}) is the default
+inference method in a recently released open-source probabilistic programming
+language (PPL) called \texttt{beanmachine} \citep{tehranibean}. Given
+a 2-parameter proposal density $f(\cdot; \alpha, \beta)$, NMC performs a second-order approximation
+by solving for $\alpha_t$ and $\beta_t$ in
+\begin{alignat*}{1}
+    \nabla \log \pi(X_t)   & = \nabla \log f(X_t; \alpha, \beta)   \\
+    \nabla^2 \log \pi(X_t) & = \nabla^2 \log f(X_t; \alpha, \beta)
+\end{alignat*}
+and then setting $q(\cdot \mid X_t) = f(\cdot; \alpha_t, \beta_t)$. In the case of a Gaussian PDF $f$
+with mean $\alpha$ and variance $\beta$, this becomes
+\[
+    q(\cdot \mid X_t)
+    = \cN(X_t - (\nabla^2 \log \pi(X_t))^{-1} \nabla \log \pi(X_t), -(\nabla^2 \log \pi(X_t))^{-1})
+\]
+To relate this to RLMC, take $\pi(x) = p(x, y) \propto p(x \mid y)$ a
+posterior distribution given (fixed) i.i.d. observations $y$. Then
+\begin{alignat*}{1}
+    - \nabla^2 \log \pi(x)
+     & = - \nabla^2 \log p(x, y)                 \\
+     & = - \sum_i^n \nabla^2 \log p(x, y_i)      \\
+     & = -n E_{\hat{F}_n} \nabla^2 \log p(x, y)  \\
+     & = -n \widehat{\cov} \nabla^2 \log p(x, y)
+\end{alignat*}
+from which we see that (after rescaling by $n$) NMC corresponds RLMC using the empirical
+rather than expected Fisher information.
+
+\todo{Heavy tailed $f$s? Can we show this discretizes a Levy-Flight vs Brownian Motion diffusion?}
+
+There exists a major discrepancy between NMC as formualted and RLMC. From \cite{roberts2002langevin},
+a diffusion which has invariant measure $\pi(X)$ on $\RR^d$ is given by the SDE
+\begin{alignat}{1}
+    dX_t & = \frac{1}{2} \mM(X_t)^{-1} (\nabla \log \pi(X)) dt + d\tilde{\vb}(t)
+\end{alignat}
+with the Brownian motion on the Riemannian manifold has as $i$th component
+\begin{alignat}{1}
+    d\tilde{\vb}_i(t)
+     & = \underbrace{\lvert \mM(X_t) \rvert^{-1/2} \sum_{j=1}^d \frac{\pd}{\pd X_j} ( \mM(X_t)_{ij} \lvert \mM(X_t) \rvert^{1/2} )}_{A(X_t)} dt
+    + (\mM(X_t)^{-1/2} d\vb(t))_i
+\end{alignat}
+where $\vb$ is standard Brownian motion.
+Note that if $A(X_t) = 0$ (e.g. in the case $\mM$ is the observed Fisher information, which is constant),
+then taking $\mM(X_t) = \nabla^2 \log \pi(X_t)$ and a first-order Euler discretization
+at scale $1$ recovers NMC.
+
+\begin{itemize}
+    \item What effect does the missing drift term $A(X_t)$ have? Can we increase acceptance rates by including it?
+    \item Is a scale of $1$ appropriate? Given that NMC uses $n$ times the empirical Fisher information, is there a ``better'' scaling involving $n$?
+\end{itemize}
+
+A diffusion which NMC does indeed represent the Euler discretization of is given by
+\begin{alignat}{1}
+    dX_t =\mM(X_t)^{-1} (\nabla \log \pi(X)) dt + \mM(X_t)^{-1/2} db_t
+\end{alignat}
+
+\begin{itemize}
+    \item What is an (the?) invariant distribution of this distribution?
+    \item Is there a bound on a divergence
+          measure between this distribution and the target $\pi(X)$?
+    \item Since this coincides with the previous diffusion in the case of
+          $\mM$ the observed Fisher information, how does the performance of a MCMC
+          sampling algorithm using that compare?
+\end{itemize}
+
+\bibliography{refs}
+
+\end{document}

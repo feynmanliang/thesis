@@ -1,0 +1,62 @@
+\usepackage{todonotes}
+
+\usepackage{caption}
+\usepackage{subcaption}
+
+\usepackage{hyperref}
+\usepackage{cleveref}
+
+\usepackage[export]{adjustbox}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{xcolor}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstdefinestyle{mystyle}{
+  backgroundcolor=\color{backcolour},
+  commentstyle=\color{codegreen},
+  keywordstyle=\color{magenta},
+  numberstyle=\tiny\color{codegray},
+  stringstyle=\color{codepurple},
+  basicstyle=\ttfamily\footnotesize,
+  breakatwhitespace=false,
+  breaklines=true,
+  captionpos=b,
+  keepspaces=true,
+  numbersep=5pt,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  tabsize=2
+}
+\lstset{style=mystyle}
+
+\crefname{lstlisting}{listing}{listings}
+\Crefname{lstlisting}{Listing}{Listings}
+
+
+\usepackage{amssymb,amsthm}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+
+\usepackage[bold]{hhtensor}
+\usepackage{mathtools}
+
+\newcommand{\simiid}{\overset{\text{iid}}{\sim}}
+\DeclarePairedDelimiterX{\infdivx}[2]{(}{)}{%
+  #1\;\delimsize\|\;#2%
+}
+\newcommand{\infdiv}{D\infdivx}
+\DeclareMathOperator{\MB}{MB}
+\DeclareMathOperator{\Pa}{Pa}
+\DeclareMathOperator{\diag}{diag}
+
+\newcommand{\bE}{\mathbb{E}}
+\newcommand{\cN}{\mathcal{N}}
+
+\newcommand{\vx}{\vec{x}}
+\newcommand{\vy}{\vec{y}}
+
+\newcommand{\mI}{\matr{I}}

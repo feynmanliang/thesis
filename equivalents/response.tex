@@ -1,0 +1,135 @@
+\documentclass{article}
+
+\usepackage{../sty/neurips2020/neurips_2020_author_response}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{verbatim}
+\usepackage{lipsum}
+
+\begin{document}
+
+Two reviewers rated this paper very highly.
+The other reviewer was anomalously low and provided a review that
+lacked substance and was completely inappropriate.  
+We thus ask the senior PC member to discount this review and make a
+decision based on the other two thoughtful reviews, or to find
+another reviewer to provide a more appropriate review.
+(We will, however, address to the extent possible the comments of this reviewer below.)
+
+\vspace{-3mm}
+
+\paragraph{To Reviewer \#2} Thanks for the clear accept and the
+helpful suggestions. In the final version, we will clarify the
+discussion of $\gamma$ as a function of $k$ in Section~1.2, and we
+will also expand Section~1.3 (note that a detailed discussion of
+randomized iterative optimization is provided in Appendix B).
+
+\vspace{-3mm}
+
+\paragraph{To Reviewer \#3} Thanks for the clear accept and the helpful
+suggestions. It is true that our proofs define a high probability
+event, however this is merely for the analysis. The final
+statements of Theorems 1 and 2 hold absolutely, rather than with high
+probability. In the final version, we will expand our discussion of
+low-rank approximation metrics.
+
+\vspace{-3mm}
+
+\paragraph{Addressing Reviewer \#4}
+Below, we demonstrate that the review is inappropriate and should be
+discounted, because:\vspace{-2mm}
+\begin{enumerate}
+\item The reviewer completely misrepresents and fails to understand
+  the stated aims of the paper.
+  \vspace{-1mm}
+\item The reviewer makes sweeping claims which are technically wrong
+  and unsupported.
+\end{enumerate}\vspace{-2mm}
+
+First of all, while we agree that the criticisms voiced by the
+reviewer apply to many NeurIPS papers, this paper is \emph{not one of
+  them}. We are well aware of the TCS work on low-rank
+approximation and sketching. If we were to cite all of those TCS papers, it would
+include hundreds of references (we choose to cite a few reviews, as is
+common when an area gets to a certain level of maturity). However, more importantly,
+unlike the TCS papers, in this work we are \emph{not} interested in obtaining
+worst-case approximation or concentration bounds (see, e.g., lines 4
+and 27). Yet, the reviewer appears to be
+confused about this and states that ``the authors
+show that, given a matrix A and a sketch S, the difference of the
+singular values of $A^TA$  and $A^TS^TSA$ is concentrated around the
+expectation.'' This is \emph{not at all} accurate in describing our
+results. Instead, our goal is to provide a precise characterization,
+which goes \emph{beyond worst-case bounds}, for the expected residual
+projection matrix, $\mathbb{E}[I-(SA)^\dagger SA]$ (i.e., approximating an
+analytically intractable deterministic quantity with a simpler
+analytically tractable expression). Thus, in the context of low-rank
+approximation, our goal is not
+to improve on a TCS-style approximation objective (e.g., by showing a
+$1+\epsilon$ error bound relative to the best rank $k$ subspace),
+but rather to express the error in a simple form as a function of the
+spectrum of the data matrix.  Also, unlike standard worst-case analysis, our analysis
+does \emph{not} rely on satisfying some notion of the \emph{subspace
+  embedding} property, which
+significantly differentiates our work from that cited by the
+reviewer. Note that a subspace embedding is
+neither sufficient nor necessary for many numerical implementations of
+sketching \citep{blendenpik,lsrn},
+or statistical results
+\citep{GarveshMahoney_JMLR,dobriban2019asymptotics,yang2020reduce},
+as well as in the context of iterative optimization and
+implicit regularization (see Section~1.3), which are discussed in
+detail in the paper.
+
+Finally, we point out the false and unsupported claims made by the
+reviewer when comparing our paper to prior work.  This
+likely arises from the reviewer's confusion regarding the nature of our results. (Meanwhile, the other two reviewers describe the paper as
+``very well-written'' and ``clearly written''.)
+Regarding \cite{optimal-matrix-product}, Reviewer \#4 states
+that ``Main result here is a generalization of theorem 1'', and then
+later, regarding the submission, the reviewer claims that ``the results presented here are, in
+one form or another, either known results from TCS literature, or easy
+corollaries''. The latter statement is incredibly broad, completely
+unsupported and simply false, so we focus on the former. Regarding the former claim, Cohen et al. do provide a
+low-rank approximation guarantee for sub-Gaussian sketches. However,
+this result differs from ours in several respects. First of
+all, instead of analyzing $\tilde A=A(SA)^\dagger SA$ directly as a
+low-rank approximation with a sketch of size
+$k$ (as we do), they use a larger sketch
+(e.g., of size $C k/\epsilon^2$, where $C>1$ and $\epsilon< 1$) and
+consider the matrix
+$\tilde A _k$, defined as the best rank $k$ approximation of $\tilde
+A$. This distinction is crucial for their analysis, which relies on
+showing that a sketch of size sufficiently larger than $k$ ensures
+a rank $k$ subspace embedding condition. This condition is not known to hold
+(at least in the worst case) if the sketch is of size $k$. Our
+novel analysis completely avoids subspace embeddings (which, as the reviewer points out, are central to TCS-style analysis).  This is why we can still provide
+upper/lower bounds for the low-rank approximation error in this
+important case. Also, the form of our bounds is completely different than that
+of Cohen et al., in that we compare the error with a certain implicit
+function of the singular values of $A$, which is different from the
+error of the best rank $k$ approximation (used by Cohen et al.), and
+so the role of $\epsilon$ in our paper is different than in
+theirs. All in all, different methods are being analyzed, different types of
+bounds are obtained, and completely different analysis is
+used. Thus, by all indications, the reviewer is wrong, and our result is \emph{not} a corollary or a special case
+of the results of Cohen et al.
+
+
+\vspace{-.7\baselineskip}
+\renewcommand\refname{\normalsize References}
+{\scriptsize
+\setlength{\bibsep}{0pt plus 0.2ex}
+\bibliographystyle{abbrvnat}
+\bibliography{../pap}
+}
+
+
+\end{document}

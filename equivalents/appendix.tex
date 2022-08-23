@@ -1,0 +1,121 @@
+\section{Rank one projection bound conditioning on high probability event}
+
+We are interested in extending Lemma~\ref{l:rank-one-projection},
+which currently is only applicable for Gaussian $\z$.
+
+Let $z_i$ be independent, mean zero, variance 1, sub-Gaussian
+with $\|z_i\|_{\psi_2} \leq K$.
+Fix $\A \succ 0$ symmetric.
+
+\begin{proposition}
+  \label{prop:inv-moment-high-prob}
+  For any $k \geq 1$ and $\epsilon \geq 0$,
+  with probability $\geq 1 - e^{-\frac{r}{K^2} (1 - \frac{\epsilon}{\|\A\|})}$
+  \begin{align*}
+    (\z^\top \A \z)^{-k} < (\epsilon r)^{-k}
+  \end{align*}
+
+  In particular,
+  \begin{itemize}
+    \item
+      Taking $\epsilon = 1/2$ gives
+      $(\z^\top \A \z)^{-k} < (r / 2)^{-k}$.
+      with probability $\geq 1 - e^{-\frac{r}{K^2}(1 - \frac{1}{2 \|\A\|})}$.
+    \item
+      Taking $\epsilon = \|\A\|/2$ gives
+      $(\z^\top \A \z)^{-k} < (\tr \A / 2)^{-k}$.
+      with probability $\geq 1 - e^{-\frac{r}{2 K^2}}$.
+  \end{itemize}
+\end{proposition}
+
+\feynman{We could alternatively bound by $(\epsilon \tr \A)^{-k}$ instead of $r$
+with a probability not involving $\|\A\|$}
+
+\begin{proof}
+  Since $z_i$ are independent, $\E \z^\top \A \z = \tr \A$.
+  By Hanson-Wright,
+  the event $E = \{ \z^\top \A \z \geq (1 - \epsilon) \tr \A \}$
+  satisfies the required high probability bound.
+\end{proof}
+
+\begin{lemma}
+  \begin{align*}
+    \left\| \E \left[
+      \frac{\z \z^\top}{\z^\top \A \z}
+      \mid E
+    \right] - \frac{\I}{\tr \A} \right\|
+    &\leq C \Pr[E]^{-1/2} (\tr \A)^{-1} r^{-1/2}
+  \end{align*}
+  for some event $E$ with $\Pr[E] \geq 1 - e^{-\frac{r}{2 K^2}}$.
+
+  Alternatively,
+  \begin{align*}
+    \left\| \E \left[
+      \frac{\z \z^\top}{\z^\top \A \z}
+      \mid E
+    \right] - \frac{\I}{\tr \A} \right\|
+    &\leq C \Pr[E]^{-1/2} r^{-3/2}
+  \end{align*}
+  for some event $E$ with $\Pr[E] \geq 1 - e^{-\frac{r}{K^2} (1 - \frac{1}{2 \|\A\|})}$.
+\end{lemma}
+
+\begin{proof}
+  By \Cref{prop:inv-moment-high-prob}, the event $E$
+  (with $\epsilon = 1/2$ or $\epsilon = \|\A\| / 2$) satisfies the desired
+  probability bound. Notice
+  \begin{align*}
+    \left\| \E \left[
+      \frac{\z \z^\top}{\z^\top \A \z}
+    \mid E \right] - \frac{\I}{\tr \A} \right\|
+    &= \left\| \E \left[
+      \frac{\z \z^\top}{\z^\top \A \z} - \frac{\z \z^\top}{\tr \A}
+    \mid E \right] \right\|
+    = \left\| \E \left[
+      \frac{\z \z^\top}{\z^\top \A \z} \cdot \frac{ \tr \A - \z^\top \A \z }{\tr \A}
+    \mid E \right] \right\| \\
+    %%%
+    &\le \sqrt{\E \left[
+      \frac{ (\z^\top \z)^2 }{ (\z^\top \A \z)^2 }
+  \mid E \right] \cdot \frac{ \E[(\tr \A - \z^\top \A \z)^2 \mid E]}{(\tr \A)^2} } \\
+  \end{align*}
+  where we used Jensen and Cauchy–Schwarz.
+
+  We next apply Lemma~\ref{lem:bai-b26} conditionally
+  to simplify the second expectation
+  \begin{align*}
+    \E[(\tr \A - \z^\top \A \z)^2  \mid E]
+    &\leq \E[(\tr \A - \z^\top \A \z)^2] \Pr[E]^{-1} \\
+    &\leq C \Pr[E]^{-1} \tr(\A^2)
+  \end{align*}
+  Bounding $\tr(\A^2) = \|\A\|^2 \tr((\A / \|\A\|)^2) \leq \|\A\| \tr(\A)$
+  and substituting back in gives
+  \[
+    \left\| \E \left[
+      \frac{\z \z^\top}{\z^\top \A \z}
+    \mid E \right] - \frac{\I}{\tr \A} \right\|
+    \le C \sqrt{\E \left[
+      \frac{ (\z^\top \z)^2 }{ (\z^\top \A \z)^2 }
+    \mid E \right]} \Pr[E]^{-1/2} \sqrt{\frac{1}{r}}
+  \]
+  Applying \Cref{prop:inv-moment-high-prob}, in the $\epsilon = 1/2$ case
+  we have
+  \[
+    \left\| \E \left[
+      \frac{\z \z^\top}{\z^\top \A \z} \mid E
+    \right] - \frac{\I}{\tr \A} \right\|
+    \le C \Pr[E]^{-1/2} \sqrt{\E[\|\z\|^4 \mid E]} r^{-3/2}
+  \]
+  The conclusion follows because sub-Gaussian implies bounded $4$th moments on
+  $z_i$, so
+  \begin{align*}
+    \E[\|\z\|^4 \mid E]
+    &= \E[\|\z\|^4 1_{E}] / \E[1_E]
+    \leq \E[\|\z\|^4] / \E[1_E]
+    = \Pr[E]^{-1} \sum_{i,j} \E[z_i^2 z_j^2]
+    < \infty
+  \end{align*}
+
+  The other result follows from using
+  \Cref{prop:inv-moment-high-prob} with $\epsilon = \|\A\| / 2$.
+\end{proof}
+
