@@ -1,0 +1,1149 @@
+ \newif\ifisarxiv
+ \isarxivtrue
+
+ \ifisarxiv
+ \documentclass[11pt]{article}
+ \usepackage[round]{natbib}
+ \usepackage{fullpage}
+ \usepackage{amsmath}
+ \usepackage{amssymb}
+ \usepackage{amsthm}
+ \usepackage{mathabx}
+ \usepackage{color}
+ \usepackage{cancel}
+ \usepackage{wrapfig}
+ \usepackage{subfigure}
+ \usepackage{caption}
+ \usepackage{xfrac}
+ \usepackage{algorithm}
+ \usepackage{algorithmic}
+ \usepackage{mdframed}
+ \usepackage{hyperref}
+ \usepackage{xcolor}
+ \hypersetup{
+ 	colorlinks,
+ 	linkcolor={red!40!gray},
+ 	citecolor={blue!40!gray},
+ 	urlcolor={blue!70!gray}
+ }
+ \usepackage{cleveref}
+
+
+ \title{Exact expressions for double descent
+ and implicit regularization
+ \\
+ via surrogate random design}
+ \date{}
+%    \author{%
+%            \textbf{Micha{\l } Derezi\'{n}ski} \\
+%    Department of Statistics\\
+%    University of California, Berkeley\\
+%    \texttt{mderezin@berkeley.edu}\\
+%    \and
+%    \textbf{Feynman Liang} \\
+%    Department of Statistics\\
+%    University of California, Berkeley\\
+%    \texttt{feynman@berkeley.edu}
+%    \and
+%     \textbf{Michael W. Mahoney}\\
+%    ICSI and Department of Statistics\\
+%    University of California, Berkeley\\
+%    \texttt{mmahoney@stat.berkeley.edu}
+%  }
+
+ %  \newcommand{\jmlrBlackBox}{\rule{1.5ex}{1.5ex}}
+   \providecommand{\BlackBox}{\rule{1.5ex}{1.5ex}}
+ %  \newcommand{\jmlrQED}{\hfill\jmlrBlackBox\par\bigskip}
+   \renewenvironment{proof}%
+   {%
+    \par\noindent{\bfseries\upshape Proof\ }%
+   }%
+ {\hfill\BlackBox\par\bigskip}
+
+
+\else
+
+\documentclass{article}
+\usepackage[final]{neurips_2020}
+
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+
+\usepackage{amsmath}
+\usepackage{cancel}
+\usepackage{cleveref}
+\usepackage{subfigure}
+\usepackage{todonotes}
+ \usepackage{wrapfig}
+\usepackage{xcolor}
+\usepackage{xfrac}
+\hypersetup{
+	colorlinks,
+	linkcolor={red!40!gray},
+	citecolor={blue!40!gray},
+	urlcolor={blue!70!gray}
+}
+
+\title{Exact expressions for double descent and implicit regularization via
+surrogate random design}
+  \author{%
+Micha{\l } Derezi\'{n}ski \\
+  Department of Statistics\\
+  University of California, Berkeley\\
+  \texttt{mderezin@berkeley.edu}\\
+  \And
+Feynman Liang \\
+  Department of Statistics\\
+  University of California, Berkeley\\
+  \texttt{feynman@berkeley.edu}
+  \And
+Michael W. Mahoney\\
+  ICSI and Department of Statistics\\
+  University of California, Berkeley\\
+  \texttt{mmahoney@stat.berkeley.edu}
+}
+% \usepackage{times}
+
+% \coltauthor{%
+%   \Name{Micha{\l } Derezi\'{n}ski} \Email{mderezin@berkeley.edu}\\
+%   \addr Department of Statistics\\
+%   University of California, Berkeley\\
+%   \AND
+%   \Name{Feynman Liang} \Email{feynman@berkeley.edu}\\
+%   \addr Department of Statistics\\
+%   University of California, Berkeley\\
+%   \AND
+%   \Name{Zhenyu Liao} \Email{TODO}\\
+%   \addr Department of Statistics\\
+%   University of California, Berkeley\\
+%   \AND
+%   \Name{Michael W. Mahoney} \Email{mmahoney@stat.berkeley.edu}\\
+%   \addr ICSI and Department of Statistics\\
+%   University of California, Berkeley
+% }
+
+% \usepackage{float}
+% \usepackage{wrapfig}
+
+\fi
+
+\input{../shortdefs}
+
+\newcommand{\RED}{\color[rgb]{0.70,0,0}}
+
+\begin{document}
+\maketitle
+
+% \begin{abstract}
+%   Double descent refers to the phase transition that is exhibited by
+%   the generalization error of unregularized learning models when varying the ratio
+%   between the number of parameters and the number of training
+%   samples. The recent success of highly over-parameterized machine learning
+%   models such as deep neural networks has motivated a theoretical analysis of
+%   the double descent phenomenon in classical models such as linear
+%   regression which can also generalize well in the over-parameterized
+%   regime. We provide the first exact non-asymptotic
+%   expressions for double descent of the minimum norm linear
+%   estimator. Our approach involves constructing a special
+%   determinantal point process  which we call surrogate random
+%   design, to replace the standard i.i.d.~design of the training
+%   sample. This surrogate design admits exact expressions for the mean
+%   squared error of the estimator while preserving the key properties
+%   of the standard design. We also establish an exact implicit
+%   regularization result for over-parameterized training samples. In
+%   particular, we show that, for the surrogate design, the implicit bias
+%   of the unregularized minimum norm estimator precisely corresponds to
+%   solving a ridge-regularized least squares problem on the population
+%   distribution. In our analysis we introduce a new mathematical tool of
+%   independent interest: the class of random matrices for which
+%   determinant commutes with expectation.
+% \end{abstract}
+
+
+% \section{Introduction}
+
+% Classical statistical learning theory asserts that to achieve generalization
+% one must use training sample size that sufficiently exceeds the complexity of
+% the learning model, where the latter is typically represented by the number of
+% parameters \citep[or some related structural parameter; see][]{HFT09}.
+% In particular,
+% this seems to suggest the conventional wisdom that one should not use models
+% that fit the training data exactly.
+% However, modern machine learning practice
+% often seems to go against this intuition, using models with so many parameters
+% that the training data can be perfectly interpolated, in which case the
+% training error vanishes.
+% It has been shown that models such as deep neural
+% networks, as well as certain so-called interpolating kernels and decision
+% trees, can generalize well in this regime. 
+% In particular,
+% \cite{BHMM19} empirically demonstrated a phase transition in generalization
+% performance of learning models which occurs at an \emph{interpolation
+%   thershold}, i.e., a point where training error goes to zero (as one varies the
+% ratio between the model complexity and the sample size). Moving away from this
+% threshold in either direction tends to reduce the generalization error, leading
+% to the so-called \emph{double descent} curve.
+
+% To understand this
+% surprising phenomenon, in perhaps the simplest possible setting, we
+% study it in the context of linear or least squares regression.
+\vspace{-1cm}
+Consider a full rank $n\times d$ data matrix $\X$, a vector $\y$ of
+responses corresponding to each of the $n$ data points (the rows of $\X$),
+and let $\wbh = \X^\dagger \y$ be the Moore-Penrose estimator to a linear
+model $\y = \X \w^*+\xib$.
+% , where we wish to
+% find the best linear model $\X\w\approx \y$, parameterized by a
+% $d$-dimensional vector $\w$.
+% The simplest example of an estimator that has been shown to exhibit
+% the double descent phenomenon \citep{belkin2019two} is the
+% Moore-Penrose estimator, $\wbh=\X^\dagger\y$:
+% in the so-called over-determined regime, i.e., when $n>d$, it corresponds to the
+% least squares solution, i.e., $\argmin_{\w} \|\X\w-\y\|^2$; and in the
+% under-determined regime (also known as
+% over-parameterized or interpolating), i.e., when $n<d$, it
+% corresponds to the minimum norm solution to the linear system $\X\w=\y$.
+While the classical under-parameterized ($n > d$) regime of the double-descent
+phenomenon \citep{belkin2019two} is well understood, theoretical results for the over-parameterized ($n < d$) regime
+have only recently been developed
+\citep{belkin2019two,HMRT19_TR,Mit19_TR,MM19_TR}.
+% Given the ubiquity of linear regression and the Moore-Penrose
+% solution, e.g., in kernel-based machine learning, studying the
+% performance of this estimator can shed some light on the effects of
+% over-parameterization/interpolation in machine learning more generally.
+% Of particular interest are results that are exact (i.e., not upper/lower bounds) and
+% non-asymptotic (i.e., for large but still finite $n$ and~$d$).
+In this work,
+% we build on methods from Randomized Numerical Linear Algebra (RandNLA) in order
+% to obtain 
+we present \emph{exact non-asymptotic expressions} (Theorem~\ref{t:mse})
+for the mean squared error $\mathrm{MSE}[\wbh]=\E\big[\|\wbh-\w^*\|^2\big]$
+which hold for \emph{both} the over-parameterized and classical regimes.
+% where $\w^*$ is a fixed underlying linear model of the responses.
+% (see Theorem~\ref{t:mse}).  This provides
+% a precise characterization of the double descent phenomenon for the
+% linear regression problem. 
+In obtaining these results, we are able to provide precise formulas for the
+\emph{implicit regularization} \citep{GM14_ICML,KLS18_TR,LJB19_TR}
+induced by minimum norm solutions of
+under-determined training samples, relating it to classical ridge
+regularization (see Theorem~\ref{t:unbiased}).
+% This result has been observed empirically for RandNLA
+% methods~\citep{Mah-mat-rev_JRNL}, but it has also been shown in deep
+% learning~\citep{Ney17_TR} and machine learning~\citep{Mah12} more generally.
+To obtain our precise results, we use a %somewhat non-standard 
+surrogate random design (Definition~\ref{d:surrogate}) based on a specially
+constructed determinantal point process \citep{dpps-in-randnla,dpp-ml} which we prove
+(Theorem~\ref{t:asymptotic}) to accurately preserve the key properties of the
+original design when the data distribution is sub-Gaussian.
+%DPPs are a family of non-i.i.d.~sampling
+% distributions which are typically used to induce diversity in the
+% produced samples \citep{dpp-ml}. Our aim in using a DPP as a surrogate
+% design is very different: namely, to make certain quantities (such as the MSE)
+% analytically tractable, while accurately \emph{preserving} the underlying
+% properties of the original data distribution. This strategy might seem
+% counter-intuitive since DPPs are typically found most useful when they
+% \emph{differ} from the data distribution. However, we show both theoretically
+% (Theorem~\ref{t:asymptotic}) and empirically
+% (Section~\ref{sec:asymp-conj-details}), that for many commonly studied data
+% distributions, such as multivariate Gaussians, our DPP-based surrogate
+% design accurately preserves the key properties of the standard i.i.d.~design
+% (such as the MSE), and even matches it exactly in the high-dimensional
+% asymptotic limit. 
+% In our analysis of the surrogate design, we
+% introduce the concept of \emph{determinant preserving
+%   random matrices}
+% (Section \ref{s:dp})
+% , a class of random matrices for which determinant
+% commutes with expectation, which should be of independent interest.
+%  To
+% obtain our precise results, we use a somewhat non-standard random design, which
+% we term surrogate random design (see Section~\ref{s:determinantal} for a
+% detailed discussion), and which we expect will be of more general interest.
+% Informally, the goal of a surrogate random design is to modify an original
+% design to capture its main properties while being ``nicer'' in some useful way.
+% In Theorem~\ref{t:asymptotic} and Appendix \ref{sec:asymp-conj-details} 
+
+% \subsection{Main results: double descent and implicit regularization}
+
+% As the performance metric in our analysis, we use the \emph{mean
+%   squared error} (MSE), defined as
+% $\mathrm{MSE}[\wbh]=\E\big[\|\wbh-\w^*\|^2\big]$, where $\w^*$ is a fixed
+% underlying linear model of the responses.
+In analyzing the MSE, we make the following assumptions:
+%  that
+% the response noise is homoscedastic.
+\begin{assumption}[Homoscedastic noise]\label{a:linear}
+  The noise $\xi =y(\x)- \x^\top\w^*$ has mean $0$ and variance $\sigma^2$.
+\end{assumption}
+\begin{assumption}[General position]\label{a:general-position}
+  For $1\leq n \leq d$, if $\X\sim\mu^n$, then $\rank(\X)=n$ almost surely.
+\end{assumption}
+% In addition, we need an additional minor assumption on $\mu$ which is satisfied by
+% most standard continuous distributions (e.g., multivariate Gaussians).
+\noindent
+Assumption \ref{a:linear} is a standard assumption in least squares regression,
+and Assumption \ref{a:general-position} is minor and is satisfied by
+most standard continuous distributions (e.g., multivariate Gaussians).
+At the heart of our analysis is the following minor modification of standard
+i.i.d.~random design:
+
+\begin{definition}[Surrogate design] \label{d:surrogate}
+  For $\mu$ satisfying Assumption~\ref{a:general-position},
+  define surrogate design $\Xb \sim S_\mu^n$ as a distribution
+  with the same domain as $\X\sim\mu^K$ such that~for any
+  event $E$ measurable w.r.t.~$\X$, we have\vspace{-2mm}
+  \begin{align*}
+    \Pr\big\{\Xb\in E\big\}\ = \frac{\E[\pdet(\X\X^\top)\one_{[\X\in E]}]}{\E[\pdet(\X\X^\top)]}.
+  \end{align*}
+  Here, $\pdet(\cdot)$ denotes the pseudo-determinant, and
+  $K$ is a truncated Poisson random variable $\Poisson(\gamma_n)$ with
+$\gamma_n$ chosen so that the sample size $\#(\Xb)$ satisfies $\E[\#(\Xb)]=n$. Specifically:
+  \begin{enumerate}
+    \item if $n<d$, then $K\sim \Poisson(\gamma_n)_{\leq d}$ with
+          $\gamma_n$ as the solution of
+          $n=\tr(\Sigmab_\mu(\Sigmab_\mu+\frac1{\gamma_n}\I)^{-1})$,
+          \vspace{-2mm}
+    \item if $n=d$, then we simply let $K=d$,
+          \vspace{-2mm}
+    \item if $n>d$, then $K\sim\Poisson(\gamma_n)_{\geq d}$ with $\gamma_n=n-d$.
+  \end{enumerate}
+\end{definition}
+\noindent
+The definition of surrogate design is carefully chosen so that the Moore-Penrose
+inverse $\Xb^\dagger$ admits analytically tractable expectation
+formulas. Importantly, we show that 
+surrogate designs $S_\mu^n$ are both empirically (Figure~\ref{f:intro})
+and theoretically (Theorem~\ref{t:asymptotic}) consistent with i.i.d.\
+designs $\mu^n$.
+
+Our main result provides an exact expression for the MSE of the
+Moore-Penrose estimator under our surrogate design.
+% , where
+% $\mu$ is the $d$-variate distribution of the row vector $\x^\top$ and $n$ is the sample
+% size. 
+% This surrogate is
+% used in place of the standard $n\times d$ random design $\X\sim\mu^n$, where $n$
+% data points (the rows of $\X$) are sampled independently from
+% $\mu$. We form the surrogate by constructing a determinantal point
+% process with $\mu$ as the background measure, so that $S_\mu^n(\X)\propto
+%   \pdet(\X\X^\top)\mu(\X)$, where $\pdet(\cdot)$ denotes the pseudo-determinant
+% (details in Section~\ref{s:determinantal})
+% Unlike for the standard
+% design, our MSE formula is fully expressible as a function of the covariance
+% matrix $\Sigmab_\mu=\E_\mu[\x\x^\top]$. 
+% To state our main result, we
+% need an additional minor assumption on $\mu$ which is satisfied by
+% most standard continuous distributions (e.g., multivariate Gaussians).
+
+% \noindent
+% Under Assumptions~\ref{a:linear} and~\ref{a:general-position}, we can
+% establish our first main result, stated as the following theorem, where
+% we use $\X^\dagger$ to denote the Moore-Penrose inverse of $\X$.
+% , which gives an exact non-asymptotic
+% expression for the MSE of the Moore-Penrose estimator  the
+% surrogate design $S_\mu^n$.
+
+\begin{theorem}[Exact non-asymptotic MSE]
+  \label{t:mse}
+  % If the response noise is homoscedastic % with variance~$\sigma^2$
+  % (Assumption~\ref{a:linear}) and $\mu$ is in
+  % general position (Assumption~\ref{a:general-position}),
+  Under Assumptions~\ref{a:linear} and \ref{a:general-position},
+  for any $\w \in \mathbb{R}^d$, $\Xb\sim S_\mu^n$,
+  % (Definition \ref{d:surrogate}),
+  and
+  $\yb_i=y(\xbb_i)$, %we have
+  \vspace{-2mm}
+  \begin{align*}
+    \MSE{\Xb^\dagger\ybb} =
+    \begin{cases}
+      \sigma^2\,\tr\big((\Sigmab_\mu+\lambda_n\I)^{-1}\big)\cdot
+      \frac{1-\alpha_n}{d-n}\ +\
+      \frac{\w^{*\top}(\Sigmab_\mu+\lambda_n\I)^{-1}\w^*}
+      {\tr((\Sigmab_\mu+\lambda_n\I)^{-1})}\cdot (d-n),
+                                                                 & \text{for }n<d, \\
+      \sigma^2\, \tr(\Sigmab_\mu^{-1}),                          & \text{for }n=d, \\
+      \sigma^2\,\tr(\Sigmab_\mu^{-1})\cdot\frac{1-\beta_n}{n-d}, & \text{for
+      }n>d,
+    \end{cases}
+  \end{align*}
+  with $\lambda_n\geq 0$ defined by
+  $n=\tr(\Sigmab_\mu (\Sigmab_\mu+\lambda_n\I)^{-1})$, \
+  $\alpha_n=\det(\Sigmab_\mu(\Sigmab_\mu+\lambda_n\I)^{-1})$
+  and $\beta_n=\ee^{d-n}$.
+\end{theorem}
+% \begin{definition}\label{d:expression}
+%   We will use $\Mc = \Mc(\Sigmab_\mu, \w^*,\sigma^2,n)$ to denote the above expressions
+%   for $\MSE{\Xb^\dagger\ybb}$.
+% \end{definition}
+
+\begin{figure}[t]
+  \centering
+  \subfigure[%
+    Surrogate MSE expressions (Theorem \ref{t:mse}) closely match
+    numerical estimates even for non-isotropic
+    features. Eigenvalue decay leads to a steeper
+    descent curve in the under-determined regime ($n<d$).]{%
+    \includegraphics[width=0.48\textwidth]{figs/descent-intro}
+  }
+  \hfill
+  \subfigure[%
+    The mean of the estimator $\X^\dagger\y$ exhibits
+    shrinkage which closely matches the shrinkage of a
+    ridge-regularized least squares optimum (theory lines), as characterized by
+    Theorem \ref{t:unbiased}.]{%
+    \includegraphics[width=0.48\textwidth]{figs/descent-shrinkage}
+  }
+  \caption{Illustration of the main results for
+    % $d=100$ and
+    $\mu=\Nc(\zero,\Sigmab)$ where $\Sigmab$ is diagonal with
+    eigenvalues decaying exponentially, condition number $\kappa$
+    and scaled so that $\tr(\Sigmab^{-1})=d$. Note that the empirical
+    estimates  are based on the standard i.i.d.\ design $\mu^n$.
+    %  We use our surrogate
+    % formulas to plot (a) the MSE (Theorem \ref{t:mse}) and (b) the norm of the expectation (Theorem
+    % \ref{t:unbiased}) of the Moore-Penrose estimator (\emph{theory}
+    % lines), accompanied by the empirical estimates based on the standard
+    % i.i.d.~design (error bars are three times the standard error of the
+    % mean). We consider three different condition numbers $\kappa$ of
+    % $\Sigmab$, with \emph{isotropic} corresponding to $\kappa=1$,
+    % i.e., $\Sigmab=\I$. We use $\sigma^2=1$ and
+    % $\w^*=\frac1{\sqrt{d}}\one$.}
+  }
+  %\vspace{-5mm}
+  \label{f:intro}
+\end{figure}
+
+\noindent
+% Proof of Theorem \ref{t:mse} is given in Appendix \ref{a:mse-proof}.
+% For illustration, we plot the MSE expressions in Figure~\ref{f:intro}a,
+% comparing them with empirical estimates of the true MSE under the
+% i.i.d.~design for a multivariate Gaussian distribution
+% $\mu=\Nc(\zero,\Sigmab)$ with several different covariance matrices $\Sigmab$. We keep the number of features $d$ fixed to
+% $100$ and vary the number of samples $n$, observing a double descent
+% peak at $n=d$. We observe that our theory aligns well with
+% the empirical estimates, whereas
+% previously, no such theory was available except for special
+% cases such as $\Sigmab=\I$ (more details in Theorem~\ref{t:asymptotic}
+% and Section~\ref{sec:asymp-conj-details}). The plots
+% show that varying the spectral decay of $\Sigmab$ has a significant effect on the
+% shape of the curve in the under-determined regime. We use the
+% horizontal line to denote the MSE of the null estimator
+% $\mathrm{MSE}[\zero]=\|\w^*\|^2=1$. When the eigenvalues of $\Sigmab$
+% decay rapidly, then the Moore-Penrose estimator suffers less error
+% than the null estimator for some values of $n<d$, and the curve
+% exhibits a local optimum in this regime.
+
+% One important aspect of Theorem~\ref{t:mse} comes from the relationship between $n$ and the parameter $\lambda_n$, which together satisfy $n=\tr(\Sigmab_\mu (\Sigmab_\mu+\lambda_n\I)^{-1})$.
+% This expression is precisely the classical notion of \emph{effective
+%   dimension} for ridge regression regularized with
+% $\lambda_n$~\citep{ridge-leverage-scores}, and it arises here even though there is
+% no explicit ridge regularization in the problem being considered in
+% Theorem~\ref{t:mse}.
+% The global solution to the ridge regression task (i.e., $\ell_2$-regularized
+% least squares) with parameter $\lambda$ is defined as:
+% \begin{align*}
+%   \argmin_\w \Big\{\E_{\mu,y}\big[\big(\x^\top\w-y(\x)\big)^2\big]
+%   + \lambda\|\w\|^2\Big\}\ =\ (\Sigmab_\mu +
+%   \lambda\I)^{-1}\v_{\mu,y},\quad\text{where } \v_{\mu,y}=\E_{\mu,y}[y(\x)\,\x ].
+% \end{align*}
+% When Assumption \ref{a:linear} holds, then
+% $\v_{\mu,y}=\Sigmab_\mu\w^*$, however ridge-regularized least squares
+% is well-defined for much more general response models.
+Our second result makes a direct connection between the (expectation
+of the) unregularized minimum norm solution on the sample
+and the global ridge-regularized solution.
+While the over-parameterized regime (i.e., $n<d$) is of primary interest to us,
+for completeness we state this result for arbitrary values of $n$ and $d$.
+% Note that, just like the definition of regularized least squares, this
+% theorem applies more generally than Theorem~\ref{t:mse}, in that it
+% does \emph{not} require the responses to follow any linear model as in
+% Assumption~\ref{a:linear} (proof in Appendix~\ref{s:unbiased-proof}).
+\begin{theorem}[Implicit regularization of Moore-Penrose estimator]
+  \label{t:unbiased}
+  For $\mu$ satisfying
+  % \footnote{The proof of Theorem \ref{t:unbiased}
+  %   can be easily extended to probability measures $\mu$ that do not
+  %   satisfy Assumption~\ref{a:general-position} (such as discrete distributions). We include this
+  %   assumption here to simplify the presentation.}
+  Assumption~\ref{a:general-position} and
+  $y(\cdot)$ s.t.~$\v_{\mu,y}=\E_{\mu,y}[y(\x)\,\x]$ is well-defined,
+  $\Xb\sim S_\mu^n$
+  % (Definition \ref{d:surrogate}) 
+  and $\yb_i=y(\xbb_i)$ satisfy:
+  \begin{align*}
+    \E\big[\Xb^\dagger\ybb\big] =
+    \begin{cases}
+      (\Sigmab_\mu + \lambda_n\I)^{-1}\v_{\mu,y} & \text{for }n<d,     \\
+      \Sigmab_\mu^{-1}\v_{\mu,y}                 & \text{for }n \ge d,
+    \end{cases}
+  \end{align*}
+  where, as in Theorem \ref{t:mse}, $\lambda_n$ is such that the effective dimension
+  $\tr(\Sigmab_\mu(\Sigmab_\mu+\lambda_n\I)^{-1})$ equals $n$.
+\end{theorem}
+
+\noindent
+% That is, when $n < d$, the Moore-Penrose estimator (which itself is
+% not regularized), computed on the
+% random training sample, in expectation equals the global ridge-regularized least
+% squares solution of the underlying regression
+% problem. Moreover, $\lambda_n$, i.e., the amount
+% of implicit $\ell_2$-regularization, is controlled by the degree of
+% over-parameterization in such a way as to ensure that $n$ becomes the ridge effective dimension
+% (a.k.a.~the effective degrees of freedom).
+
+% We illustrate this result in Figure
+% \ref{f:intro}b, plotting the norm of the expectation of the
+% Moore-Penrose estimator. As for the MSE, our surrogate theory aligns
+% well with the empirical estimates for i.i.d.~Gaussian designs, showing
+% that the shrinkage of the unregularized estimator in the
+% under-determined regime matches the implicit
+% ridge-regularization characterized by Theorem \ref{t:unbiased}. While the shrinkage
+% is a linear function of the sample size $n$ for isotropic features
+% (i.e., $\Sigmab=\I$), it
+% exhibits a non-linear behavior for other spectral decays.
+% Such \emph{implicit regularization} has been studied
+% previously~\citep[see, e.g.,][]{MO11-implementing, %PM11, GM14_ICML,
+%   Mah12}; it has
+% been observed empirically for RandNLA sampling
+% algorithms~\citep{MMY15}; and it has also received attention more
+% generally within the context of neural networks~\citep{Ney17_TR}. While our implicit regularization result
+% is limited to the Moore-Penrose estimator, this new connection (and
+% others, described below) between the minimum norm solution of an unregularized
+% under-determined system and a ridge-regularized least squares solution
+% offers a simple interpretation for the implicit regularization
+% observed in modern machine learning architectures.
+
+% Our exact non-asymptotic expressions in Theorem~\ref{t:mse} and
+% our exact implicit regularization results in Theorem~\ref{t:unbiased}
+% are derived for the surrogate design, which is a
+% non-i.i.d.~distribution based on a determinantal point process. However, Figure \ref{f:intro}
+% suggests that those expressions accurately describe the MSE (up to lower order
+% terms) also under the standard i.i.d.~design $\X\sim\mu^n$ when $\mu$ is a multivariate Gaussian.
+As a third result, we verify that the surrogate expressions for the
+MSE are asymptotically consistent with the MSE of an i.i.d.~design
+for a wide class of multivariate sub-Gaussian distributions.
+
+\begin{theorem}[Asymptotic consistency of surrogate design]
+  \label{t:asymptotic}
+  Let $\X \in \mathbb{R}^{n \times d}$ have i.i.d. sub-Gaussian rows $\x_i^\top = \z_i^\top\Sigmab^{\frac12}$.
+  Suppose that Assumptions~\ref{a:linear}
+  and \ref{a:general-position} are satisfied,
+  $C \I \succeq \Sigmab \succeq c \I \succ 0$ for all $n,d$,
+  and $\| \w^* \| \le C^*$. Then the surrogate design $\Xb$
+  corresponding to $\X$ satisfies:
+  %and the limiting spectral measure (i.e., normalized counting measure of the eigenvalues) of $\Sigmab \in \mathbb R^{d \times d}$ converges weakly to some measure $\nu$ as $d \to \infty$. Then
+  \begin{align*}
+    \MSE{\X^\dagger\y} - \MSE{ \Xb^\dagger\ybb } \to 0
+  \end{align*}
+  with probability one as $d,n \to \infty$ with $n/d \to \bar c \in (0,\infty) \setminus \{1\}$.
+  % Let $\rho=n/d\neq 1$, $\X\sim \mu^n$
+  % and $y_i=y(\x_i)$ satisfy Assumption~\ref{a:linear}. If $d\geq
+  % c_\rho=\frac3{|1-\rho|}$ and
+  % \begin{align*}
+  %   \mu &= \begin{cases}
+  %     \Nc(\zero,\I)&\text{when }n<d-1,\\
+  %     \Nc(\zero,\Sigmab),\ \Sigmab\succ\zero &\text{when }n>d+1,
+  %   \end{cases}
+  % \end{align*}
+  % then the absolute difference between surrogate
+  % expressions and the true MSE is bounded as follows:
+  % % &\text{if}\qquad  (1)\quad \rho<1\ \text{ and }\ \mu=\Nc(\zero,\I)\qquad\text{or}\qquad
+  % %     (2)\quad \rho > 1\ \text{ and }\ \mu=\Nc(\zero,\Sigmab),\
+  % %     \Sigmab\succ\zero,\\
+  % \begin{align*}
+  % \Big|\MSE{\X^\dagger\y}-\Mc(\Sigmab, \w^*,\sigma^2,n)\Big|\ \leq\
+  % \frac{c_\rho}{d} \cdot \Mc(\Sigmab,\w^*,\sigma^2,n).
+  % \end{align*}
+\end{theorem}
+
+% \begin{remark}
+% For $n$ equal to $d-1$, $d$ or $d+1$, the true MSE under Gaussian
+% random design can be infinite, whereas the
+% surrogate MSE is finite and has a closed form expression.
+% \end{remark}
+
+% \noindent
+% The above result is particularly remarkable since our surrogate design
+% is a determinantal point process. DPPs are commonly used in ML to
+% ensure that the data points in a sample are well spread-out. However,
+% if the data distribution is sufficiently regular (e.g., a multivariate
+% Gaussian), then the i.i.d.~samples are already spread-out reasonably
+% well, so rescaling the distribution by a determinant has a negligible
+% effect that vanishes in the high-dimensional regime.
+% Furthermore, our empirical estimates (Figure~\ref{f:intro}) suggest that the surrogate expressions
+% are accurate not only in the asymptotic limit, but even for moderately large
+% dimensions. Based on a detailed empirical analysis described in
+% Section \ref{sec:asymp-conj-details},
+% we conjecture that the convergence described in
+% Theorem~\ref{t:asymptotic} has the rate of~$O(1/d)$.
+% holds true in the under-determined regime without the assumption that
+% $\Sigmab=\I$ (see Conjectures \ref{c:wishart} and
+% \ref{c:projection}). In this case, no formula is known for 
+% $\MSE{\X^\dagger\y}$, whereas the expressions for the surrogate
+% Gaussian design naturally extend.
+
+% \subsection{Key techniques: surrogate designs and
+%   determinant preserving matrices}
+
+% The standard random design model for linear regression assumes that
+% each pair $(\x_i^\top,y_i)$ is drawn independently, where the row vector
+% $\x_i^\top$ comes from some $d$-variate distribution $\mu$ and $y_i=y(\x_i)$ is a random response variable drawn conditionaly on $\x_i$.
+% Precise theoretical analysis of under-determined regression in this
+% setting poses significant challenges, even in such special cases as
+% the Moore-Penrose estimator and a Gaussian data distribution $\mu$.
+% Rather than trying to directly analyze the usual i.i.d.~random design
+% $\X\sim\mu^n$ described above, we modify it slightly by introducing
+% the notion of a \emph{surrogate random design}, $\Xb\sim S_\mu^n$.
+% Informally, the goal of a surrogate random design is to modify an
+% original design to capture the main properties of the original design,
+% while being ``nicer'' for theoretical or empirical analysis.
+% In particular, here, we will modify the distribution of matrix $\X$ so
+% as to:
+% \begin{enumerate}
+%   \item closely preserve the behavior of the Moore-Penrose estimator
+% from the i.i.d.~design; and
+%   \item obtain exact expressions for double descent in terms of the
+%     mean squared error.
+% \end{enumerate}
+% A key element in the construction of our surrogate designs involves rescaling the measure $\X\sim\mu^n$ by the pseudo-determinant $\pdet(\X\X^\top)$, i.e., a product of the non-zero eigenvalues.
+% A similar type of determinantal design was suggested by
+% \cite{correcting-bias-journal}, but it was restricted there only to
+% $n\geq d$.
+% We broaden this definition by not only allowing the sample size to be
+% less than $d$, but also allowing it to be randomized.
+% A key property of our determinantal design matrix $\Xb$ is that
+% the expectation of a function $F(\Xb)$ can be, up to normalization,
+% expressed as:
+% \begin{align*}
+%   \E[F(\Xb)]\ \propto\ \E[\pdet(\X\X^\top)F(\X)],
+%   \end{align*}
+% where $\X\sim\mu^K$ and $K$ is a random variable (see details in Definition~\ref{d:det}).
+% Then, we define (in Definition~\ref{d:surrogate}) our surrogate design $S_\mu^n$ for each $n>0$ as a determinantal design with a carefully chosen random variable $K$, so that the expected sample size is equal to $n$ and so that it is possible to derive closed form expressions for the MSE.
+% We achieve this by using the Poisson distribution to construct the variable~$K$.
+
+% The key technical contribution that allows us to derive the MSE for determinantal designs is the concept of \emph{determinant preserving random matrices}, a notion that we expect to be useful more generally.
+% Specifically, in Section~\ref{s:dp} we define a class of $d\times d$ random
+% matrices $\A$ for which taking the determinant commutes with taking
+% the expectation, for the matrix itself and any of its square submatrices (see Definition~\ref{d:main}):
+% \begin{align*}
+%   \E\big[\!\det(\A_{\Ic,\Jc})\big] =
+%   \det\!\big(\E[\A_{\Ic,\Jc}]\big)\quad \text{for all }\Ic,\Jc\subseteq
+%   [d]\text{ s.t. }|\Ic|=|\Jc|.
+% \end{align*}
+%   Not all random matrices satisfy this property, however many
+% interesting and non-trivial examples can be found. Constructing
+% these examples is facilitated by the closure properties that this
+% class enjoys. In particular, if $\A$ and $\B$ are determinant
+% preserving and independent, then $\A+\B$ and $\A\B$ are also
+% determinant preserving (see Lemma \ref{t:ring}). We use these
+% techniques to prove a number of determinantal expectation
+% formulas needed in obtaining Theorems~\ref{t:mse}
+% and~\ref{t:unbiased}. For example, we show that if $\X\sim\mu^K$,
+% where $K$ is a Poisson random variable, then:
+% \begin{align*}
+%   \text{(Lemma \ref{l:poisson})}\quad  \E\big[\det(\X^\top\X)\big]
+%   &= \det\!\big(\E[\X^\top\X]\big),\\
+% \text{(Lemma \ref{l:normalization})}\quad  \E\big[\det(\X\X^\top)\big]
+% &= \ee^{-\E[K]}\det\!\big(\I + \E[\X^\top\X]\big).
+% \end{align*}
+
+% \section{Related work}
+% \label{s:related-work}
+
+% There is a large body of related work, which for simplicity we cluster into three groups.
+
+% \textbf{Double descent.}
+% The double descent phenomenon has been observed empirically
+% in a number of learning models, including neural networks
+% \citep{BHMM19,GJSx19_TR}, kernel methods \citep{BMM18_TR,BRT18_TR},
+% nearest neighbor models \citep{BHM18_TR}, and decision trees \citep{BHMM19}. The
+% theoretical analysis of double descent, and more broadly the generalization
+% properties of interpolating estimators, have primarily focused on various forms of
+% linear regression \citep{BLLT19_TR,LR18_TR,HMRT19_TR,MVSS19_TR}. Note
+% that while we analyze the classical mean squared error, many
+% works focus on the squared prediction error.
+% Also, unlike in our work, some of the literature on double descent deals with linear regression in the
+% so-called \emph{misspecified} setting, where the set of observed
+% features does not match the feature space in
+% which the response model is linear
+% \citep{belkin2019two,HMRT19_TR,Mit19_TR,MM19_TR}, e.g., when the
+% learner observes a random subset of $d$ features from a larger
+% population.
+
+% \begin{wrapfigure}{r}{\ifisarxiv 0.5\else 0.44\fi\textwidth}
+%   \ifisarxiv\else \vspace{-.2cm}\fi
+%   \centering
+%   \includegraphics[width=.43\textwidth]{figs/descent-model-log}
+%   \ifisarxiv\else \vspace{-3mm}\fi
+%   \caption{
+%     Surrogate MSE as a function of $d/n$, with $n$
+%     fixed to $100$ and varying dimension $d$ and condition number
+%     $\kappa$, for signal-to-noise ratio $\mathrm{SNR}=1$.}
+%   \label{f:model}
+%   \ifisarxiv\else  \vspace{-.5cm}\fi
+% \end{wrapfigure}
+
+% The most directly comparable to our setting is the recent work of
+% \cite{HMRT19_TR}. They study how
+% varying the feature dimension affects the (asymptotic) generalization
+% error for linear regression, % for both well-specified and misspecified tasks
+% however their analysis is limited to certain special settings such as an
+% isotropic data distribution. As an additional
+% point of comparison, in Figure~\ref{f:model} we plot the MSE
+% expressions of Theorem~\ref{t:mse} when varying the
+% feature dimension~$d$ (the setup is the same as in
+% Figure~\ref{f:intro}). Our plots follow the
+% trends outlined by \cite{HMRT19_TR} for the isotropic case (see their Figure~2),
+% but the spectral decay of the covariance (captured by our new
+% MSE expressions) has a significant effect on the descent curve.
+% This leads to generalization in the under-determined regime even when
+% the signal-to-noise ratio ($\mathrm{SNR}=\|\w^*\|^2/\sigma^2$) is 1,
+% unlike suggested by \cite{HMRT19_TR}.
+
+% \textbf{RandNLA and DPPs.}
+% Randomized Numerical Linear Algebra
+% \citep{DM16_CACM,RandNLA_PCMIchapter_TR} has
+% traditionally focused on obtaining purely algorithmic improvements for tasks
+% such as least squares regression, %  and low-rank approximation via techniques that include
+% % sketching \citep{sarlos-sketching} and i.i.d.~leverage score sampling
+% % \citep{Drineas2006sampling}. However,
+% but there has been growing
+% interest in understanding the statistical properties of these
+% randomized methods \citep{MMY15,GarveshMahoney_JMLR} and
+% a beyond worst-case analysis \cite{precise-expressions}.
+% Determinantal point processes \citep{dpps-in-randnla,dpp-ml} have been recently shown to combine
+% strong worst-case regression guarantees with elegant statistical
+% properties \citep{unbiased-estimates}.
+% However, these results are limited to the over-determined setting \citep{leveraged-volume-sampling,correcting-bias,minimax-experimental-design} and
+% ridge regression
+% \citep{regularized-volume-sampling,bayesian-experimental-design}.
+% Our results are also related to recent work on using DPPs
+% to analyze the expectation of the
+% inverse~\citep{determinantal-averaging,debiasing-second-order} and generalized
+% inverse~\citep{randomized-newton,nystrom-multiple-descent} of a subsampled matrix.
+
+% Also in the over-determined setting, 
+% \cite{correcting-bias-journal} provided evidence for the fact that
+% determinantal rescaling can be used to modify the original data
+% distribution (particularly, a multivariate Gaussian) without a
+% significant distortion to the estimator, while making certain
+% statistical quantities expressible analytically. We take this
+% direction further by analyzing the unregularized least squares
+% estimator in the under-determined setting which is less well
+% understood, partly due to the presence of implicit regularization.
+
+% \textbf{Implicit regularization.}
+% The term implicit regularization typically refers to the notion that approximate
+% computation % (e.g., rather than exactly minimizing a function $f$,
+% % instead running an approximation algorithm to get an approximately
+% % optimal solution)
+% can implicitly lead to
+% statistical regularization. % (e.g., exactly minimizing an objective of
+% % the form $f + \lambda g$, for some well-specified $\lambda$ and $g$)
+% See~\cite{MO11-implementing, PM11, GM14_ICML} and references therein
+% for early work on the topic; and see~\cite{Mah12} for an overview.
+% More recently, often motivated by neural networks, there has been work
+% on implicit regularization that typically considered SGD-based
+% optimization algorithms.
+% See, e.g., theoretical results~\citep{NTS14_TR,Ney17_TR,SHNx17_TR,GWBNx17,ACHL19,KBMM19_TR}
+% as well as extensive empirical studies~\citep{MM18_TR,MM19_HTSR_ICML}.
+% The implicit regularization observed by us is different in that it is
+% not caused by an inexact approximation algorithm (such as SGD) but rather by the
+% selection of one out of many exact solutions (e.g., the minimum norm
+% solution). In this context, most relevant are the
+% asymptotic results of \cite{KLS18_TR} and \cite{LJB19_TR}.
+
+% \section{Surrogate random designs}
+% \label{s:determinantal}
+
+% In this section, we provide the definition of our surrogate random
+% design $S_\mu^n$, where $\mu$ is a $d$-variate probability measure and
+% $n$ is the sample size. This distribution is used in place
+% of the standard random design $\mu^n$ consisting of $n$ row vectors drawn
+% independently from $\mu$.
+% % Our surrogate design uses determinantal
+% % rescaling to alter the joint distribution of the vectors so that
+% % certain expected quantities (such as the mean squared error of the
+% % Moore-Penrose estimator) can be expressed in a closed form.
+% % We start by introducing notation.
+% %to be used throughout the rest of the paper.
+
+% %\paragraph{Preliminaries}
+% \textbf{Preliminaries.}
+% %The set $\{1,...,n\}$ will be denoted by $[n]$.
+% For an $n\times n$ matrix $\A$, we use $\pdet(\A)$ to denote the pseudo-determinant of $\A$,
+% which is the product of non-zero eigenvalues (repeated eigenvalues are taken to the power of their
+% algebraic multiplicity).
+% For index subsets $\Ic$
+% and $\Jc$, we use $\A_{\Ic,\Jc}$ to denote the submatrix of $\A$ with
+% rows indexed by $\Ic$ and columns indexed by $\Jc$. We may write
+% $\A_{\Ic,*}$ to indicate that we take a subset of rows.
+% % We use $\adj(\A)$ to denote the adjugate of $\A$, defined as follows: the
+% % $(i,j)$th entry of $\adj(\A)$ is
+% % $(-1)^{i+j}\det(\A_{[n]\backslash\{j\},[n]\backslash\{i\}})$.
+% % We will
+% % use two useful identities related to the adjugate: (1)
+% % $\adj(\A)=\det(\A)\A^{-1}$ for invertible $\A$, and (2)
+% % $\det(\A+\u\v^\top)=\det(\A)+\v^\top\!\adj(\A)\u$.
+% % A formula called Sylvester's theorem
+% % relates the adjugate and the determinant: $\det(\A+\u\v^\top)=\det(\A)+\v^\top\!\adj(\A)\u$.
+% % For a probability measure $\mu$ over $\R^d$, we use $\x^\top\!\sim\mu$
+% % to denote a random row vector $\x^\top$ sampled according to this distibution.
+% We let $\X\sim\mu^k$ denote a $k\times d$ random matrix with rows
+% drawn i.i.d.~according to $\mu$, and the $i$th row is denoted as $\x_i^\top$.
+% We also let $\Sigmab_\mu=\E_{\mu}[\x\x^\top]$, where $\E_{\mu}$ refers to
+% the expectation with respect to $\x^\top\!\sim\mu$, assuming throughout that
+% $\Sigmab_\mu$ is well-defined and positive definite.
+% We use $\Poisson(\gamma)_{\leq a}$ as the Poisson distribution
+% restricted to $[0,a]$, whereas $\Poisson(\gamma)_{\geq a}$ is restricted
+% to $[a,\infty)$.
+% We also let $\#(\X)$ denote the number of rows of $\X$.
+
+% % We now define a family of determinantal distributions over random matrices $\Xb$,
+% % where not only the entries but also the number of rows is
+% % randomized.
+% % This randomized sample size is a crucial property of our
+% % designs that enables our analysis.
+% % Our definition follows by
+% % expressing $\E[F(\Xb)]$ for real-valued functions $F:\bigcup_{k\geq 0}\R^{k\times
+% %   d}\rightarrow \R$ (the expectation may be undefined for some functions).
+% \begin{definition}\label{d:det}
+%   Let $\mu$ satisfy Assumption~\ref{a:general-position} and let $K$ be
+%   a random variable over $\mathbb{Z}_{\geq 0}$. A determinantal design
+%   $\Xb\sim \Det(\mu,K)$ is a
+%   distribution with the same domain as $\X\sim\mu^K$ such that~for any
+%   event $E$ measurable w.r.t.~$\X$, we have\vspace{-2mm}
+%   \begin{align*}
+%     \Pr\big\{\Xb\in E\big\}\ = \frac{\E[\pdet(\X\X^\top)\one_{[\X\in E]}]}{\E[\pdet(\X\X^\top)]}.
+%   \end{align*}
+% \end{definition}\vspace{-2mm}
+
+% \noindent
+% % Setting $F(\cdot)$ to 1, observe that the proportionality constant
+% % must be $1/\E[\pdet(\X\X^\top)]$.
+% The above definition can be
+% interpreted as rescaling the density function of $\mu^K$ by the
+% pseudo-determinant, and then renormalizing it.
+% We now construct our surrogate design $S_\mu^n$ by appropriately
+% selecting the random variable $K$.
+% The obvious choice of $K=n$ does \emph{not} result in simple closed
+% form expressions for the MSE in the under-determined regime (i.e.,
+% $n<d$), which is the regime of primary interest to us.
+% Instead, we derive our random variables $K$ from the Poisson
+% distribution.
+% \begin{definition}\label{d:surrogate}
+%   For $\mu$ satisfying Assumption~\ref{a:general-position},
+%   define surrogate design $S_\mu^n$ as $\Det(\mu,K)$ where:
+%   \vspace{-2mm}
+%   \begin{enumerate}
+%     \item if $n<d$, then $K\sim \Poisson(\gamma_n)_{\leq d}$ with
+%           $\gamma_n$ as the solution of
+%           $n=\tr(\Sigmab_\mu(\Sigmab_\mu+\frac1{\gamma_n}\I)^{-1})$,
+%           \vspace{-2mm}
+%     \item if $n=d$, then we simply let $K=d$,
+%           \vspace{-2mm}
+%     \item if $n>d$, then $K\sim\Poisson(\gamma_n)_{\geq d}$ with $\gamma_n=n-d$.
+%   \end{enumerate}
+% \end{definition}
+
+% \noindent
+% Note that the under-determined case, i.e., $n<d$, is restricted to $K\leq d$ so that, under Assumption~\ref{a:general-position}, $\pdet(\X\X^\top)=\det(\X\X^\top)$ with probability 1.
+% On the other hand in the over-determined case, i.e., $n>d$, we have
+% $K\geq d$ so that $\pdet(\X\X^\top)=\det(\X^\top\X)$. In the special case
+% of $n=d=K$ both of these equations are satisfied: $\pdet(\X\X^\top)=\det(\X^\top\X)=\det(\X\X^\top)=\det(\X)^2$.
+
+% The first non-trivial property of the surrogate design $S_\mu^n$ is
+% that the expected sample size is in fact always equal to $n$, which we
+% prove in Appendix \ref{appx: proof-of-l-size}.
+% \begin{lemma} \label{l:size}
+%   Let $\Xb\sim S_\mu^n$ for any $n>0$.
+%   Then, we have $\E[\#(\Xb)] = n$.
+% \end{lemma}
+
+% \noindent
+% Our general template for computing expectations under
+% a surrogate design $\Xb\sim\S_\mu^n$ is to use the following expressions based on the
+% i.i.d.~random design $\X\sim\mu^K$:
+% \begin{align}
+%   \E[F(\Xb)] & =\begin{cases}
+%     \frac{\E[\det(\X\X^\top)F(\X)]}{\E[\det(\X\X^\top)]}
+%     \quad K\sim\Poisson(\gamma_n) & \text{for }n<d, \\[2mm]
+%     \frac{\E[\det(\X)^2F(\X)]}{\E[\det(\X)^2]}\hspace{3mm}
+%     \quad K=d                     & \text{for }n=d, \\[2mm]
+%     \frac{\E[\det(\X^\top\X)F(\X)]}{\E[\det(\X^\top\X)]}
+%     \quad K\sim\Poisson(\gamma_n) & \text{for }n>d.
+%   \end{cases}\label{eq:cases}
+% \end{align}
+% These formulas follow from Definitions \ref{d:det} and
+% \ref{d:surrogate} because the determinants $\det(\X\X^\top)$ and
+% $\det(\X^\top\X)$ are non-zero precisely in the regimes $n\leq d$ and
+% $n\geq d$, respectively, which is why we can drop the restrictions on the
+% range of the Poisson distribution.
+% We compute the normalization constants
+% by introducing the concept of determinant preserving random matrices,
+% discussed in Section \ref{s:dp}.
+% % can be obtained using the following formulas: if $\X\sim\mu^K$ then
+% % \begin{align*}
+% % \text{(Lemma~\ref{l:normalization})}&&
+% % \E\big[\det(\X\X^\top)\big]  &= \ee^{-\gamma_n}\det(\I +
+% % \gamma_n\Sigmab_\mu)&&\text{for } K\sim\Poisson(\gamma_n),\ n<d,\\
+% %   \text{(Lemma~\ref{l:cb})}&& \E\big[\det(\X)^2\big] &=
+% %   d!\det(\Sigmab_\mu),&&\text{for } K=n=d,\\
+% %   \text{(Lemma~\ref{l:poisson})}&& \E\big[\det(\X^\top\X)\big]
+% % &=\det(\gamma_n\Sigmab_\mu),&&  \text{for }K\sim\Poisson(\gamma_n),\ n>d.
+% % \end{align*}
+% % \begin{remark}
+% % We will use $Z_\mu^n$ as a shorthand for the above normalization constants.
+% % \end{remark}
+% % For the case of $n=d$, the normalization constant can be found in the
+% % literature \cite{expected-generalized-variance,correcting-bias}:
+% % We prove Lemmas \ref{l:poisson} and \ref{l:normalization} in Section
+% % \ref{s:dp} by introducing the
+% % concept of determinant preserving random matrices.
+% % The lemmas play a
+% % crucial role in deriving a number of new expectation formulas for the
+% % under- and over-determined surrogate designs that we use to prove Theorems~\ref{t:mse}
+% % and~\ref{t:unbiased} in Section~\ref{s:expectations}.
+% % On the other hand, Lemma  \ref{l:cb} and the design $S_\mu^d$ can be found in the
+% % literature \citep{expected-generalized-variance,correcting-bias-journal},
+% % and we will rely on those known results in this case.
+% % Importantly, the $n=d$ case offers a continuous transition between the under-
+% % and over-determined regimes because the distribution $S_\mu^n$
+% % converges to $S_\mu^d$ when $n$ approaches $d$ from above and
+% % below.
+
+% \paragraph{Proof sketch of Theorem \ref{t:mse}}
+% % We now highlight some key expectation formulas for surrogate designs, which are used to
+% % derive the MSE expressions from Theorem \ref{t:mse}. 
+% We focus here on the under-determined regime (i.e., $n<d$),
+% highlighting the key new expectation formulas we develop to derive the
+% MSE expressions for surrogate designs. A standard decomposition of the MSE yields:
+% \begin{align}
+%   \MSE{\Xb^\dagger\ybb}
+%    & = \E\big[\|\Xb^\dagger(\Xb\w^*+\xib)-\w^*\|^2\big]
+%   =\sigma^2\E\big[\tr\big((\Xb^\top\Xb)^{\dagger}\big)\big] +
+%   \w^{*\top}\E\big[\I-\Xb^\dagger\Xb\big]\w^*.\label{eq:mse-derivation}
+% \end{align}
+% Thus, our task is to find closed form expressions for the two
+% expectations above. The latter, which is the expected projection onto
+% the complement of the row-span of $\Xb$, is proven in
+% Appendix \ref{s:unbiased-proof}.
+% \begin{lemma}\label{l:proj}
+%   If  $\Xb\sim S_\mu^n$ and $n<d$, then we have:
+%   $\E\big[\I-\Xb^\dagger\Xb\big] = (\gamma_n\Sigmab_\mu+\I)^{-1}$.
+% \end{lemma}
+
+% \noindent
+% No such expectation formula is known for i.i.d.~designs, except when
+% $\mu$ is an isotropic Gaussian. In Appendix \ref{s:unbiased-proof}, we
+% also prove a generalization of Lemma \ref{l:proj} which is then used
+% to establish our implicit regularization result
+% (Theorem~\ref{t:unbiased}). We next give an expectation formula
+% for the trace of the Moore-Penrose inverse of the covariance
+% matrix for a surrogate design (proof in Appendix \ref{a:mse-proof}).
+% \begin{lemma}\label{l:sqinv-all}
+%   If  $\Xb\sim S_\mu^n$ and $n<d$, then:
+%   $\E\big[\tr\big((\Xb^\top\Xb)^{\dagger}\big)\big]
+%     =\gamma_n\big(1-
+%     \det\!\big((\tfrac1{\gamma_n}\I+\Sigmab_\mu)^{-1}\Sigmab_\mu\big)\big)$.
+% \end{lemma}
+
+% \noindent
+% % The case of $n=d$ in the above lemma was shown by
+% % \cite{correcting-bias-journal} in Theorem~2.12, whereas the case of $n>d$
+% % is closely related to their Theorem 2.9.
+% Note the implicit regularization term which appears in both formulas,
+% given by $\lambda_n=\frac1{\gamma_n}$. Since $n =
+%   \tr(\Sigmab_\mu(\Sigmab_\mu+\lambda_n\I)^{-1})=d-\lambda_n\tr((\Sigmab_\mu+\lambda_n\I)^{-1})$,
+% it follows that $\lambda_n=(d-n)/\tr((\Sigmab_\mu+\lambda_n\I)^{-1})$.
+% Combining this with Lemmas \ref{l:proj} and \ref{l:sqinv-all}, we
+% recover the surrogate MSE expression in Theorem~\ref{t:mse}.
+
+% \section{Determinant preserving random matrices}
+% \label{s:dp}
+
+% In this section, we introduce the key tool for computing expectation formulas of matrix determinants.
+% It is used in our analysis of the surrogate design, and it should be of independent interest.
+
+% The key question motivating the following definition is: \textit{When does taking expectation commute with computing a determinant for a square random matrix?}
+% \begin{definition}\label{d:main}
+%   A random $d\times d$ matrix $\A$ is called determinant
+%   preserving (d.p.), if
+%   \begin{align*}
+%     \E\big[\!\det(\A_{\Ic,\Jc})\big] =
+%     \det\!\big(\E[\A_{\Ic,\Jc}]\big)\quad \text{for all }\Ic,\Jc\subseteq
+%     [d]\text{ s.t. }|\Ic|=|\Jc|.
+%   \end{align*}
+% \end{definition}
+
+% \noindent
+% We next give a few simple examples to provide some intuition. First, note
+% that every $1\times 1$ random matrix is determinant preserving simply
+% because taking a determinant is an identity transfomation in one
+% dimension. Similarly, every fixed matrix is determinant preserving because
+% in this case taking the expectation is an identity
+% transformation. In all other cases, however, Definition \ref{d:main}
+% has to be verified more carefully. Further examples (positive and
+% negative) follow.
+% \begin{example}
+%   If $\A$ has i.i.d. Gaussian entries $a_{ij}\sim\Nc(0,1)$, then
+%   $\A$ is d.p.~because $\E[\det(\A)]=0$.
+% \end{example}
+
+% \noindent
+% In fact, it can be shown that all random matrices with independent entries
+% are determinant preserving. However, this is not a necessary condition.
+% \begin{example}\label{e:rank-1}
+%   Let $\A = s\,\Z$, where $\Z$ is fixed with $\rank(\Z) = r$, and $s$
+%   is a scalar random variable. Then for $|\Ic|=|\Jc|=r$ we have
+%   \begin{align*}
+%     \E\big[\det(s\,\Z_{\Ic,\Jc})\big] & = \E[s^r]\det(\Z_{\Ic,\Jc})
+%     =\det\Big(\big(\E[s^r]\big)^{\frac1r}\,\Z_{\Ic,\Jc}\Big),
+%   \end{align*}
+%   so if $r=1$ then $\A$ is determinant preserving, whereas if $r>1$
+%   and $\Var[s]>0$ then it is not.
+% \end{example}
+
+% \noindent
+% To construct more complex examples, we show that determinant preserving random matrices are
+% closed under addition and multiplication. The proof of this result is
+% an extension of an existing argument, given by
+% \cite{determinantal-averaging} in the proof of Lemma~7, for computing
+% the expected determinant of the sum of rank-1 random matrices (proof in Appendix \ref{a:dp}).
+% \begin{lemma}[Closure properties]\label{t:ring}
+%   If $\A$ and $\B$ are independent and determinant preserving, then:
+%   \vspace{-1mm}
+%   \begin{enumerate}
+%     \item $\A+\B$ is determinant preserving,
+%           \vspace{-2mm}
+%     \item $\A\B$ is determinant preserving.
+%   \end{enumerate}
+% \end{lemma}
+% % \begin{lemma}\label{t:ring}
+% %   If $\A,\B$ are independent and d.p.~then
+% %   $\A+\B$ and $\A\B$ are also determinant preserving.
+% % \end{lemma}
+
+% \noindent
+% Next, we introduce another important class of d.p.~matrices:
+% a sum of i.i.d.~rank-1 random matrices with the number of
+% i.i.d.~samples being a Poisson random variable. Our use of the Poisson
+% distribution is crucial for the below result to hold. It is an
+% extension of an expectation formula given by \cite{dpp-intermediate}
+% for sampling from discrete distributions (proof in Appendix \ref{a:dp}).
+% \begin{lemma}\label{l:poisson}
+%   If $K$ is a Poisson random variable and $\A,\B$ are random $K\times d$
+%   matrices whose rows  are sampled as an i.i.d.~sequence of joint pairs of
+%   random vectors, then $\A^\top\B$ is d.p., and so:
+%   \begin{align*}
+%     \E\big[\det(\A^\top\B)\big] & = \det\!\big(\E[\A^\top\B]\big).
+%   \end{align*}
+% \end{lemma}
+
+% \noindent
+% Finally, we show the expectation formula needed for obtaining the
+% normalization constant of the under-determined surrogate design, given
+% in \eqref{eq:cases}.
+% The below result is more general than the normalization constant
+% requires, because it allows the matrices $\A$ and $\B$ to be different
+% (the constant is obtained by setting $\A=\B=\X\sim\mu^K$).
+% In fact, we use this more general statement to show Theorems
+% \ref{t:mse} and~\ref{t:unbiased}. The proof uses
+% Lemmas \ref{t:ring} and \ref{l:poisson} (see Appendix \ref{a:dp}).
+% \begin{lemma}\label{l:normalization}
+%   If $K$ is a Poisson random variable and $\A$, $\B$ are random $K\times d$
+%   matrices whose rows  are sampled as an i.i.d.~sequence of joint pairs of
+%   random vectors, then
+%   \begin{align*}
+%     \E\big[\det(\A\B^\top)\big] & = \ee^{-\E[K]}\det\!\big(\I + \E[\B^\top\A]\big).
+%   \end{align*}
+% \end{lemma}
+
+% \input{continuous-empirical.tex}
+
+
+% \section{Conclusions}
+% \label{s:conclusions}
+
+% We derived exact non-asymptotic expressions for the MSE of the
+% Moore-Penrose estimator in the linear regression task, reproducing
+% the double descent phenomenon as the sample size crosses between the
+% under- and over-determined regime. To achieve this, we modified the
+% standard i.i.d.~random design distribution using a determinantal
+% point process to obtain a surrogate design which admits exact MSE expressions,
+% while capturing the key properties of the i.i.d.~design. We
+% also provided a result that relates the expected value of the
+% Moore-Penrose estimator of a training sample in the under-determined regime (i.e., the
+% minimum norm solution) to the ridge-regularized least squares solution
+% for the population distribution, thereby providing an interpretation for the
+% implicit regularization resulting from over-parameterization.
+
+% Our work opens up a number of new directions for future research.
+% This includes extending our surrogate analysis to the
+% misspecified linear regression discussed above.
+% Also, it remains open whether the analysis we provided for the mean
+% squared error can be reproduced in the context of mean squared
+% \emph{prediction} error, which is relevant in many machine learning
+% tasks. Finally, while Theorem \ref{t:asymptotic} states that our surrogate
+% expressions for the MSE under certain Gaussian designs are
+% asymptotically consistent with the multiplicative error rate of
+% $O(1/d)$, we believe that this fact extends to
+% the setting not covered by the theorem: under-determined regime (i.e.,
+% $n<d$) with a non-isotropic Gaussian distribution (i.e., $\Sigmab\neq
+% \I$). We break down our analysis into verifying two
+% conjectures which are of independent interest to multivariate
+% Gaussian analysis.
+\ifisarxiv\else
+  \section*{Broader Impact}
+
+  While the double descent phenomenon has been empirically observed in a variety
+  of applications, mathematical descriptions of it are oftentimes complex and
+  inaccesible to non-experts. In contrast, our surrogate design and the
+  accompanying closed-form expressions provide an easily computable rule of thumb
+  for estimating the generalization error. One important application is
+  the high-dimensional (i.e. underdetermined, $n < d$) regime
+  experienced by modern machine learning systems where the number of
+  parameters vastly exceeds the quantity of
+  available data. Our research can be applied here to provide a theoretical
+  understanding of the surprising phenomenon where without proper
+  regularization \citep{nakkiran2020optimal} more data (i.e. increasing $n$)
+  may lead to worse generalization performance.
+
+  Better theoretical understanding of generalization error in the small data
+  regime has important societal impact. Through theoretically modeling a system's
+  performance, we can build safer systems by better understanding how badly an
+  estimator fails and accounting for these failure modes in the system's design.
+  Furthermore, the improved understanding of minimum norm solutions performing
+  worse with more data offers an appealing trade-off where certain systems can
+  both improve their performance and respect the privacy of its users by
+  collecting less data.
+\fi
+
+% \paragraph{Acknowledgements.}
+% We would like to acknowledge ARO, DARPA, NSF, ONR, and GFSD for providing
+% partial support of this work. We also thank Zhenyu Liao for pointing
+% out fruitful connections between our results and the asymptotic
+% analysis of random matrix resolvents.
+
+\ifisarxiv
+  \bibliographystyle{plainnat}
+\else
+  \bibliographystyle{alpha}
+\fi
+
+\bibliography{../pap}
+
+% \ifisarxiv\else\newpage\fi
+
+% \appendix
+
+% \input{appendix}
+
+\end{document}

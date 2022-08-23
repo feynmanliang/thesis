@@ -1,0 +1,133 @@
+\documentclass[8pt]{beamer}
+% \beamertemplateshadingbackground{brown!70}{yellow!10}
+\mode<presentation>
+{
+  %\usetheme{Warsaw}
+  \usecolortheme{crane}
+  % or ...
+
+  \setbeamercovered{transparent}
+%    \setbeamercovered{invisible}
+  % or whatever (possibly just delete it)
+}
+\setbeamertemplate{navigation symbols}{}
+% \setbeamertemplate{footline}[frame number]{}
+\usepackage{tikz,pgfplots}
+\pgfplotsset{compat=newest}
+\usepackage[utf8]{inputenc}
+\usetikzlibrary{patterns}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{colortbl}
+%\usepackage{multicol}
+\usepackage{cancel}
+\usepackage{ulem}
+\usepackage{multirow}
+\usepackage{relsize}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{forloop}% http://ctan.org/pkg/forloop
+\newcounter{loopcntr}
+\newcommand{\rpt}[2][1]{%
+  \forloop{loopcntr}{0}{\value{loopcntr}<#1}{#2}%
+}
+%\pagestyle{plain}
+%\input{defs2}
+\input{../shortdefs}
+
+\edef\polishl{\l}
+\setlength{\columnsep}{0.7em}
+\setlength{\columnseprule}{0mm}
+\setlength{\arrayrulewidth}{1pt} 
+
+\newcommand{\svr}[1]{{\textcolor{darkSilver}{#1}}}
+\definecolor{brightyellow}{cmyk}{0,0,0.7,0.0}
+\definecolor{lightyellow}{cmyk}{0,0,0.3,0.0}
+\definecolor{lighteryellow}{cmyk}{0,0,0.1,0.0}
+\definecolor{lightestyellow}{cmyk}{0,0,0.05,0.0}
+
+%  \fboxsep=3pt
+% %\fboxsep=0mm%padding thickness
+% \fboxrule=2pt%border thickness
+
+
+\setkeys{Gin}{width=0.7\textwidth}
+
+% \title[]{Unbiased estimates for linear regression\\
+% via volume sampling}
+% \date{NIPS'17, 12-5-2017}
+% \author[]{Micha{\polishl } Derezi\'{n}ski and Manfred Warmuth}
+
+\begin{document}
+
+\begin{frame}
+  \frametitle{
+    \centering\textrm{Improved guarantees and a multiple-descent curve}\\
+\centering\textrm{for Column Subset Selection and the Nystr\"om method}\\[1mm]
+\normalsize{\it Micha{\polishl } Derezi\'{n}ski, \ Rajiv Khanna,
+  \ Michael Mahoney\qquad UC Berkeley}\\[-5mm]
+}
+\begin{columns}
+  \begin{column}{0.53\textwidth}
+    \begin{center}
+      {\only<2>{\bf}\large\underline{Column Subset Selection}}
+      
+\begin{tikzpicture}[scale=0.4]
+    \draw (0,0) rectangle (5,4);
+    \draw[fill=blue!20] (1,0) rectangle (2.5,4);
+    \draw (-1,2) node {\mbox{$\A\ =$}};
+    \draw (6.5,2) node {\mbox{$\in\R^{m\times n}$}};
+    \draw [decorate,decoration={brace}] (1,4.1) -- (2.5,4.1);
+    \draw (1.75,4.6) node {\mbox{\fontsize{7}{7}\selectfont $S$}}; 
+  \end{tikzpicture}
+\end{center}
+Feature selection, coreset construction, ...
+\vspace{3mm}
+
+    \begin{center}
+      {\only<3>{\bf}\large\underline{Nystr\"om method}}
+      \vspace{1mm}
+      
+\begin{tikzpicture}[scale=0.4]
+    \draw (0,0) rectangle (5,5);
+    \draw[fill=blue!20] (1,2.5) rectangle (2.5,4);
+    \draw (-1,2) node {\mbox{$\K\ =$}};
+    \draw (6.5,2) node {\mbox{$\in\R^{n\times n}$}};
+    \draw [decorate,decoration={brace}] (1,5.1) -- (2.5,5.1);
+    \draw (1.75,5.6) node {\mbox{\fontsize{7}{7}\selectfont $S$}};
+    \draw [decorate,decoration={brace}] (-.1,2.5) -- (-.1,4);
+    \draw (-.55,3.25) node {\mbox{\fontsize{7}{7}\selectfont $S$}}; 
+  \end{tikzpicture}  
+\end{center}
+Kernel machines, GP regression, ...
+
+  \end{column}
+\begin{column}{0.53\textwidth}
+    \begin{center}
+    {\only<4>{\bf}\large\underline{Multiple-Descent curve}}
+  \end{center}
+  \includegraphics[width=\textwidth]{../figs/nystrom/nystrom-bounds}
+  \vspace{0mm}
+  
+Approximation factor:\quad$\frac{\Er(\text{subset $S$ of
+    size $k$})}{\Er(\text{best rank $k$ approx.})}$\\[1mm]
+Method: \textit{Determinantal Point Process (DPP)}
+\vspace{-2mm}
+    \begin{align*}
+      \text{sharp spectral drop}\ &\Longrightarrow\ \text{large spike}\\[-1mm]
+      \text{smooth spectral decay}\ &\Longrightarrow\ \text{no spikes}
+    \end{align*}
+    \vspace{-2mm}
+    
+    {\footnotesize
+      Deshpande, Rademacher, Vempala, Wang (SODA 2006).\\
+        Belkin, Hsu, Ma, Mandal (PNAS 2019).\\[-1mm]
+      Poggio, Kur, Banburski (arXiv 2019).
+    }
+  \end{column}
+\end{columns}
+\pause\pause\pause
+\end{frame}
+
+
+\end{document}

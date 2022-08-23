@@ -1,0 +1,53 @@
+We would like to first stress that the main contributions of this paper are theoretical. For a long time, the area of experimental design has been dominated by heuristic approaches (such as greedy bottom-up and Fedorov’s exchange method), and obtaining algorithms which guarantee a (1+epsilon)-approximate solution is considered a challenging task. For this task, our results improve on previous works such as (Allen-Zhu et al, ICML 2017), (Nikolov et al, SODA 2019), and (Madan et al, COLT 2019) along the following dimensions:
+
+* Faster runtimes: our sampling algorithm leverages an efficient algorithm for determinantal point process sampling which achieves a state-of-the-art time complexity of O(nd^2);
+
+* Broader applicability: in addition to the commonly studied A-optimality criterion, our analysis also generalizes to provide approximation guarantees for C/D/V-optimality criteria;
+
+* More general analysis: through developing the theory of regularized DPPs, our theoretical framework allows us to analyze more optimality criteria as well as extend to the Bayesian setting with arbitrary prior covariance matrix A. As a result, we are able to provide guarantees for smaller values of “k” depending on the effective dimension d_A which can potentially be much smaller than the dimension d used in previous work.
+
+Comments of Reviewer 1:
+
+- “the analysis and contribution are similar to the previous work”
+Actually, our work is technically very different than prior work.
+Most notably, all of the prior  work (listed above) that guarantee (1+epsilon)-approximate experimental designs rely on an SDP relaxation to find a good weight vector, and the task of converting these weights to a good subset is well-established as a challenging theoretical problem. The regularized DPP we propose is *different* than proportional volume sampling of Nikolov et al (2019).  Importantly, it has a closed form normalization constant, and this is essential for our improved analysis. Also, the following technical contributions use analysis that is completely unlike the prior work:
+1. a fast sampling algorithm in Theorem 1 leveraging a number of new DPP results in Lemmas 1, 2 and 3,
+2. upper bounds for the expectation of the matrix inverse and its determinant in Lemma 5.
+These new techniques enable us to provide more general results in the Bayesian setting and for A/C/D/V criteria.
+
+- “experiments do not show outperforming results other existing methods”
+We emphasize that our primary contributions are theoretical, and that out of the methods we studied only greedy performed comparably to our algorithm (Figure 2 and Appendix Figure 4). While the empirical performance of greedy is comparable, the greedy method lacks the strong theoretical guarantees enjoyed by our method; and our method is much better than prior methods that come with non-trivial theoretical guarantees.
+
+- "Is it possible to replace the volume sampling of (Nikolov et al., 2019) with the DPP sampling algorithm"
+Certainly, since our sampling method applies to classical experimental design (i.e., A=0), it can be used in place of proportional volume sampling of Nikolov et al. (2019), and it will achieve the same guarantees. As a result of our improved analysis, this will come with a *much* better time complexity than they achieved.
+
+- "Is the method of (Nikolov et al., 2019) possible to guarantee the same results for C- and V-optimality?"
+It is not immediately obvious to us whether it is possible or not. Unlike in our work, Nikolov et al. (2019) only show bounds for the *trace* of (\Sigma+A)^{-1}, rather than for the matrix itself.
+
+- "What is the runtime complexity of greedy bottom-up? Is it possible to compare their runtimes quantitatively?"
+We compare the runtimes of each method in Appendix C, Figure 5.
+
+- "Do authors have any chance to compare the results to algorithms with an SDP solver?"
+The only method from Table 1 that applies to the Bayesian setting is that of Allen-Zhu et al. (2017), so we can include a comparison to this method in the camera ready version.
+
+- "Are there any other options for A in practice?"
+The choice of matrix A depends on the prior knowledge of the experimenter. For example, if a similar experimental setup was previously done, then the experimenter can use this information to construct the matrix A.
+
+
+Comments of Reviewer 2:
+Thanks for the Strong Accept.  Here are responses to two minor points.
+
+- "are marginal gains computed by explicitly computing a matrix inverse"
+We used an efficient implementation of the greedy method which utilizes the Sherman-Morrison formula to perform rank one incremental updates to the matrix inverse.
+
+- "If A is not invertible, then we might require X_S to have full column rank, right?"
+That's right, the classical experimental design requires that X has full column rank and so will any solution X_S.
+
+Comments of Reviewer 3:
+Thanks for the Accept.  Here are responses to two minor points.
+
+- "Can you comment more on the runtime cost including the SDP?"
+Any of the SDP-based algorithms can use any one of a number of SDP solvers (both exact and approximate ones) with varying time complexities (see discussion in the paragraph below Remark 1). In Appendix C, Figure 5, we provide a runtime comparison for the solver we used in the experiments.
+
+- “Can you comment more on how similar your approach is to Nikolov et al., 2019 when A = 0 and what causes the difference in runtime?”
+In the A=0 case, the (un)regularized DPP is still different than proportional volume sampling of Nikolov et al. (2019) in that our distribution uses a *randomized* subset size, whereas Nikolov et al. use a subset size fixed to k. As a result, unlike proportional volume sampling, our distribution has a closed-form normalization constant, which is crucial both for obtaining fast algorithms and extending the guarantees to the Bayesian setting.

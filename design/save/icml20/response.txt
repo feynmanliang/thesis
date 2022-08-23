@@ -1,0 +1,48 @@
+We thank all the reviewers for their comments and feedback.
+
+## To Reviewer #2
+
+Thanks for the (updated) positive overall evaluation.
+
+Motivation.
+The CSSP is a well-established task in the literature, where the goal is *not* to replace SVD by a faster procedure, but rather to find a subset of columns that provides a good approximation of the matrix (e.g. for interpretability). SVD does not yield such a subset of columns. Many celebrated CSSP algorithms have been slower than the SVD, e.g., Boutsidis et al. (2011), Guruswami and Sinop (2012).
+
+Runtime.
+Our subset selection procedure is a standard k-DPP, which can be significantly faster than the cost of SVD. There are several almost-linear time k-DPP sampling algorithms, including by Deshpande and Rademacher (2010), Anari et al. (2016) and Derezinski et al. (2019).
+ > "Alpha is defined through opt_k, which seems to require solving SVD "
+Parameter alpha is only used in the analysis. It is *not* required for the algorithm.
+ > "Even with carefully tuned concentration, aren’t a total number of $sqrt{k}$ trials needed before a size $k$ subset is returned?"
+There are algorithms that sample directly from a k-DPP, e.g., Anari et al (2016), without repeated trials.
+
+Metrics.
+We agree that some approximation metrics for the CSSP and Nystrom may not exhibit multiple-descent peaks. Nevertheless, the approximation ratio we use is the most commonly used metric in the CSSP literature, and therefore precise understanding of its behavior is of great relevance to the community. We also believe that the multiple-descent curve is not unique to this metric.
+
+Matern kernel.
+The polynomial eigenvalue decay rate for the Matern kernel is discussed in Section 4.2 of Rasmussen and Williams (2006), see equation (4.15). These kernels are commonly studied, see, e.g., Burt et al (2019) and Mutny et al (2019).
+
+
+## To Reviewer #4
+
+Thanks for the thorough review, and the positive feedback on our technical contributions.
+
+Connections to double descent.
+We agree that the multiple descent curve in the CSSP exhibits important differences from the double descent phenomenon in the generalization error of over-parameterized ML models. We will clarify this in the final version to avoid any confusion.
+We too are suspicious of papers that try to make a tenuous connection with a recently-popular topic, but in this case the connections are quite strong, and so we believe that our paper would be incomplete without mentioning double descent. We will make sure to clarify these connections (summarized below) in the final version.
+ 1. The peaks exhibited by the approximation ratio of the CSSP occur when the subset size k crosses a sharp drop in the spectrum of the data. Analogously, the double descent peak in linear regression occurs when the number of model features crosses the point where the spectrum of the design matrix drops to zero (i.e., the rank of that matrix; see Section 2 of Belkin et al, 2019b).
+ 2. Bartlett et al (2019) show that double descent can occur not only at the point where the spectrum drops to zero, but also when it exhibits a significant drop to a small non-zero value. Moreover, the notion of stable rank used in their analysis matches our notion (see line 109 of our submission). In other words, the peaks exhibited in the CSSP closely align with the peaks of the linear regression generalization error.
+ 3. Derezinski et al (2019b) provide an analysis of double descent for linear regression under DPP-based data distribution, and their analysis of the bias of the minimum norm solution leads to expressions that are closely related to our formulas for the CSSP error under DPP sampling (see line 258 of our submission).
+
+ > "I would be interested to see more methods"
+In Appendix F, we provide experimental results for the greedy selection method (instead of a k-DPP), which also exhibits the error peaks predicted by our analysis.
+
+ > "The first regime of Remark 1 seems odd."
+It is true that, in this regime, a non-negligible portion of the spectrum will not be recovered even by the best rank-k approximation. Nevertheless, this regime is still relevant for certain tasks, such as in applications to clustering, where k can be chosen independently of the data spectrum, for the sake of visualization or interpretability.
+
+ > "In intro, ... would be worth citing the many results which give 1+epsilon bicriteria approximation."
+We will address this in the final version.
+
+ > "I think it should be justified a bit more why the focus is on the case of |S| = k."
+Good point. Our results can also be applied to the setting where |S| > k, and we will address this in the final version.
+
+ > "The definition of stable rank is a bit odd"
+Our definition of stable rank (which is the same as in Definition 3 of Bartlett et al, 2019), sr_s(A), reduces to a commonly used definition of stable rank for s = 0. When s > 0, then this can be viewed as the stable rank of the matrix after removing top s singular vectors.

@@ -1,0 +1,818 @@
+\documentclass[12pt]{sty/colt2019/colt2018-arxiv}
+% \else
+% \documentclass[anon,12pt]{sty/colt2019/colt2019} % Anonymized submission
+% \documentclass[12pt]{colt2019} % Include author names
+% \fi
+
+% The following packages will be automatically loaded:
+% amsmath, amssymb, natbib, graphicx, url, algorithm2e
+
+% \title[Short Title]{Full Title of Article}
+\title{Row subset selection and the Nystr\"om method}
+\usepackage{times}
+ 
+
+\usepackage{color}
+\usepackage{cancel}
+\usepackage{wrapfig}
+\usepackage{caption}
+\usepackage{algorithm}
+\usepackage{xfrac}
+\usepackage{algorithmic}
+\input{shortdefs}
+
+\coltauthor{\Name{Micha{\l } Derezi\'{n}ski}
+  \Email{mderezin@berkeley.edu}\\
+  \addr Department of Statistics, UC Berkeley
+} 
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+\subsection{Nystr\"om}
+Let $\L$ be a p.s.d.~$n\times n$ matrix with eigendecomposition
+$\U\D\U^\top$, where the columns of $\U$ are the eigenvectors and
+$\D=\diag(\lambda_1,...,\lambda_n)$ contains the eigenvalues. For any
+unitarily invariant norm $\|\cdot\|$, the optimal rank $k$
+approximation to $\L$ is
+\begin{align*}
+  \L_k =\U\diag(\lambda_1,...,\lambda_k,0,...,0)\U^\top,
+\end{align*}
+in the sense of minimizing $\|\L-\L_k\|$ among all rank $k$
+matrices. To avoid the full eigendecomposition, the Nystr\"om method
+was introduced, which constructs a rank $k$ approximation of $\L$
+by only using the decomposition of a small $k\times k$ submatrix
+$\L_{S,S}$ for some index subset $S$. 
+\begin{definition}
+ We define the Nystr\"om approximation of $\L$ based on a subset $S$
+ as the $n \times n$ matrix $\widehat\L(S)=\L_{\cdot,S}\L_{S,S}^\dagger\L_{S,\cdot}$.
+\end{definition}
+An example application is a variational Gaussian Process approximation
+$\widehat\L(S)$ for which \cite{sparse-variational-gp} showed that the
+Kullback-Leibler divergence measuring the quality of the 
+approximation can be represented (up to a factor of 2) by the nuclear (trace)
+norm of the difference: $\|\L-\widehat\L(S)\|_*$.
+
+\subsection{Connecting projections to Nystr\"om}
+Given an $n\times d$ matrix $\X$ and subset
+$S\subseteq [n]$ of size $k\leq d$, let $\P_S =
+\X_S^\top(\X_S\X_S^\top)^{-1}\X_S$ denote the projection onto
+the span of $\{\x_i:i\in S\}$.
+The goal in row subset selection is often to minimize $L(S) =
+\|\X-\X\P_S\|_F^2$ subject to $|S|=k$ (other norms are also
+considered). We show that this problem is 
+equivalent to minimizing the nuclear norm for the Nystr\"om
+approximation of $\L=\X\X^\top$.
+\begin{lemma}
+For any $\X$ and $S\subseteq [n]$, we have $L(S) = \|\L -
+\widehat\L(S)\|_*$ where $\L=\X\X^\top$.
+\end{lemma}
+\begin{proof}
+\begin{align*}
+L(S)&=\|\X(\I-\P_S)\|_F^2 = \tr((\I - \P_S)\X^\top\X(\I-\P_S))=
+  \tr(\X(\I-\P_S) \X^\top)\\
+  & = \tr(\X\X^\top - \X\X_S^\top(\X_S\X_S^\top)^{-1}\X_S\X^\top) =
+    \tr(\L-\widehat\L(S)) = \|\L-\widehat\L(S)\|_*.
+\end{align*}  
+\end{proof}
+\subsection{Optimal bounds using DPPs}
+%From now on, w.l.o.g., we use the $\X$ notation instead of the $\L$ notation.
+Denoting $\lambda_1,\dots,\lambda_d$ as the decreasing eigenvalues of
+$\L$, we define the optimal rank-$k$ projection loss (not based on a subset) as
+follows:
+\begin{align*}
+  E_k^*\defeq \min_{\text{proj. }\P:\,\rank(\P)=k}\|\X-\X\P\|_F^2 = \|\L-\L_k\|_* =
+  \sum_{i=k+1}^d\lambda_i.
+\end{align*}
+\begin{definition} Define $S\sim \DPP(\L)$
+  over all subsets $S\subseteq [n]$ so
+  that \[\Pr(S)=\frac{\det(\L_{S,S})}{\det(\L+\I)}.\]
+  \end{definition}
+Prior work showed the following result when sampling from a
+cardinality constrained DPP. The below result  was first shown by
+\cite{pca-volume-sampling}, then later adapted to the context of
+Nystr\"om approximations by \cite{belabbas-wolfe09}. 
+\begin{theorem}[\cite{pca-volume-sampling}]\label{t:simple}
+If $S\sim \DPP(\L)$, then
+  \begin{align*}
+    \E\big[L(S)\mid |S|=k\big]\leq (k+1)\cdot E_k^*.
+  \end{align*}
+\end{theorem}
+Moreover, \cite{pca-volume-sampling} showed that  the factor $k+1$
+cannot in general be improved when comparing to $E_k^*$. 
+\begin{theorem}[\cite{pca-volume-sampling}]\label{t:lower}
+For any $\epsilon>0$, there is a $k+1\times k+1$  matrix $\L$ such
+that for every subset $S$ of size $k$ we have
+\begin{align*}
+  L(S)\geq (1-\epsilon)(k+1)\cdot E_k^*.
+\end{align*}
+\end{theorem}
+We show a result closely related to Theorem \ref{t:simple}, where DPP
+is not cardinality constrained but rather rescaled by a parameter
+$\alpha$ which controls the \emph{expected} subset size.
+\begin{theorem}\label{t:main}
+For any $\X\in\R^{n\times d}$ and $\alpha>0$, if $S\sim
+\DPP(\frac1\alpha\L)$, then
+\begin{align*}
+  \E\big[L(S)\big] =
+  \alpha\cdot\E\big[|S|\big],\quad\E\big[|S|\big]=\tr\big(\L(\alpha\I+\L)^{-1}\big). 
+\end{align*}
+For $\alpha=E_k^*$ we have $\E\big[|S|\big]\leq k+1$ and the bound
+becomes: $\E\big[L(S)\big]\leq (k+1)\cdot E_k^*$.
+\end{theorem}
+
+\subsection{Related work for selecting $r>k$ rows}
+
+A result related to Theorem \ref{t:simple} comparing the expected
+error of subsets of size $|S|=r>k$ to $E_k^*$ was given by
+\cite{more-efficient-volume-sampling}. A more comprehensive analysis
+of deterministic methods of row subset selection with $r>k$ for a variety of
+norms was given by \cite{near-optimal-columns}. From the perspective
+of the Nystr\"om method, this problem was also studied by
+\cite{revisiting-nystrom} who used leverage score sampling as one of
+the approaches.
+
+
+
+\subsection{Open problem}
+Denote the loss of the best subset of size $k$ as $L_k^* \defeq
+\min_{S:|S|=k} L(S)$. Naturally we have $E_k^*\leq L_k^*$, so the
+existing results show that:
+\begin{align*}
+  \E\big[L(S)\big] \leq (k+1)\cdot L_k^*
+\end{align*}
+However, the lower bound of Theorem \ref{t:lower} does not apply
+here. So  the following remains open.
+
+\textbf{Question:} When is it possible to efficiently find $S$ of size
+$k$ such that $L(S)\leq (1+\epsilon)\cdot L_k^*$? 
+
+\section{Application of Theorem \ref{t:main}}
+
+\subsection{Identical eigenvalues}
+
+Suppose that all $d$ non-zero eigenvalues  of $\L=\X\X^\top$ are 1. In
+this case we have $E_k^* = d-k$. Now, for some $\epsilon>0$ we choose
+$\alpha>0$ such that
+\begin{align*}
+(1-\epsilon) k = \E\big[|S|\big] = \frac{d}{1+\alpha}.
+\end{align*}
+So, we have $\alpha = \frac d{(1-\epsilon)k}-1$. By Theorem
+\ref{t:main},
+\begin{align*}
+  \E\big[L(S)\big] = \alpha\, \E\big[|S|\big] =
+\Big(\frac d{(1-\epsilon)k}-1\Big)\,(1-\epsilon) k = d - (1-\epsilon)k
+  = E_k^*(1 + \epsilon\tfrac k{d-k}).
+\end{align*}
+Note that for $\epsilon=0$, we have $\E[|S|]=k$ and $\E[L(S)]=E_k^*$,
+however we introduce $\epsilon$ to ensure that $|S|\leq k$ with
+sufficient probability. From the concentration bound for a Poisson binomial r.v.~we get
+\begin{align*}
+  \Pr(|S| > k) \leq \ee^{-\frac{(k-(1-\epsilon)k))^2}{2k}} =
+  \ee^{-\epsilon^2 k/2}
+\end{align*}
+Now, it follows that:
+\begin{align*}
+\E\big[L(S)\mid |S|\leq k\big] \leq \frac{\E[L(S)]}{\Pr(|S|\leq k)}
+  \leq \frac{1+\epsilon\frac k{d-k}}{1-\ee^{-\epsilon^2k/2}}\cdot E_k^*.
+\end{align*}
+In particular, this implies that for any $k$ we can find $S$ of size
+$k$ such that $L(S)-E_k^* = O(1) \cdot E_k^*$. 
+
+\subsection{Hard example}
+Suppose that $d-1$ eigenvalues are 1 and last eigenvalue is $\delta\ll
+1$. Then $E_k^*=\delta+d-k-1$. We proceed similarly (omitting
+$\epsilon$ for simplicity): 
+\begin{align*}
+k = \E\big[|S|\big] = \frac{d-1}{1+\alpha} +
+  \frac{\delta}{\delta+\alpha} = \frac{d-1+\delta}{1+\alpha} +
+  \frac{\delta(1-\delta)}{(\delta+\alpha)(1+\alpha)}.
+\end{align*}
+From this it follows that $\alpha=\frac{E_k^*}{k} +
+\frac{\delta(1-\delta)}{k(\delta+\alpha)}$ and so we obtain that:
+\begin{align*}
+  \E\big[L(S)] = E_k^* +  \frac{\delta(1-\delta)}{\delta+\alpha}
+  \leq E_k^* + 1 = \delta +d - k.
+\end{align*}
+So if $k\leq d/2$ then $\E[L(S)] = O(E_k^*)$. However, let us
+consider $k=d-1$. Then $E_k^*=\delta$ and 
+\begin{align*}
+  \E[L(S)] = E_k^*(1 +  \tfrac{1-\delta}{\delta+\alpha}).
+\end{align*}
+Note that $\delta$ and $\alpha$ are defined in an entangled way. We
+use this to get:
+\begin{align*}
+  \frac{\delta}{\delta+\alpha} = k - \frac{d-1}{1+\alpha} = (d-1)\frac{\alpha}{1+\alpha}
+\end{align*}
+and further transformation shows that:
+\begin{align*}
+\frac1{\delta+\alpha} = \frac1\alpha\Big(1 -
+  (d-1)\frac\alpha{1+\alpha}\Big) = \frac1\alpha -
+  \frac{d-1}{1+\alpha}.
+  \end{align*}
+  Putting the above two equations together we obtain:
+  \begin{align*}
+    \frac{1-\delta}{\delta+\alpha} = \frac1\alpha -
+    \frac{d-1}{1+\alpha} - (d-1)\frac\alpha{1+\alpha} = \frac1\alpha
+   - (d-1).
+  \end{align*}
+By making $\delta$ arbitrarily small we can also force $\alpha$ to be
+arbitrarily small so:
+\begin{align*}
+  \frac{\E[L(S)]}{E_k^*}= 1+  \big(\tfrac1\alpha - (d-1)\big)
+  \underset{\alpha\rightarrow 0}{\longrightarrow} \infty.
+\end{align*}
+This eigenvalue structure matches the construction used to obtain the
+lower bound from Theorem \ref{t:lower}. So as we can see, our bound is
+weaker than that of Theorem \ref{t:simple} in this very minor corner case.
+
+  
+\subsection{Improvement for exponentially decaying eigenvalues}
+Suppose that the eigenvalues of $\L=\X\X^\top$
+exhibit exponential decay: $\lambda_i=\gamma^{i}$, and for
+simplicity assume that $d\rightarrow\infty$ so that the stable rank is 
+$r=\sum_i\frac{\lambda_i}{\lambda_1} = \frac1{1-\gamma}$. Setting $\alpha =
+\gamma^t$, if $S\sim\DPP(\frac1\alpha\L)$ then
+\begin{align*}
+  \E\big[|S|\big] \leq t + \gamma^{-t}\sum_{i>t}\gamma^i =
+  t + \frac\gamma{1-\gamma} = t +\gamma\cdot r,
+\end{align*}
+Letting $k=\E[|S|\big]\geq r$ and noting that
+$E_k^*=\gamma^k\cdot\gamma r$, Theorem \ref{t:main} obtains the following bound: 
+\begin{align*}
+  \E\big[L(S)\big] = k\cdot \gamma^{k-\frac\gamma{1-\gamma}}\leq \ee
+  k\gamma^k = \frac{\ee k}{\gamma r}E_k^*,
+\end{align*}
+better than the bound obtained by \cite{pca-volume-sampling}
+when $r\gg 1$ (i.e., decay is slow). In particular, we
+achieve that if $k = O(r)$ then $\E[L(S)] = O(E_k^*)$.
+
+
+ 
+ Concentration argument seems straight forward. We take $\E(|S|) = (1-\epsilon)k$, so that $t \geq (1-\epsilon)k - \gamma r$. We have, 
+ for the expected loss, 
+ 
+ \begin{align*}
+ \E[L(S)] = \alpha \E[|S|] =  (1- \epsilon) k \gamma^t \leq  (1- \epsilon)k\cdot \gamma^{(1-\epsilon)k-\frac\gamma{1-\gamma}}\leq \ee
+  (1- \epsilon)k\gamma^{(1-\epsilon)k} = \frac{\ee  (1- \epsilon)k}{\gamma^(\epsilon k) r}E_k^* .
+ \end{align*}
+ 
+ Then, 
+ \begin{align*}
+ \E\big[L(S)\mid |S|\leq k\big] \leq \frac{\E[L(S)]}{\Pr(|S|\leq k)}
+ \leq \frac{\ee  (1- \epsilon)k}{\gamma^{k\epsilon}\gamma r(1-\ee^{-\epsilon^2k/2})}\cdot E_k^*.
+ \end{align*}
+
+ 
+\subsection{General result for stable rank} 
+Based on the above examples, we formulate the following result.
+
+\begin{theorem}
+For any $\lambda_1\geq...\geq\lambda_d\geq 0$, $\alpha>0$ and $k\in[d]$, define
+\begin{align*}
+  k_\alpha=\sum_i\frac{\lambda_i}{\lambda_i+\alpha},\quad
+  r =\sum_i\frac{\lambda_i}{\lambda_1},\quad\text{and}\quad E_{k}^* =
+  \sum_{i>k}\lambda_i.
+  \end{align*}
+For any $\epsilon>0$, if $k\leq \frac{\epsilon}{1+\epsilon}\cdot r$, then there is $\alpha$ such that
+    $k_\alpha\leq k$ and  $\alpha k_\alpha\leq (1+\epsilon) E_k^*$.
+ \end{theorem}
+\begin{proof}
+We have
+  \begin{align*}
+E_{k}^*=
+    \frac{\lambda_1}{\lambda_1}\sum_{i>k}\lambda_i =\lambda_1\Big( r -
+ \frac{\sum_{i\leq k}\lambda_i}{\lambda_1}\Big)\geq \lambda_1\Big( r -  \sum_{i\leq k}\frac{\lambda_1}{\lambda_1}\Big) =\lambda_1( r -
+    k).
+  \end{align*}
+  Now we let $\alpha = (1+\epsilon) E_k^*/k$ so that $\alpha k
+  =(1+\epsilon)E_k^*$ and moreover: 
+  \begin{align*}
+    k_\alpha=\sum_i\frac{\lambda_i}{\lambda_i+(1+\epsilon)E_{k}^*/k}
+    \leq \sum_i\frac{\lambda_i}{\lambda_i+(1+\epsilon)\lambda_1(\frac rk-1)}
+    \leq\sum_i\frac{\lambda_i}{(1+\epsilon)\lambda_1\frac{r-k}k}=\frac{r}{r-k}\cdot
+    \frac k{1+\epsilon}.
+  \end{align*}
+  Note that $k$ is chosen so that $\frac
+  r{r-k}\,\frac1{1+\epsilon}\leq 1$.
+\end{proof}
+
+
+
+\subsubsection{Concentration}
+
+
+\begin{lemma} With $r$ as the stable rank and any $\epsilon > 0$, for $ \frac 2{\epsilon^2} \ln \frac1{\epsilon} \leq k \leq  \frac {\epsilon }{(1+\epsilon)}  r $, we can find a set $S$ of size $|S|\leq k$ with $L(S)  \leq (1+3\epsilon)  E^*_k$ with $O(\frac1{\epsilon})$ rounds of rejection sampling on average. 
+\end{lemma}
+
+
+Use $\alpha = \frac{(1+\epsilon)}{1-\delta} \frac{E^*_k}{k}$. This makes sure that, 
+
+\begin{align*}
+\E(|S|) = \sum_i\frac{\lambda_i}{\lambda_i+(1+\epsilon)E_{k}^*/k(1-\delta)}
+\leq \sum_i\frac{\lambda_i}{\lambda_i+\frac{(1+\epsilon)}{1-\delta}\lambda_1(\frac rk-1)}
+\leq\sum_i\frac{\lambda_i}{\frac{(1+\epsilon)}{1-\delta}\lambda_1\frac{r-k}k}=\frac{(1-\delta)r}{r-k}\cdot
+\frac k{1+\epsilon},
+\end{align*}
+	
+which implies $\E(|S|) \leq (1-\delta)k$, since $k$ is chosen to ensure that $\frac{r}{r-k}.\frac{1}{1+\epsilon} \leq 1$. This gives $\E(L(S)) = \alpha \E(|S|) = \frac{(1+\epsilon)}{1-\delta} \frac{E^*_k}{k} \E(|S|) \leq \frac{(1+\epsilon)}{1-\delta} \frac{E^*_k}{k} (1-\delta) k = (1+\epsilon) E^*_k$.
+
+ For concentration , 
+
+\begin{align*}
+	& \E\big[L(S)\mid |S|\leq k\big] \leq \frac{\E[L(S)]}{\Pr(|S|\leq k)} \leq \frac {(1+\epsilon)E^*_k}{(1-\ee^{-\delta^2k/2}) }.  
+\end{align*}
+
+With $\delta \leq \epsilon$, and $k \geq \frac{2}{\epsilon^2} \ln \left(2 + \frac1{\epsilon} \right)$, which ensures $\ee^{-\delta^2 k/2} \leq \frac{\epsilon}{1+2\epsilon}$, we get, $\E\big[L(S)\mid |S|\leq k\big] \leq (1+2\epsilon) E^*_k$.
+
+Note that for $k \geq \frac{2}{\epsilon^2} \ln \left(2 + \frac1{\epsilon} \right)$, we have $|S| \leq k$ with probability $\frac{1+\epsilon}{1+2\epsilon}$. Using shorthand $E_k=\E\big[L(S)\mid |S|\leq k\big]$ in the Markov inequality, we have,
+
+\[ P\big[L(S) \geq \eta E_k \mid |S| \leq k \big] \leq \frac{1}{\eta}. \]
+
+Thus, with probability $\geq  \frac{1+\epsilon}{1+2\epsilon} (1 - \frac1{\eta})$, we have $|S| \leq k$ and  $L(S) \leq \eta E_k$. Choosing $\eta = (1+\frac \epsilon {1+2\epsilon})$ ensures $L(S) \leq (1+3\epsilon)E^*_k$ with probability $\geq  \frac{(1+\epsilon)\epsilon}{(1+2\epsilon)(1+3\epsilon)}$, which means on average $\frac{(1+2\epsilon)(1+3\epsilon)}{(1+\epsilon)\epsilon} = O(1/\epsilon)$ rounds of rejection sampling suffice.
+
+
+
+\subsubsection{Longer tail}
+Consider the case when $\frac{d}{2}$ eigenvalues are 1 and the remaining $\frac{d}{2}$ are all equal to $\delta \ll 1$. In this case, for $k>\frac{d}{2}$ we have, 
+
+\begin{align*}
+\frac{\E(L(S)) } {E^*_k} &= \frac{\alpha k}{(d-k)\delta}.
+\end{align*}   
+
+
+With $\alpha = \delta$, we get $k = \sum \frac{\lambda_i}{\lambda_i + alpha}= \frac{d}{2}(\frac{1}{1+\alpha} + \frac{\delta}{\delta + \alpha}) = \frac{d}{2} (\frac{1}{1+\alpha} + \frac{1}{2}) \approx \frac{3d}{4}$ for $\delta = \alpha \rightarrow 0$.
+
+So, for $k \approx 3d/4$ in the above example, we see $\E(L(S))$ is constant factor approximation of $E^*_k$.
+
+ 
+
+\subsubsection{General tail} 
+Say $m$ eigenvalues are $1$ and $(d-m)$ eigenvalues are $\delta$. We want to consider the case when $k>m$. And, we would like to have a $\beta$-constant factor approximation for $\E(L(S))$ i.e. $\frac{\E(L(S))}{E^*_k} = \beta \implies \frac{\alpha k}{(d-k)\delta} = \beta \implies \frac{\alpha}{\delta} = \frac{\beta(d-k)}{k}$. 
+
+
+
+\begin{align*}
+k &= \frac{m}{1+ \alpha} + \frac{\delta(d-m)}{\alpha + \delta} \\ 
+& = \frac{m}{1+\alpha} + \frac{(d-m)}{1 + \frac{\alpha}{\delta}} \\
+& = \frac{m}{1+\alpha} + \frac{(d-m)}{1 + \beta (\frac{d}{k} - 1)}.
+% & = m \left( \frac{1}{1+ \alpha} - \frac{1}{\delta + \alpha} \right) + \frac{d}{\alpha + \delta}, \\ 
+\end{align*}
+
+Assuming $\frac{m}{d} = c$ (constant), and $\alpha, \delta \rightarrow 0$,we get 
+
+\begin{align*}
+\frac{k}{d} &= c + \frac{1-c}{1 + \beta (\frac{d}{k} - 1)}.
+\end{align*}
+
+The above expression is quadratic in $\frac{k}{d}$. Let $x = \frac{d}{k}$. We can write, 
+
+\begin{align*}
+\frac{1}{x} &= c+ \frac{1-c}{1 + \beta x - \beta}\\
+ & = \frac{c + \beta c x - \beta c + 1 -c }{1 + \beta x - \beta}\\      
+ \implies & \beta c x^2 + x (1-\beta - \beta c) +(\beta -1) = 0.
+\end{align*}
+
+For specific values, say $c=1/2$ and $\beta=2$, we get the quadratic $x^2 - 2x +1 = 0 \implies x =1$. 
+
+\subsection{Lower bound}
+
+ \begin{lemma}
+	For any $\epsilon>0$, $\exists$ a matrix $\mathbf{X}$ with stable rank $r$ such that using DPP sampling with $E(|S|) = k$ with $k \leq \frac{\epsilon}{1+\epsilon} r$, we can lower bound $E(L(S)) \geq \left(\frac1{2} + \sqrt{\epsilon}\right)E^*_k $.
+\end{lemma}
+\begin{proof}
+	
+Using the same setup as above, with $m=k$, and say we want $r=(1+\rho) k$.  To calculate $r$, 
+
+ 
+ \begin{align*}
+r = \sum_i \frac {\lambda_i}{ \lambda_1} = m + \delta (d-m) = k + \delta(d-k).
+ \end{align*}
+ 
+ 
+
+Since  $r=(1+\rho) k$, we get $\delta(d-k) = \rho k$. 
+
+Furthermore, since we want $\frac{\E(L(S))}{E^*_k} = \beta$, 
+
+\begin{align*}
+&\frac{\alpha k }{\delta(d-k) } = \beta \\ & \implies \alpha k = \beta \rho k \implies \alpha = \beta \rho.
+\end{align*}
+
+For $k$, 
+
+\begin{align*}
+& k = \sum_i \frac{\lambda_i}{\lambda_i + \alpha} 
+ = \frac{k}{1+\alpha} + \frac{\delta(d-k)}{\delta+\alpha} \\
+& \implies k =  \frac{k}{1+\alpha} + \frac{\rho k}{\delta+\alpha}\\
+&\implies 1 =  \frac{1}{1+\alpha} + \frac{\rho}{\delta+\alpha} \\
+&\implies \delta = \rho + \frac{\rho}{\alpha} - \alpha = \rho + \frac1 {\beta} - \beta \rho.
+\end{align*}
+
+For the bound, we need $0 < \delta < 1$. While $\delta < 1$ is trivially satisfied, for $\delta > 0$, we need $\rho < \frac{1}{\beta (\beta - 1)}$.
+
+With $\rho = \frac1 {\epsilon}$, we have $k = \frac{\epsilon}{1+ \epsilon}r$. And with $\beta =1+\frac{\epsilon}{1+ \epsilon} $, the condition $\rho < \frac{1}{\beta (\beta - 1)}$ is satisfied. Hence, we get for any $\epsilon>0$, with $k = \frac{\epsilon}{1+ \epsilon}r $, we are ensured that $\frac{E(L(S))}{E^*_k} \geq \left( 1 + \frac{\epsilon}{1+\epsilon} \right)$.                                                                                                                                                                                             
+
+We can also write the condition as $\beta (\beta -1) -\epsilon < 0$, which implies
+ \[\beta \in \left(\frac{( 1- \sqrt(1+ 4 \epsilon)}{2}, \frac{( 1+ \sqrt(1+ 4 \epsilon)}{2} \right)\]. $\beta = (1/2 + \sqrt{\epsilon})$ satisfies this condition.
+ 
+
+\end{proof}
+
+\section{Lower bound for subsets larger than stable rank}
+We first extend the lower bound result of
+\cite{pca-volume-sampling}. Their construction uses a set of vectors that
+form a regular simplex centered at $\zero$ and than slightly
+shifts it. We show that in fact the regularity of the simplex is not
+necessary for their proof to work.
+\begin{lemma}\label{l:simplex}
+Fix $\epsilon\in(0,1)$.  Consider any $k+1$ vectors $\x_i$ spanning a
+$k$-dimensional subspace with their centroid at $\zero$ and let $\v$
+be a unit vector orthogonal to that subspace. For any sufficiently small
+$\alpha>0$, if we construct
+matrix $\X$ with $k+1$ rows so that the $i$th row vector is $\x_i^\top+\alpha\v^\top$, 
+then for any subset $S\subseteq[k+1]$ of size $k$,
+\begin{align*}
+  L(S)\geq (1-\epsilon)(k+1) E_k^*.
+  \end{align*}
+\end{lemma}
+\begin{proof}
+Let $\P^*$ be the projection onto the span of
+$\{\x_1,\dots,\x_{k+1}\}$. Then we have
+\begin{align*}
+  E_k^* \leq \|\X - \X\P^*\|_F^2 = (k+1)\cdot\alpha^2.
+\end{align*}
+We will use the shorthand $\xbt_i=\x_i+\alpha\v$. Consider any subset
+of $k$ rows from $\X$. W.l.o.g. suppose 
+$S=\{1,\dots,k\}$. Since the centroid of all the rows is $\alpha\v$,
+we can rewrite the last vector as 
+\begin{align*}
+\xbt_{k+1} = (k+1)\alpha\v - \sum_{i\in S}\xbt_i.
+\end{align*}
+Since for any $i\in S$ we have $\P_S\xbt_i=\xbt_i$, it follows that:
+\begin{align*}
+  L(S) &= \|\xbt_{k+1} - \P_S\xbt_{k+1}\|^2 \\
+  &=\bigg\| (k+1)\alpha\v - \sum_{i\in S}\xbt_i - \Big(\P_S (k+1)\alpha\v -
+    \sum_{i\in S}\xbt_i\Big)\bigg\|^2\\
+       &=(k+1)^2\alpha^2\|\v-\P_S\v\|^2.
+\end{align*}
+Note that $\lim_{\alpha\rightarrow 0}\P_S\v = \zero$ because $\v$
+is orthogonal to the subspace spanned by $\{\x_i:i\in S\}$, so there is
+$\alpha_S>0$ such that for any $\alpha\leq\alpha_S$ we have $\|\v-\P_S\v\|^2\geq 1-\epsilon$. This shows that
+$L(S)\geq (1-\epsilon)(k+1)E_k^*$ for $\alpha=\alpha_S$. Taking
+$\alpha = \min_{S:|S|=k}\alpha_S$ completes the proof.
+\end{proof}
+We next obtain our main hardness result which states that the lower bound
+factor $k+1$ of \cite{pca-volume-sampling} cannot be improved by constraining to matrices of a
+particular stable rank $r$ as long as $k>r$. This stands in contrast
+to our upper bound which showed that when $k<r$, then the factor $k+1$
+can be significantly improved.
+\begin{theorem}
+For any $\epsilon\in(0,1)$ and $n,d,k,r\in\N$ such that  $0<r< k<\min\{n,d\}$, there is a matrix
+$\X\in\R^{n\times d}$ with stable rank in $[r,r+1]$ such that for any subset
+$S$ of size $k$
+\begin{align*}
+  L(S)\geq (1-\epsilon)(k+1) E_k^*.
+  \end{align*}
+\end{theorem}
+\begin{proof}
+  We will construct a set of vectors by gradually modifying and augmenting it while
+  preserving two invariants: (1) that the stable rank is in $[r,r+\frac23]$
+  and (2) the centroid of the vectors is  $\zero$. 
+  
+First, construct matrix $\X_{(r+1)}$  from $r+1$ row vectors
+$\x_1^\top,...,\x_{r+1}^\top$ that form 
+  a regular simplex centered at $\zero$, scaled so that the $r$ non-zero
+  singular values of $\X_{(r+1)}$ are all equal 1. Since all the non-zero
+  singular values of the matrix are equal, the stable rank
+is $r$. Next, we iteratively add vectors one by one (and modify the
+existing ones) until there is $k+1$ in the set. Let $\x_{1},...,\x_{t-1}$ and
+$\xbt_1,...,\xbt_t$ denote the 
+sets of vectors \emph{before} and \emph{after} adding the $t$th vector,
+with corresponding matrices $\X_{(t-1)}$ and $\X_{(t)}$. Also, let
+$\tilde r_{t-1}$ denote the stable rank of $\X_{(t-1)}$.
+Adding the $i$th vector proceeds as follows:
+  \begin{enumerate}
+    \item shift all $t-1$ vectors along a normal direction $\v_t$
+      (orthogonal to their span) by some $\delta_t$,
+    \item let the new vector be $\xbt_{t}=-t\,\delta_t\v_t$.
+    \end{enumerate}
+    After the transformation and adding the $i$th vector, the centroid
+    stays at $\zero$, and moreover:
+    \begin{align*}
+      \X_{(t)}^\top\X_{(t)} &=
+      \sum_{i=1}^{t-1}(\x_i+\delta_t\v_t)(\x_i+\delta_t\v_t)^\top +
+      t^2\delta_t^2\v_t\v_t^\top\\
+      &=\sum_{i=1}^{t-1}\x_i\x_i^\top +
+        \delta_t\v_t\Big(\sum_{i=1}^{t-1}\x_i^\top\Big) +
+        \Big(\sum_{i=1}^{t-1}\x_i\Big)\delta_t\v_t^\top +
+ (t-1)\delta_t^2\v_t\v_t^\top+        t^2\delta_t^2\v_t\v_t^\top\\
+      &=\X_{(t-1)}^\top\X_{(t-1)}+(t^2+t-1)\delta_t^2\v_t\v_t^\top.
+    \end{align*}
+Therefore, since $\v_i$ is orthogonal to the span of $\{\x_{1},...,\x_{t-1}\}$,
+it becomes a new eigenvector of $\X_{(t)}^\top\X_{(t)}$, while the old
+eigenvectors from $\X_{(t-1)}^\top\X_{(t-1)}$ remain the same in the
+new matrix. Thus, as long as $\delta_t$ is sufficiently small (so that
+the new eigenvalue does not become the largest), we have:
+    \begin{align*}
+\tilde r_{t} = \tilde r_{t-1} + \|\X_{(t)}\|_F^2
+      -\|\X_{(t-1)}\|_F^2=\tilde r_{t-1} + \delta_t^2(t^2+t-1).
+    \end{align*}
+    To make sure that stable rank remains less than $r+\frac23$, we
+    assume that $\delta_t\leq\frac1{t2^{t}}$ and bound the stable rank of the final set:
+    \begin{align*}
+ \tilde r_{k+1} = r + \sum_{t=r+2}^{k+1} \delta_t^2 (t^2+t-1) \leq r +
+      \sum_{t=1}^{k+1}\frac2{4^t}\leq r + \frac23.
+    \end{align*}
+  Now, it remains to apply Lemma \ref{l:simplex} to the set
+  of $k+1$ vectors, obtaining matrix $\Xt_{(k+1)}$ that satisfies the
+desired lower bound. When choosing
+  $\alpha$, we have to again ensure that it 
+  is sufficiently small so that stable rank does not change by
+  more than $\frac13$. Naturally, this can be done just as we did it
+  in the construction of the set. We construct the final matrix $\X$
+from $\Xt_{(k+1)}$ by padding with zeros to get the shape right,
+which does not affect the loss $L(\cdot)$ or the stable rank. 
+\end{proof}
+
+\section{Lower bound for subsets smaller than stable rank}
+Let $\x_1,...,\x_{k+1}$ be vectors forming a regular simplex centered
+at $\zero$ which lies inside of the subspace spanned by the first $k$
+coordinates. Denote $a=\|\x_i\|$ as the length of each vector. We
+shift those vectors in the $(k+1)$-st coordinate by $\alpha$, getting
+$\xbt_i=\x_i+\alpha\e_{k+1}$. Then, we add further vectors
+$\x_{k+2},...,\x_n$ for some $n\gg k$ so that $\x_i=\delta\e_{i}$ for
+$i>k+1$. Denote the entire $n\times d$ matrix as $\X$. The optimum
+rank $k$ error is upper bounded as follows: 
+\begin{align*}
+  E_k^* \leq (k+1)\alpha^2 + (n-k-1)\delta^2.
+\end{align*}
+The top $k$ eigenvalues of $\X^\top\X$ associated with the simplex are all
+$\lambda_i=\frac{k+1}{k}\,a^2$. This means that,
+assuming that $\delta^2\leq(k+1)\alpha^2\leq \frac{k+1}{k}\,a^2$ (to
+achieve the correct ordering of the eigenvalues), the
+stable rank of $\X$ is given by:
+\begin{align*}
+  r = \frac1{\lambda_1}\sum_{i=1}^d\lambda_i = k +
+  k\,\frac{\alpha^2}{a^2} + \frac{(n-k-1)\delta^2}{\frac{k+1}k\,a^2}.
+\end{align*}
+Finally, for any subset $S\subseteq[k+1]$, the loss is:
+\begin{align*}
+  L(S) &= (k+1)^2\frac{(\frac ak)^2\alpha^2}{(\frac ak)^2+\alpha^2} +
+  (n-k-1)\delta^2\\
+  &=(k+1)^2\frac{a^2\alpha^2}{a^2+k^2\alpha^2} +
+  (n-k-1)\delta^2.
+\end{align*}
+Suppose that $\alpha^2=a^2/k^2$ and $(n-k-1)\delta^2 = (k+1)(\rho a^2-\alpha^2)$ for some
+$\rho\in[\frac1{k^2},1]$. It follows that $r=(1+\rho)k$ and
+$E_k^*=\rho(k+1)a^2$. Also we get:
+\begin{align*}
+  L(S)&=  (k+1)^2 \frac{a^2}{2k^2} + (k+1)\Big(\rho-\frac1{k^2}\Big) a^2\\
+      &=\rho(k+1)a^2 + a^2\frac{k+1}{k^2}\Big(\frac{k+1}{2} - 1\Big)\\
+  &=E_k^*\cdot\Big(1 + \frac{k-1}{2\rho k^2}\Big).
+\end{align*}
+So if we let $\epsilon = \frac{k-1}{2\rho k^2}$ then we can turn
+this into the following lower bound. 
+\begin{theorem}
+  For any $\epsilon\in(0,k^2)$ and $n,d,k,r\in\N$ such
+  that $k\leq\frac{\epsilon}{1+\epsilon}\,r\leq\min\{n,d\}$, there is
+  an $n\times d$ matrix $\X$ with stable rank  
+  $r$ such that for any subset $S$ of size $k$,
+  \begin{align*}
+    L(S) \geq \bigg(1+\epsilon\cdot \frac{k-1}{2k^2}\bigg)\cdot E_k^*.
+  \end{align*}
+\end{theorem}
+Note that this lower bound is worse than our upper bound by a factor
+of about $\frac1{2k}$. The key question is which bound is loose: the
+upper or the lower bound? Also, not sure how to cleanly
+write the lower bound
+in a way that concludes with $L(S)\geq (1+\epsilon) E_k^*$.
+
+
+\subsection{Const lower bound}
+Choose $\rho \in [\frac1 {k^2}, \frac{(k-1)}{2k^2\epsilon} ]$. This still means $r=(1+\rho)k$ and
+$E_k^*=\rho(k+1)a^2$. Following the steps for $L(S)$, we get,
+\begin{align*}
+L(S) \geq E_k^*\cdot\Big(1 + \frac{k-1}{2\rho k^2}\Big) \geq (1 + \epsilon) E_k^*.
+\end{align*}
+
+Note that we need $\delta^2 \leq (k+1) \alpha^2$ to hold, but  $(n-k-1)\delta^2 = (k+1)(\rho a^2-\alpha^2)$ can still hold simultaneously by choosing large enough $n$ for  $\rho \in [\frac1 {k^2},\frac{(k-1)}{2k^2\epsilon} ]$.
+
+Now we need to find the condition for $k$ wrt $r$. By $r = (1+\rho)k$, we have $r \geq  (1+\frac1{k^2})k \iff k + \frac1 k \leq r \impliedby k < r$.
+
+Finally the range of $\epsilon$ can only be such that the lower bound of $1/k^2$ is not violated.
+
+\begin{theorem}(Informal) For any $\epsilon \in (0,(k-1)/2 ]$, $\exists$ a matrix $\mathbf{X} $ of stable rank $r$, such that for selecting $k$ rows with $k < r$, ensures 
+	\begin{align*}
+	L(S) \geq (1+\epsilon) E^*_k
+	\end{align*}
+	
+\end{theorem}
+\section{Proof of Theorem \ref{t:main}}
+Our result is based on the following matrix expectation formula.
+\begin{lemma}
+  For any $\X\in\R^{n\times d}$ and non-negative weights $p_1,...,p_n$, let $\Xt$ denote
+  $\X$ with $i$th row rescaled by $\sqrt{p_i}$. If $S\sim\DPP(\Xt\Xt^\top)$, then
+  \begin{align*}
+    \E\big[\I-\X_S^\top(\X_S\X_S^\top)^{-1}\X_S\big] & = (\I +
+    \Xt^\top\Xt)^{-1} = \Big(\I + \sum p_i\x_i\x_i^\top\Big)^{-1}.
+  \end{align*}
+\end{lemma}
+\begin{proofof}{Theorem}{\ref{t:main}}
+  Let $S\sim\DPP(\frac1\alpha\X\X^\top)$. The expected subset size is given by:
+\begin{align*}
+  \E\big[|S|\big] =
+  \tr\big(\tfrac1\alpha\X\X^\top(\I+\tfrac1\alpha\X\X^\top)^{-1}\big).
+\end{align*}
+On the other hand the expected loss is given by:
+\begin{align*}
+\E\big[L(S)\big]=  
+  \tr(\X^\top\X \,\E[\I-\P_S]) =
+  \tr\big(\X^\top\X(\I+\tfrac1\alpha\X^\top\X)^{-1}\big) =
+  \E[|S|]\cdot \alpha.
+\end{align*}
+Now, setting $\alpha = E_k^*$, it follows that:
+\begin{align*}
+  \E\big[|S|\big] = \sum_{i=1}^d\frac{\lambda_i}{\alpha+\lambda_i}\leq
+  \sum_{i=1}^k\frac{\lambda_i}{E_k^*+\lambda_i} +
+  \frac1{E_k^*}\sum_{i=k+1}^d\lambda_i\leq k+1.
+\end{align*}
+\end{proofof}
+
+Note that the scaling weights $p_i$ we use to prove Theorem
+\ref{t:main} are all set to $\frac1\alpha$. Can we improve the result
+by finding optimal values of the weights? 
+
+\section{Algorithm using a weighted DPP}
+
+\begin{definition}
+Define the $\alpha$-regularized Nystr\"om approximation of $\L$ based on a subset $S$
+ as the $n \times n$ matrix $\widehat\L_\alpha(S)=\L_{\cdot,S}(\alpha\I+\L_{S,S})^\dagger\L_{S,\cdot}$.
+\end{definition}
+
+
+Given some value $\alpha>0$, consider the following optimization problem:
+\begin{align*}
+  \min_p\quad
+  &
+  \tr\bigg[\X^\top\X\Big(\I+\frac1\alpha\sum_ip_i\x_i\x_i^\top\Big)^{-1}\bigg]\\
+  \text{subject to}\quad
+  &\sum_i p_i = k,
+  % \sum_j p_j\,\x_j^\top\Big(\alpha\I+\sum_ip_i\x_i\x_i^\top\Big)^{-1}\!\x_j\leq k,
+\quad 0\leq p_i\leq 1 \ \ \forall_i.
+\end{align*}
+Let $p^*(\alpha)$ denote the solution.%  and let $S\sim
+% \DPP(\frac1\alpha\Xt\Xt^\top)$. Note that 
+% \begin{align*}
+% \E\big[|S|\big] =
+%   \tr\big(\Xt^\top\Xt(\alpha\I+\Xt^\top\Xt)^{-1}\big)\leq \tr\big(\X^\top\X(\alpha\I+\X^\top\X)^{-1}\big)=d_\alpha.
+%   \end{align*}
+%Moreover, define the following
+% secondary optimization:
+% \begin{align*}
+%   \alpha^* = \min_{\alpha>0} \ \ \alpha \quad\text{subject to}\quad
+%   \tr\bigg[\Big(\sum_ip_i^*(\alpha)\x_i\x_i^\top\Big)\Big(\alpha\I + \sum_i
+%   p_i^*(\alpha)\x_i\x_i^\top\Big)^{-1}\bigg]\leq k.
+% \end{align*}
+
+\begin{theorem}\label{t:weighted}
+If $S\sim\DPP(\frac1{\alpha}\Xt\Xt^\top)$, where $i$th
+row of $\Xt$ is rescaled by $\sqrt{p_i^*(\alpha)}$, we obtain:
+\begin{align*}
+  \E\,\big[\|\L-\widehat\L(S)\|_*\big] \leq \min_{S:|S|=k} \|\L -
+  \widehat\L_{\alpha}(S)\|_*.
+\end{align*}
+\end{theorem}
+\textbf{Problem:} It is not clear how to choose $\alpha$ to ensure
+that $\E[|S|]\leq k$. However, a simple doubling strategy might work in
+practice.
+
+Another strategy would be to put the expected subset size as a
+constraint in the optimization:
+\begin{align*}
+  \min_p\quad
+  &
+  \tr\bigg[\X^\top\X\Big(\I+\frac1\alpha\sum_ip_i\x_i\x_i^\top\Big)^{-1}\bigg]\\
+  \text{subject to}\quad
+  & \tr\bigg[\Big(\sum_ip_i\x_i\x_i^\top\Big)\Big(\alpha\I + \sum_i
+ p_i\x_i\x_i^\top\Big)^{-1}\bigg]\leq k,
+\quad 0\leq p_i\leq 1 \ \ \forall_i.
+\end{align*}
+Here, the problem is that we can no longer write the bound from
+Theorem \ref{t:weighted}, and also the constraint becomes non-linear.
+
+
+% \section{A limit argument for Theorem \ref{t:main}}\label{s:proof}
+% \begin{definition}\label{d:r-dpp}
+% Given matrix $\X\in\R^{n\times d}$, a sequence of Bernoulli probabilities $p=(p_1,\dots,p_n)\in[0,1]^n$
+% and a p.s.d.~matrix $\A\in\R^{d\times d}$, let
+% $\Vol_p(\X,\A)$ be a distribution over all sets $S\subseteq [n]$ s.t.:
+%   \begin{align}
+%   \Pr(S) = \frac{\det(
+%   \X_S^\top\X_S+\A)}{\det\!\big(
+%  \sum_ip_i\x_i\x_i^\top+ \A\big)}\
+% \cdot \prod_{i\in S}p_{i}\cdot\prod_{i\not\in S}(1-p_i).\label{eq:poisson-prob}
+% \end{align}
+% %   \Pr(\pi)\ \propto\ \det\!\big(\A +
+% %   \X_{\pi}^\top\X_{\pi}\big)
+% %   \Pr\!\bigg(\Big[K\!=\!|\pi|\Big]\,\wedge\,\Big[\forall_{i=1}^{|\pi|}\,\pi_i\!=\!\pi_i\Big] \bigg).
+% % \end{align*}
+% \end{definition}
+% Whenever all $p_i=\frac sn$, we will write $\Vol^s(\X,\A)$.
+% The below theorem was shown in prior work.
+% \begin{theorem}[\cite{bayesian-experimental-design}]\label{t:expectations}
+% Given $\X\!\in\!\R^{n\times d}$, $\A\!\in\!\R^{d\times d}$ and $p$,
+% if $S\sim \Vol_p(\X,\A)$, then
+% \begin{align}
+%   \E\Big[\big(\X_S^\top\X_S+\A\big)^{-1}\Big]
+%   &\preceq \Big(
+%   \sum_ip_i\x_i\x_i^\top +\A \Big)^{-1}.\label{eq:sqinv}
+% \end{align}
+% \end{theorem}
+
+% We will use the following limit argument.
+% \begin{lemma}
+% For any $p\in[0,1]^n$, let $\Xt$ denote $\X$ with $i$th
+%   row rescaled by $\sqrt{p_i}$ for all $i$. We have
+%   \[\lim_{\epsilon\rightarrow 0}\Vol_{\epsilon
+%     p}(\tfrac1{\sqrt\epsilon}\,\X,\I) =\DPP(\Xt\Xt^\top).\]
+% \end{lemma}
+% % \begin{proof}
+% %   Denoting $p=\frac sn$ we have
+% %   \begin{align*}
+% %     \Pr(S)
+% % &= \frac{\det(\frac1p\X_S^\top\X_S+\I)}{\det(\X^\top\X+\I)}\cdot
+% %     p^{|S|}\cdot (1-p)^{n-|S|}\\
+% % &=    \frac{\det(\X_S\X_S^\top+p\I)}{\det(\X\X^\top+\I)}\cdot
+% %                                    (1-p)^{n-|S|}\\
+% % &\rightarrow \frac{\det(\X_S\X_S^\top)}{\det(\I+\X\X^\top)}.
+% %   \end{align*}
+% % \end{proof}
+
+% % \begin{theorem}
+% %   For any $\X\in\R^{n\times d}$ and $p\in[0,1]^n$, if $S\sim\DPP(\Xt\Xt^\top)$, then
+% %   \begin{align*}
+% %     \E\big[\X_S^\top(\X_S\X_S^\top)^{-1}\X_S\big] &=
+% %     \Xt^\top(\I+\Xt\Xt^\top)^{-1}\Xt,\\
+% %     \E\big[\I-\X_S^\top(\X_S\X_S^\top)^{-1}\X_S\big] &= (\I +
+% %     \Xt^\top\Xt)^{-1} = \Big(\I + \sum_ip_i\x_i\x_i^\top\Big)^{-1},
+% %   \end{align*}
+% %   where $\Xt$ here denotes $\X$ with $i$th row rescaled by $\sqrt{p_i}$.
+% % \end{theorem}
+% We use these two facts to show our new expectation inequality.
+% \begin{proofof}{Theorem}{\ref{t:main}}
+%   If $S \sim \Vol_{\epsilon p}(\frac1{\sqrt{\epsilon}}\,\X,\I)$ then
+%   \begin{align*}
+%     \E\big[(\I + \tfrac1\epsilon\X_S^\top\X_S)^{-1}\big] \preceq
+%     (\I+\Xt^\top\Xt)^{-1}.
+%   \end{align*}
+%   On the other hand, we have
+%   \begin{align*}
+%     (\I + \tfrac 1\epsilon\X_S^\top\X_S)^{-1} = \I - \tfrac
+%     1\epsilon\X_S^\top(\I+\tfrac 1\epsilon\X_S\X_S^\top)^{-1}\X_S = \I -
+%     \X_S^\top(\epsilon\,\I+\X_S\X_S^\top)^{-1}\X_S.
+%   \end{align*}
+%   Taking the limit $\epsilon\rightarrow 0$ we get the result.
+% \end{proofof}
+
+\section{Backup}
+
+
+\subsubsection{Concentration}
+
+\begin{lemma} With $r$ as the stable rank and $\epsilon \in (0,1)$, for $ \frac 8{\epsilon^2} \ln \frac1{\epsilon} \leq k \leq  \frac {\epsilon (1-\epsilon)}{2(1+\epsilon)}  r $, there exists an algorithm to select a set of rows $S$ with $|S| \leq k$, so that $L(S)  \leq \frac{(1+\epsilon)}{(1- \epsilon) } E^*_k$. 
+\end{lemma}
+It suffices to show that $\E\big[L(S)\mid |S|\leq k\big]  \leq \frac{(1+\epsilon)}{(1- \epsilon) } E^*_k$ if $S$ is selected using DPP sampling. 
+
+For concentration, we would need $k_\alpha \leq k$, which requires using similar arguments as above:
+
+\begin{align*}
+	& \frac r {r-k}\,\frac1{1+\epsilon} \leq 1 - \delta \iff \frac r {r-k} \leq (1-\delta) (1+\epsilon)   \iff 1 - \frac k{r} \geq \frac1{(1-\delta) (1+\epsilon)} \\
+	& \iff \frac k{r} \leq \frac{\epsilon(1-\delta)- \delta}{(1+\epsilon)(1-\delta)}.
+\end{align*}
+
+For $\delta \leq \epsilon/2$, we have $\frac \delta{1-\delta} \leq \frac {\epsilon/2}{1- \epsilon/2}$. To satisfy the above condition on $\frac k{r}$,
+
+\begin{align*}
+	&	\frac k{r} \leq \frac{\epsilon(1-\delta)- \delta}{(1+\epsilon)(1-\delta)} \iff 	\frac  k{r} \leq \frac{\epsilon}{1+\epsilon} - \frac{\delta}{(1+\epsilon)(1-\delta)} \\
+	&\impliedby 	\frac  k{r} \leq \frac{\epsilon}{1+\epsilon} - \frac{\epsilon/2}{(1+\epsilon)(1-\epsilon/2)} \iff 	\frac k{r} \leq \frac{\epsilon}{1+\epsilon} \left( 1- \frac{1/2}{1-\epsilon/2}\right)  \\
+	&\iff \frac k{r} \leq \frac{\epsilon}{1+\epsilon} \left(  \frac{1/2 - \epsilon/2}{1-\epsilon/2}\right) \impliedby \frac kr \leq \frac {\epsilon (1-\epsilon)}{2(1+\epsilon)} 
+\end{align*}	
+
+
+
+For concentration, 
+
+\begin{align*}
+	& \E\big[L(S)\mid |S|\leq k\big] \leq \frac{\E[L(S)]}{\Pr(|S|\leq k)} \leq \frac {(1+\epsilon)E^*_k}{(1-\ee^{-\delta^2k/2}) } \leq \frac{(1+\epsilon)}{(1- \epsilon) } E^*_k,  
+\end{align*}
+
+for $\ee^{-\delta^2k/2} \leq \epsilon $, which gives $k \geq \frac 2{\delta^2} \ln \frac1{\epsilon} $ which is simplified to  $k \geq \frac 8{\epsilon^2} \ln \frac1{\epsilon} $ for $\delta \leq \epsilon/2$.
+\bibliography{pap}
+
+\end{document}
+
+ 

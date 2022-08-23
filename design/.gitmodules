@@ -1,0 +1,3 @@
+[submodule "bayesian_code"]
+	path = bayesian_code
+	url = https://github.com/feynmanliang/rdpp.git

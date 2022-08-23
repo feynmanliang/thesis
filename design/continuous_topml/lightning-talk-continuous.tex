@@ -1,0 +1,346 @@
+\documentclass[8pt]{beamer}
+% \beamertemplateshadingbackground{brown!70}{yellow!10}
+\mode<presentation>
+{
+  %\usetheme{Warsaw}
+  \usecolortheme{crane}
+  % or ...
+
+  % \setbeamercovered{transparent}
+  % \setbeamercovered{
+  %   still covered={\opaqueness<1>{50}\opaqueness<2->{20}}
+  % }
+%    \setbeamercovered{invisible}
+  % or whatever (possibly just delete it)
+}
+\setbeamertemplate{navigation symbols}{}
+% \setbeamertemplate{footline}[frame number]{}
+\usepackage{tikz,pgfplots}
+\pgfplotsset{compat=newest}
+\usepackage[utf8]{inputenc}
+\usetikzlibrary{patterns}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{colortbl}
+%\usepackage{multicol}
+\usepackage{cancel}
+\usepackage{ulem}
+\usepackage{multirow}
+\usepackage{relsize}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{forloop}% http://ctan.org/pkg/forloop
+\newcounter{loopcntr}
+\newcommand{\rpt}[2][1]{%
+  \forloop{loopcntr}{0}{\value{loopcntr}<#1}{#2}%
+}
+%\pagestyle{plain}
+%\input{defs2}
+\input{../shortdefs}
+
+\edef\polishl{\l}
+\setlength{\columnsep}{0.7em}
+\setlength{\columnseprule}{0mm}
+\setlength{\arrayrulewidth}{1pt} 
+
+\newcommand{\svr}[1]{{\textcolor{darkSilver}{#1}}}
+\definecolor{brightyellow}{cmyk}{0,0,0.7,0.0}
+\definecolor{lightyellow}{cmyk}{0,0,0.3,0.0}
+\definecolor{lighteryellow}{cmyk}{0,0,0.1,0.0}
+\definecolor{lightestyellow}{cmyk}{0,0,0.05,0.0}
+
+%  \fboxsep=3pt
+% %\fboxsep=0mm%padding thickness
+% \fboxrule=2pt%border thickness
+
+
+\setkeys{Gin}{width=0.7\textwidth}
+
+\title[Surrogate design]{
+  Exact expressions for double descent and implicit regularization via surrogate random design
+}
+\date{TOPML'21, 04-20-2021}
+\author[]{Micha{\polishl } Derezi\'{n}ski, \ Feynman Liang,
+  \ Michael Mahoney\\UC Berkeley}
+
+\begin{document}
+
+\begin{frame}
+  \maketitle
+\end{frame}
+
+\begin{frame}
+  \frametitle{Simple model of double descent}
+
+  {\centering
+    ``Classical'' ML: \qquad\textit{parameters} $\ll$ \textit{data}\quad~\\
+    ``Modern'' ML
+    % \footnote{Hastie, Montanari, Rosset, Tibshirani (2019).~arXiv:1903.08560}
+    % \footnote{Bartlett, Long, Lugosi, Tsigler (2019).~arXiv:1906.11300}
+    : \qquad\textit{parameters} $\gg$ \textit{data}\quad~\\
+    \textit{Phase transition}: \qquad\textit{parameters} $\sim$ \textit{data}\quad~~\\[7mm]
+  }
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+Simple model: random design regression\\[2mm]
+$\X\sim\mu^n$,\quad$\y=\X\w+\xib$\qquad$\xib\sim\Nc(\zero,\sigma^2\I)$
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \begin{tikzpicture}[scale=0.9]
+        \draw [fill=brown!30] (-2,1.5) rectangle (0,3);
+        \draw [color=black] (-2,2) -- (0,2);
+        \draw (-1,2.2) node {\mbox{\footnotesize $\x_i^\top$}}; 
+        \draw (-2.5,3) node {$\X$}; 
+        \draw [decorate,decoration={brace}] (-2,3.1) -- (0,3.1);
+        \draw (-1,3.4) node {\mbox{\fontsize{8}{8}\selectfont $d$}}; 
+        \draw [decorate,decoration={brace}] (-2.1,1.5) -- (-2.1,3);
+        \draw (-2.4,2.25) node {\mbox{\fontsize{8}{8}\selectfont $n$}}; 
+        \draw [color=black,line width =0.5mm] (1,1.5) -- (1,3);
+        \draw [color=black] (0.75,3) node {$\y$};
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+\vspace{5mm}
+  
+  Moore-Penrose estimator:
+  \begin{align*}
+    \X^\dagger\y =
+  \begin{cases}
+    \text{minimum norm solution},& \text{for }n\leq d\quad\text{\small("Modern" ML),}\\
+    \text{least squares solution},& \text{for }n>d \quad\text{\small("Classical" ML).}
+  \end{cases}
+  \end{align*}
+  
+\[\text{Goal:\qquad find}\quad\MSE{\X^\dagger\y}=\E\,\|\X^\dagger\y-\w\|^2\]
+
+\vspace{5mm}
+
+  \Red{No closed form expressions, even for
+    $\mu=\Nc(\zero,\Sigmab)$\,!}
+\end{frame}
+
+\begin{frame}
+ \frametitle{Main result I: Exact non-asymptotic MSE}
+    Idea: replace standard i.i.d.~design with a surrogate design
+  \begin{align*}
+    \underbrace{\X\sim\mu^n}_{\text{i.i.d.}}\qquad\Longrightarrow\qquad
+    \underbrace{\Xb\sim S_\mu^n}_{\text{surrogate}}
+    \ \propto\ \pdet(\X\X^\top)\cdot\mu^n
+  \end{align*}
+
+  \begin{theorem}
+\label{t:mse}
+Let \ $\Xb\sim S_\mu^n$, \ $\yb_i=\xbb_i^\top\w+\xi$ \ and \
+$\Sigmab_\mu=\E_\mu[\x\x^\top]$. Then,
+  \begin{align*}
+ \MSE{\Xb^\dagger\ybb} =
+    \begin{cases}
+    \sigma^2\,\tr\big((\Sigmab_\mu+\lambda_n\I)^{-1}\big)
+    \frac{1-\alpha_n}{d-n}\ +\
+\frac{\w^{\top}(\Sigmab_\mu+\lambda_n\I)^{-1}\w}
+{\tr((\Sigmab_\mu+\lambda_n\I)^{-1})}(d-n),
+& (n<d),\\
+\sigma^2\, \tr(\Sigmab_\mu^{-1}),& (n=d),\\
+\sigma^2\,\tr(\Sigmab_\mu^{-1})\frac{1-\beta_n}{n-d},&(n>d),
+\end{cases}
+  \end{align*}
+  where
+  $n=\tr((\Sigmab_\mu+\lambda_n\I)^{-1}\Sigmab_\mu)$, \
+  $\alpha_n=\frac{\det(\Sigmab_\mu)}{\det(\Sigmab_\mu+\lambda_n\I)}$,
+\ $\beta_n=\ee^{d-n}$.
+\end{theorem}
+
+% \begin{align*}
+%   S_\mu^n(\X)\ \propto\ \pdet(\X\X^\top)\cdot\mu^n(\X)
+% \end{align*}
+
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Consistency of surrogate theory}
+  \begin{center}
+    \includegraphics[width=0.6\textwidth]{figs/descent-intro-nice}
+  \end{center}
+  \begin{theorem}[Asymptotic consistency]
+    Under previous assumptions,
+    if additionally
+    $\mu$ is sub-Gaussian with parameter uniformly bounded
+    for all $d$,
+    then
+    \begin{align*}
+      \underbrace{\MSE{\X^\dagger\y}}_{\text{i.i.d.}}\ -\ \underbrace{\MSE{\Xb^\dagger\ybb}}_{\text{surrogate}}\  \to\ 0
+    \end{align*}
+    with probability one as $d,n \to \infty$ with $n/d \to \bar c \in (0,\infty) \setminus \{1\}$.
+  \end{theorem}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Main result II: Implicit ridge regularization}
+  Why does ``Modern'' ML work?\\
+  Because it induces implicit regularization
+  % \footnote{Mahoney (2012).~arXiv:1203.0786}
+  % \footnote{Neyshabur, Tomioka, Srebro (2014).~arXiv:1412.6614}
+  \\[10mm]
+
+   \textbf{Our contribution:}\\
+  Implicit \textit{ridge} regularization of the
+  minimum-norm interpolating model $\X^\dagger\y$
+  \vspace{5mm}
+
+  \begin{theorem}
+For surrogate design $\Xb\sim S_{\mu}^n$ with $n<d$, we have:
+    \vspace{-4mm}
+    \begin{align*}
+    \E[\Xb^\dagger\ybb]
+     & \,=\,
+    \argmin_\w\E\big[(\x^\top\w-y)^2\big] + \overbrace{\lambda
+    \,\|\w\|^2}^{\text{ridge}}               
+  \end{align*}
+  where $\lambda$ is defined so that
+  \[\underbrace{\text{sample size}}_{n}
+    \ =\ \underbrace{\text{$\lambda$-effective dimension}}_{\tr((\Sigmab_\mu+\lambda\I)^{-1}\Sigmab_\mu)}\]
+\end{theorem}
+  
+  % Same surrogate design also shows implicit regularization in
+  % sketched optimizations
+  % \footnote{Derezi\'{n}ski, Liang, Liao, Mahoney (2020) NeurIPS}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Consistency of implicit ridge regularization}
+  \begin{center}
+    \includegraphics[width=0.6\textwidth]{figs/descent-shrinkage}
+  \end{center}
+
+\textbf{General phenomenon:} implicit regularization of random projections [DLLM20]
+ 
+\begin{align*}
+\E\big[ \!\!\! \underbrace{\I-\X^\dagger\X}_{\text{residual projection}}\!\!\big]\
+\overset\epsilon\approx\ (\tfrac1{\lambda}\Sigmab_{\mu}+\I)^{-1}
+  \quad\text{for }\X\sim\mu^n,\quad n<d.
+\end{align*}
+In [DLLM20], we show that if $\X\sim\mu^n$ is sub-Gaussian, then $\epsilon = O\Big(\frac1{\sqrt{\text{stable rank of }\Sigmab_{\mu}}}\Big)$.
+  
+%   Follow-up work: 
+% \textrm{\textit{``Precise expressions for random projections: Low-rank
+%   approximation and randomized Newton''}}, by Micha{\l} Derezi\'nski,
+% Feynman Liang, Zhenyu Liao, Michael Mahoney
+
+\let\thefootnote\relax\footnotetext{\hspace{-5mm}
+\normalsize  [DLLM20]
+\textit{``Precise expressions for random projections: Low-rank
+  approximation and randomized Newton''}, at NeurIPS'20.}
+
+  % \begin{theorem}[Asymptotic consistency]
+  %   Under previous assumptions,
+  %   if additionally
+  %   $\mu$ is sub-Gaussian with parameter uniformly bounded
+  %   for all $d$,
+  %   then
+  %   \begin{align*}
+  %     \underbrace{\MSE{\X^\dagger\y}}_{\text{i.i.d.}}\ -\ \underbrace{\MSE{\Xb^\dagger\ybb}}_{\text{surrogate}}\  \to\ 0
+  %   \end{align*}
+  %   with probability one as $d,n \to \infty$ with $n/d \to \bar c \in (0,\infty) \setminus \{1\}$.
+  % \end{theorem}
+  
+\end{frame}
+
+
+% \begin{frame}
+%   \frametitle{Surrogate random designs}
+
+%   \textbf{Original problem}:
+%   $\X \sim \mu^n$ has i.i.d.\ rows $\x_i^\top \sim \mu$
+
+%   \textbf{Key trick}:
+%   Consider surrogate $\tilde{\X} \sim S_\mu^n$,
+%   tractable to analyze in overparameterized $n < d$ case,
+%   equivalent as $n,d \to \infty$.
+
+%   \pause
+
+%   \begin{definition}[Surrogate design] \label{d:surrogate}
+%     $\tilde{\X} \sim S_\mu^n$ is a random variable with same
+%     support as $\X\sim\mu^K$ such that~for any
+%     event $E$ measurable w.r.t.~$\X$, we have\vspace{-2mm}
+%     \begin{align*}
+%       \Pr\big\{\Xb\in E\big\}\ = \frac{\E[\pdet(\X\X^\top)\one_{[\X\in E]}]}{\E[\pdet(\X\X^\top)]}.
+%     \end{align*}
+%     Here, $\pdet(\cdot)$ denotes the pseudo-determinant, and
+%     $K$ is a truncated Poisson random variable $\Poisson(\gamma_n)$ with
+%     $\gamma_n$ chosen so that the sample size $\#(\Xb)$ satisfies $\E[\#(\Xb)]=n$.
+%   \end{definition}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Key properties of surrogate design}
+
+%   \begin{lemma}[Lemma 2]\label{l:proj}
+%     If  $\Xb\sim S_\mu^n$ and $n<d$, then we have:
+%     $\E\big[\I-\Xb^\dagger\Xb\big] = (\gamma_n\Sigmab_\mu+\I)^{-1}$.
+%   \end{lemma}
+
+%   \begin{lemma}[Lemma 3]\label{l:sqinv-all}
+%     If  $\Xb\sim S_\mu^n$ and $n<d$, then:
+%     $\E\big[\tr\big((\Xb^\top\Xb)^{\dagger}\big)\big]
+%       =\gamma_n\big(1-
+%       \det\!\big((\tfrac1{\gamma_n}\I+\Sigmab_\mu)^{-1}\Sigmab_\mu\big)\big)$.
+%   \end{lemma}
+
+%   Double-descent result follows from applying above to bias-variance decomposition.
+
+%   \pause
+
+%   \begin{lemma}[Lemma 12]\label{l:ridge-over}
+%     If $\Xb\sim S_\mu^n$ and $n>d$, then for any real-valued random function $y(\cdot)$
+%     such that $\E_{\mu,y}[y(\x)\,\x]$ is well-defined,
+%     denoting $\yb_i$ as $y(\xbb_i)$, we have
+%     \begin{align*}
+%       \E\big[\Xb^\dagger \ybb\big]
+%        & =\Sigmab_\mu^{-1}\E_{\mu,y}\big[y(\x)\,\x\big].
+%     \end{align*}
+%   \end{lemma}
+
+%   Implicit regularization result (as well as lemma 2) follow from specific choices of $y(\x)$.
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Asymptotic equivalence}
+
+%   How does $\tilde{\X} \sim S_\mu^n$
+%   compare to $\X \sim \mu^n$ (as $n,d \to \infty$)?
+%   \pause
+%   \begin{lemma}[Lemma 1]
+%     If $\tilde{\X} \sim S_\mu^n$, then
+%     $\E[ \text{\#rows}(\tilde{\X})] = n$
+%   \end{lemma}
+%   \pause
+%   \begin{theorem}[Theorem 3]
+%     Under previous assumptions,
+%     if additionally
+%     $\mu$ is sub-Gaussian with parameter uniformly bounded
+%     for all $d$,
+%     then
+%     \begin{align*}
+%       \MSE{\X^\dagger\y} - \Mc(\Sigmab, \w^*,\sigma^2,n) \to 0
+%     \end{align*}
+%     with probability one as $d,n \to \infty$ with $n/d \to \bar c \in (0,\infty) \setminus \{1\}$.
+%   \end{theorem}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Experiments verifying asymptotic equivalence}
+
+%   \begin{center}
+%     \hspace{-.8cm}
+%     \includegraphics[width=0.93\textwidth]{continuous_figures/decays.pdf}
+%     \includegraphics[width=\textwidth]{continuous_figures/wishart_var.pdf}
+%     \includegraphics[width=\textwidth]{continuous_figures/proj_bias.pdf}
+%   \end{center}
+% \end{frame}
+
+
+\end{document}

@@ -1,0 +1,163 @@
+\documentclass[8pt]{beamer}
+% \beamertemplateshadingbackground{brown!70}{yellow!10}
+\mode<presentation>
+{
+  %\usetheme{Warsaw}
+  \usecolortheme{crane}
+  % or ...
+
+  \setbeamercovered{transparent}
+%    \setbeamercovered{invisible}
+  % or whatever (possibly just delete it)
+}
+\setbeamertemplate{navigation symbols}{}
+% \setbeamertemplate{footline}[frame number]{}
+\usepackage{tikz,pgfplots}
+\pgfplotsset{compat=newest}
+\usepackage[utf8]{inputenc}
+\usetikzlibrary{patterns}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{colortbl}
+%\usepackage{multicol}
+\usepackage{cancel}
+\usepackage{ulem}
+\usepackage{multirow}
+\usepackage{relsize}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{forloop}% http://ctan.org/pkg/forloop
+\newcounter{loopcntr}
+\usepackage{tkz-euclide}
+\usetkzobj{all}
+\newcommand{\rpt}[2][1]{%
+  \forloop{loopcntr}{0}{\value{loopcntr}<#1}{#2}%
+}
+%\pagestyle{plain}
+%\input{defs2}
+\input{../shortdefs}
+
+\edef\polishl{\l}
+\setlength{\columnsep}{0.7em}
+\setlength{\columnseprule}{0mm}
+\setlength{\arrayrulewidth}{1pt} 
+
+\newcommand{\svr}[1]{{\textcolor{darkSilver}{#1}}}
+\definecolor{brightyellow}{cmyk}{0,0,0.7,0.0}
+\definecolor{lightyellow}{cmyk}{0,0,0.3,0.0}
+\definecolor{lighteryellow}{cmyk}{0,0,0.1,0.0}
+\definecolor{lightestyellow}{cmyk}{0,0,0.05,0.0}
+
+%  \fboxsep=3pt
+% %\fboxsep=0mm%padding thickness
+% \fboxrule=2pt%border thickness
+
+
+\setkeys{Gin}{width=0.7\textwidth}
+
+% \title[]{Unbiased estimates for linear regression\\
+% via volume sampling}
+% \date{NIPS'17, 12-5-2017}
+% \author[]{Micha{\polishl } Derezi\'{n}ski and Manfred Warmuth}
+
+\begin{document}
+
+\begin{frame}
+  \frametitle{
+    \centering\textrm{Precise expressions for random projections:}\\
+ \centering\textrm{Low-rank approximation and randomized Newton}\\[1mm]
+\normalsize{\it Micha{\polishl } Derezi\'{n}ski, \ Feynman Liang,
+ \ Zhenyu Liao, \ Michael Mahoney\qquad UC Berkeley}\\[-5mm]
+}
+\begin{columns}
+  \begin{column}{0.53\textwidth}
+    \begin{center}
+      {\only<2>{\bf}\large\underline{Matrix sketching}}
+      \vspace{3mm}
+      
+      \begin{tikzpicture}[scale=0.4]
+        \draw[fill=blue!20] (-4.5,3) rectangle (-0.5,4);
+%        \draw (-1.5,2.5) node {$\S$};
+%        \draw (0,2.5) node {$\times$};
+        \draw[fill=blue!20] (0.5,0) rectangle (3,4);
+        \draw[fill=blue!20] (4,3) rectangle (6.5,4);
+        \draw (1.3,2.5) node {$\S \hspace{1.6cm} \A \hspace{1.25cm}\tilde\A$};
+%        \draw (3.5,2.5) node{$=$};
+        \draw (.9,3.5) node {\mbox{\fontsize{7}{7}\selectfont
+            sub-gaussian\quad$\times$\quad \,data\,\ \quad$=$\quad sketch}};
+%        \draw (5,2.5) node {$\tilde\A$};
+    % \draw[fill=blue!20] (1,0) rectangle (2.5,4);
+%    \draw (2,2) node {\mbox{$\A$}};
+%    \draw (6.5,2) node {\mbox{$\in\R^{m\times n}$}};
+      \end{tikzpicture}
+    \end{center}
+    Least squares, stochastic optimization, data compression,
+    approximate SVD, ...
+    \vspace{5mm}
+    
+    \begin{center}
+      {\only<3>{\bf}\large\underline{Residual projection matrix}}
+      \vspace{3mm}
+      
+      \begin{tikzpicture}[scale=0.4]
+        \draw (-2,-2) -- (2.5,2.5);
+        \tkzDefPoint(0,1){A};\tkzDefPoint(1.8,.5){B};\tkzDefPoint(2.5,1.5){C};\tkzDefPoint(-1.5,-.3){D};
+        \tkzDefPoint(0.5,.5){A1};\tkzDefPoint(1.15,1.15){B1};\tkzDefPoint(2,2){C1};\tkzDefPoint(-.9,-.9){D1};
+        \tkzDrawSegment[thick,red](A,A1);\tkzDrawSegment[thick,red](B,B1);
+        \tkzDrawSegment[thick,red](C,C1);\tkzDrawSegment[thick,red](D,D1)
+        \foreach \n in {A,B,C,D} \node at (\n)[circle,fill=blue,inner
+        sep=1.5pt]{};
+        \foreach \n in {A1,B1,C1,D1} \node at (\n)[circle,fill=black,inner
+        sep=1pt]{};        
+      \end{tikzpicture}
+      \begin{align*}
+        \P_{\!\perp} = \I-\tilde\A^\dagger\tilde\A\quad\text{- measures
+        sketching error}
+        \end{align*}
+      \end{center}
+  \end{column}
+\begin{column}{0.53\textwidth}
+    \begin{center}
+      {\only<4>{\bf}\large\underline{Main result}}
+%      Precise expression for residual projection
+    \end{center}
+    \vspace{-3mm}
+\begin{align*}
+   \E[\P_{\!\perp}]\
+  &\overset\epsilon\simeq \
+    \bar\P_{\!\perp}:=(\gamma\A^\top\A + \I)^{-1}
+\end{align*}
+\vspace{-5mm}
+
+with $\gamma$ defined implicitly by $\tr\,\bar\P_{\!\perp}=\tr\,\P_{\!\perp}$\\[4mm]
+\textbf{Theorem.} If $\S$ has i.i.d.~sub-gaussian entries:\vspace{-2mm}
+\begin{align*}
+  \epsilon = O\Big(\frac1{\sqrt{\text{\footnotesize stable rank of $\A$}}}\Big).
+\end{align*}
+\vspace{-3mm}
+
+\textit{Proof.}  Random Matrix Theory!
+\vspace{5mm}
+
+    \begin{center}
+      {\only<5>{\bf}\large\underline{Applications}}
+    \end{center}
+    \vspace{-2mm}
+ \begin{enumerate}
+\item Error analysis of low-rank approximation
+\item Convergence analysis of:
+  \begin{enumerate}
+  \item Generalized Kaczmarz method
+  \item Randomized Subspace Newton
+  \item Jacobian Sketching
+  \end{enumerate}
+\item Implicit bias of interpolating models
+\end{enumerate}
+
+\end{column}
+\end{columns}
+\pause\pause\pause\pause
+\end{frame}
+
+
+\end{document}

@@ -1,0 +1,1538 @@
+
+\documentclass[10pt]{beamer}
+%\beamertemplateshadingbackground{brown!70}{yellow!10}
+\mode<presentation>
+{
+  %\usetheme{Warsaw}
+  \usecolortheme{crane}
+  % or ...
+
+%  \setbeamercovered{transparent}
+  % or whatever (possibly just delete it)
+}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]{}
+\usepackage{tikz,pgfplots}
+\pgfplotsset{compat=newest}
+\usepackage[utf8]{inputenc}
+\usetikzlibrary{patterns}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{colortbl}
+%\usepackage{multicol}
+\usepackage{cancel}
+\usepackage{ulem}
+\usepackage{multirow}
+\usepackage{relsize}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{forloop}% http://ctan.org/pkg/forloop
+\newcounter{loopcntr}
+\newcommand{\rpt}[2][1]{%
+  \forloop{loopcntr}{0}{\value{loopcntr}<#1}{#2}%
+}
+%\pagestyle{plain}
+%\input{defs2}
+\input{../shortdefs}
+
+\edef\polishl{\l}
+\setlength{\columnsep}{0.7em}
+\setlength{\columnseprule}{0mm}
+\setlength{\arrayrulewidth}{1pt} 
+
+\newcommand{\svr}[1]{{\textcolor{darkSilver}{#1}}}
+\definecolor{brightyellow}{cmyk}{0,0,0.7,0.0}
+\definecolor{lightyellow}{cmyk}{0,0,0.3,0.0}
+\definecolor{lighteryellow}{cmyk}{0,0,0.1,0.0}
+\definecolor{lightestyellow}{cmyk}{0,0,0.05,0.0}
+\AtBeginSection[]
+{
+\begin{frame}<beamer>
+\frametitle{Outline}
+\tableofcontents[currentsection]
+\end{frame}
+}
+\def\layersep{2.5cm}
+
+
+%  \fboxsep=3pt
+% %\fboxsep=0mm%padding thickness
+% \fboxrule=2pt%border thickness
+
+\setkeys{Gin}{width=0.7\textwidth}
+
+\title[]{Deterministic equivalents}
+
+\author[]{Micha{\l} Derezi\'{n}ski\\
+UC Berkeley}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\linespread{1.3}
+
+\section{Resolvent}
+
+\begin{frame}
+  \frametitle{Setup: Resolvent}
+  Let $\X\sim \Nc_{n,d}(\zero,\I_n\otimes\Sigmab)$.\\
+  More generally, we can consider $\X = \Z\Sigmab^{\frac12}$ where
+  $\Z$ has i.i.d. entries with variance 1.\\[5mm]
+
+ For some $\lambda>0$, define
+  \begin{align*}
+    \Q(\lambda) = (\tfrac1{\lambda n}\X^\top\X+\I)^{-1},\qquad \Qbar(\lambda) =
+    (\tfrac{\bar\gamma}{\lambda}\Sigmab + \I)^{-1}
+  \end{align*}
+When $\lambda$ is fixed, we will use $\Q$ instead of $\Q(\lambda)$\\
+  We wish to show that for an appropriate choice of $\bar\gamma$:
+  \begin{align*}
+    \E[\Q] \simeq \Qbar.
+    \end{align*}
+  \end{frame}
+
+  \begin{frame}
+    We use: $\A^{-1}-\B^{-1} = \A^{-1}(\B-\A)\B^{-1}$
+    \begin{align*}
+      \Q-\Qbar &=
+                 \Q(\tfrac{\bar\gamma}{\lambda}\Sigmab-
+                 \tfrac1{\lambda n}\X^\top\X)\Qbar\\
+      &=\tfrac{\bar\gamma}{\lambda}\Q\Sigmab\Qbar - \tfrac1{\lambda n}\Q\X^\top\X\Qbar
+    \end{align*}
+    Let  $\Q_{-i} =
+  (\tfrac1{\lambda n}\X_{-i}^\top\X_{-i}+\I)^{-1}$ and
+  $\gamma_i=(1+\frac1{\lambda n}\x_i^\top\Q_{-i}\x_i)^{-1}$.\\
+  Sherman-Morrison implies that:
+  \begin{align*}
+    \Q\x_i\x_i^\top=\gamma_i\Q_{-i}\x_i\x_i^\top =
+    \bar\gamma\Q_{-i}\x_i\x_i^\top + \Q_{-i}\x_i\x_i^\top(\gamma_i-\bar\gamma)
+  \end{align*}
+It follows that:
+  \begin{align*}
+    \E[\Q]-\Qbar &= \tfrac{\bar\gamma}{\lambda} \E[\Q]\Sigmab\bar\Q -
+    \tfrac1{\lambda n}\sum_{i=1}^n\big(\bar\gamma\E[\Q_{-i}]\E[\x_i\x_i^\top] +
+    \E[\Q_{-i}(\gamma_i-\bar\gamma)\x_i\x_i^\top]\big)\bar\Q \\
+    &=\underbrace{\tfrac{\bar\gamma}{\lambda}\E[\Q-\Q_{-n}]\Sigmab\bar\Q}_{\A} +
+\underbrace{\E[\Q_{-n}(\tfrac{\bar\gamma}{\lambda}-\tfrac{\gamma_n}{\lambda})\x_n\x_n^\top]\bar\Q}_{\B}
+  \end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Analyzing the first term}
+  Note that $\A\preceq\zero$, so $\A$ can be dropped if we only care
+  about an upper bound. To get a lower bound we bound $-\A$ as follows:
+  \begin{align*}
+    -\A &=
+    \E[\Q_{-n}-\Q]\tfrac{\bar\gamma}{\lambda}\Sigmab
+          (\tfrac{\bar\gamma}{\lambda}\Sigmab+\I)^{-1} \\
+        &\preceq \E[\Q_{-n}-\Q]\\
+    &\!\!\underset{\lambda\rightarrow 0}{\longrightarrow} \
+      \E\bigg[(\I-\P_{n-1}) -
+      (\I-\P_{n-1})\Big(\I-\frac{\x_n\x_n^\top}{\x_n^\top\x_n}\Big)\bigg]\\
+        &=\E[\I-\P_{n-1}]\,\E\bigg[\frac{\x_n\x_n^\top}{\x_n^\top\x_n}\bigg]\\
+    &\preceq \E\bigg[\frac{\x_n\x_n^\top}{\x_n^\top\x_n}\bigg]
+  \end{align*}
+\end{frame}
+
+\begin{frame}
+\frametitle{Analyzing second term}
+Let $\alpha_n=\frac1n\x_n^\top\Q_{-n}\x_n$ and let
+$\bar\gamma=\frac1{1+\frac1{\lambda}\bar\alpha}$. We have:
+\begin{align*}
+  \tfrac{\gamma_n}\lambda = \frac1{\lambda + \alpha_n}
+  \ \underset{\lambda\rightarrow 0}{\longrightarrow}\ \frac
+  1{\alpha_n}
+\end{align*}
+and similarly, we have $\frac{\bar\gamma}{\lambda}\rightarrow \bar\alpha^{-1}$, so
+\begin{align*}
+  \|\B\|
+  & \rightarrow
+    \|\E[(\alpha_n^{-1}-\bar\alpha^{-1})(\I-\P_{n-1})\x_n\x_n^\top]\bar\Q\|\\
+  &\leq \big\|\E\big[|\alpha_n^{-1}-\bar\alpha^{-1}|\cdot
+    \x_n\x_n^\top \big]\bar\Q \big\|\\
+  &=
+    \big\|\E[|\tfrac{\bar\alpha}{\alpha_n}-1|\cdot
+    \tfrac1{\bar\alpha}\x_n\x_n^\top](\tfrac1{\bar\alpha}\Sigmab+\I)^{-1}\big\| 
+\end{align*}
+Hanson-Wright implies that $|\frac{\bar\alpha}{\alpha_n}-1| =
+O(n^{-1/2})$ with high probability\\
+Then we have
+$\frac1{\bar\alpha}\E[\x_n\x_n^\top](\tfrac1{\bar\alpha}\Sigmab+\I)^{-1}
+=\frac1{\bar\alpha}\Sigmab (\tfrac1{\bar\alpha}\Sigmab+\I)^{-1}\preceq \I$
+\end{frame}
+
+\begin{frame}
+  \frametitle{Hanson-Wright for projections}
+  Let $\P$ be a projection matrix. Then for $\z\sim\Nc(\zero,\I)$,
+  \begin{align*}
+    \Pr\big\{|\z^\top\Sigmab^{\frac12}\P\Sigmab^{\frac12}\z -
+    \tr(\P\Sigmab)|>t\big\}
+    \leq 2\exp\big(-c\min\big\{\tfrac{t^2}{\|\Sigmab\|_F^2},\tfrac t{\|\Sigmab\|_2}\big\}\big)
+  \end{align*}
+\end{frame}
+
+\section{Projection}
+
+\begin{frame}
+  \frametitle{Setup}
+  Let $\X\sim \Nc_{n,d}(\zero,\I_n\otimes\Sigmab)$.\\
+  More generally, let $\X = \Z\Sigmab^{\frac12}$ where
+  $\Z$ has i.i.d. entries with variance 1.\\[5mm]
+
+We define a deterministic equivalent for the projection matrix:
+  \begin{align*}
+    \P =\I-\X^\dagger\X,\qquad \bar\P =
+    (\bar\gamma\Sigmab + \I)^{-1}
+  \end{align*}
+  We wish to show that for an appropriate choice of $\bar\gamma$:
+  \begin{align*}
+    \E[\P] \simeq \bar\P.
+    \end{align*}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Reduction}
+    Let $\X = \Z\Sigmab^{\frac12}$ and
+    $\X_\alpha=\Z\Sigmab_\alpha^{\frac12}$, where
+    $\Sigmab_\alpha=\alpha\Sigmab$.\\
+Let $\P_\alpha=\I-\X_\alpha^\dagger\X_\alpha$ and
+    $\bar\P_\alpha$ be the deterministic equivalent for $\P_\alpha$\\[3mm]
+
+    Note that $\X_\alpha^\dagger\X_\alpha=\X^\dagger\X$ so
+    $\P_\alpha=\P$. \\
+    This implies that also $\bar\P_\alpha=\bar\P$, and
+    \[\E[\P_\alpha]-\bar\P_\alpha = \E[\P]-\bar\P,\]
+    so, setting $\alpha=\frac1{\|\Sigmab\|}$, we can replace $\Sigmab$
+    with $\Sigmab_\alpha$ such that
+    $\|\Sigmab_\alpha\|=1$.\\[5mm]
+    \textbf{Conclusion:} W.l.o.g.~we can assume that $\|\Sigmab\|=1$.
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{The scale of $\bar\gamma$}
+    Let $r = \tr(\Sigmab)/\|\Sigmab\|$ denote the nuclear rank of $\Sigmab$.\\
+    W.l.o.g., assume that $\|\Sigmab\|=1$ (otherwise, scale $\bar\gamma$ by
+    $1/\|\Sigmab\|$)\\
+    We define $\bar\gamma$ so that $\tr\,(\bar\gamma\Sigmab+\I)^{-1}=d-n$
+    \begin{lemma}
+      Assuming that $\|\Sigmab\|=1$, we have $\bar\gamma\geq \frac nr$, and if $n<r$ then also
+      $\bar\gamma\leq \frac n{r-n}$.
+      \end{lemma}
+      \begin{proof}
+        Let $1=\lambda_1\geq\lambda_2\geq...$ be the eigenvalues of
+        $\Sigmab$. Then:
+        \begin{align*}
+          n &= \sum_{i=1}^d
+          \frac{\bar\gamma\lambda_i}{\bar\gamma\lambda_i+1}\leq
+          \bar\gamma\sum_{i=1}^d\lambda_i=\bar\gamma\cdot r,\\
+          n &= \sum_{i=1}^d
+          \frac{\bar\gamma\lambda_i}{\bar\gamma\lambda_i+1}\geq
+              \frac{\bar\gamma}{\bar\gamma+1}\sum_{i=1}^d\lambda_i
+              =\frac{\bar\gamma}{\bar\gamma+1}\cdot r.
+        \end{align*}
+      \end{proof}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Rank one update for pseudoinverse}
+    \begin{lemma}
+      We have the following Sherman-Morrison type formula:
+      \begin{align*}
+        (\X^\top\X)^\dagger\x_i =
+        \frac{(\I-\X_{-i}^\dagger\X_{-i})\x_i}{\x_i^\top(\I-\X_{-i}^\dagger\X_{-i})\x_i}. 
+        \end{align*}
+      \end{lemma}
+      We prove it by taking a limit.\\
+    Let $\Q = (\X^\top\X+\lambda\I)^{-1}$ and note that
+    $\Q\x_i\rightarrow (\X^\top\X)^\dagger\x_i$ as
+    $\lambda\rightarrow 0$\\
+Moreover, let $\x_i=\u_i+\v_i$, where
+$\u_i=\X_{-i}^\dagger\X_{-i}\x_i$ and $\v_i=(\I-\X_{-i}^\dagger\X_{-i})\x_i$.
+    Sherman-Morrison implies that:
+  \begin{align*}
+    \Q\x_i
+    &=\frac{\Q_{-i}\x_i}{1+\x_i^\top\Q_{-i}\x_i} 
+    =\frac{\Q_{-i}\u_i + \frac1\lambda\v_i}{1+
+      \u_i^\top\Q_{-i}\u_i + \frac1\lambda\v_i^\top\v_i}\\
+    &\!\!\!\underset{\lambda\rightarrow0}{\longrightarrow}
+      \ \frac{\v_i}{\v_i^\top\v_i}
+      =\frac{(\I-\X_{-i}^\dagger\X_{-i})\x_i}{\x_i^\top(\I-\X_{-i}^\dagger\X_{-i})\x_i}
+  \end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Two terms}
+In place of the resolvent identity (since $\P$ is not invertible) we use:
+  \begin{align*}
+\P\bar\P^{-1}-\I &= \P(\bar\gamma\Sigmab+\I) -
+    \I
+    =\P\bar\gamma\Sigmab - (\I-\P) 
+  \end{align*}
+  \textit{Note:} To prove second conjecture we should bound $\|\E[\P]\bar\P^{-1}-\I\|$\\[2mm]
+  Let $\gamma_i = n/\x_i^\top\P_{-i}\x_i$, where
+$\P_{-i}=\I-\X_{-i}^\dagger\X_{-i}$. \\
+Since $\I-\P=(\X^\top\X)^\dagger\X^\top\X$, it follows that
+  \begin{align*}
+    \E[\P]\bar\P^{-1}-\I
+&=\E[\P\bar\gamma\Sigmab] -
+\sum_{i=1}^n\E[(\X^\top\X)^\dagger\x_i\x_i^\top]\\
+&=\E[\P]\bar\gamma\Sigmab-n\,\E[(\X^\top\X)^\dagger\x_n\x_n^\top]\\
+&=\E[\P]\bar\gamma\Sigmab-\E[\P_{-n}\x_n\x_n^\top\gamma_n]\\
+&=\underbrace{\E[\P-\P_{-n}]\bar\gamma\Sigmab}_{\A} -
+\underbrace{\E[\P_{-n}\x_n\x_n^\top(\gamma_n-\bar\gamma)]}_{\B}.
+  \end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Analyzing the first term}
+Note that $\A\preceq \zero$. Moreover, we have
+  \begin{align*}
+    -\A
+    &=\E[\P_{-n}-\P]\bar\gamma\Sigmab
+    \\
+    &=\E\bigg[\frac{\P_{-n}\x_n\x_n^\top\P_{-n}}{\x_n^\top\P_{-n}\x_n}\bigg]
+      \,\bar\gamma\Sigmab\\
+    &=\E\bigg[\frac{\P_{-n}\Sigmab\P_{-n}}{\tr(\P_{-n}\Sigmab\P_{-n})}\bigg]\bar\gamma\Sigmab\\
+    &=\E\bigg[\frac{\P_{-n}\Sigmab}{\tr(\P_{-n}\Sigmab)}
+      \P_{-n}\bar\gamma\Sigmab\bigg]\\
+    &\preceq \frac1{r_n}\cdot\E[\P_{-n}]\bar\gamma\Sigmab,
+  \end{align*}
+  where $r_n = \sum_{i\geq n}\lambda_i$ and $\lambda_i$ are the
+  eigenvalues of $\Sigmab$\\
+  Note that we should be able to show that
+  $\E[\P_{-n}]\bar\gamma\Sigmab= O(1)\cdot \I$
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bounding a rank-one projection}
+  Let $\x\sim\Nc(\zero,\Sigmab)$. Note that $\x=\Sigmab^{\frac12}\z$
+  for $\z\sim\Nc(\zero,\I)$\\
+  Also, let $\lambda_{\min}$ denote the smalles eigenvalue of
+  $\Sigmab$. It follows that:
+  \begin{align*}
+    \E\Big[\frac{\x\x^\top}{\x^\top\x}\Big]
+&= \Sigmab^{\frac12}\E\Big[\frac{\z\z^\top}{\z^\top\Sigmab\z}\Big]\Sigmab^{\frac12}
+\preceq \frac1{\lambda_{\min}}\Sigmab^{\frac12}\E\Big[\frac{\z\z^\top}{\z^\top\z}\Big]\Sigmab^{\frac12} 
+  \\ &  =\frac{1}{\lambda_{\min}}\Sigmab^{\frac12}\,\frac1d\I\,\Sigmab^{\frac12}
+  =\frac1{d\lambda_{\min}}\Sigmab \preceq \frac{\kappa}{d}\cdot \I
+  \end{align*}
+  where $\kappa$ is the condition number of $\Sigmab$.\\[5mm]
+  
+\textit{Note:} The dependence on $\lambda_{\min}$ may be avoidable
+\end{frame}
+
+\begin{frame}
+  \frametitle{Better bound for a rank-one projection}
+Assume that $\Sigmab=\diag(\lambda_{i})$,
+  $\|\Sigmab\|=1$, let $Z_i=\sum_{j\neq i}\lambda_jz_j^2$ and $r=\tr(\Sigmab)$.
+  \begin{align*}
+    \bigg[\E\Big[\frac{\x\x^\top}{\x^\top\x}\Big]\bigg]_{ii}
+    &=\E\bigg[\E\Big[\frac{\lambda_iz_i^2}{\lambda_iz_i^2+Z_i}\mid Z_i\Big]\bigg]
+   \leq
+      \E\Big[\frac{\lambda_i\E[z_i^2]}{\lambda_i\E[z_i^2]+Z_i}\Big]\\
+    &\leq \frac{\lambda_i}{\lambda_i+\frac12\E[Z_i]} + \Pr\big\{|Z_i-\E[Z_i]|>\tfrac12\E[Z_i]\big\}
+  \end{align*}
+  Using Hanson-Wright, we have:
+  \begin{align*}
+    \Pr\big\{|Z_i-\E[Z_i]|>\tfrac12\E[Z_i]\big\}\leq
+    2\ee^{-c\min\big\{\frac{(\sum_{j\neq i}\lambda_j)^2}{\sum_{j\neq
+    i}\lambda_j^2},\frac{\sum_{j\neq
+    i}\lambda_j}{\lambda_1}\big\}} \leq 2\ee^{-c(r-1)}
+  \end{align*}
+  So  $\big[\E\frac{\x\x^\top}{\x^\top\x}\big]_{ii}\leq
+  \frac{2\lambda_i}{r}+2\ee^{-c(r-1)}$. Also, 
+  $\big[\E\frac{\x\x^\top}{\x^\top\x}\big]_{ij}=0$ for $i\neq j$. So,
+  \begin{align*}
+    \E\Big[\frac{\x\x^\top}{\x^\top\x}\Big]\preceq
+    \frac2{r}\cdot\Sigmab + 2\ee^{-c(r-1)}\cdot \I
+  \end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bounding higher moments}
+  Let $\z\sim\Nc(\zero,\I)$, with $\bar\z=\frac{\z}{\|\z\|}$ and
+  $r=\|\z\|$.\\
+  Since $\bar\z$ is independent of $r$, for any $\v\in\R^d$ we have
+  \begin{align*}
+\E[(\v^\top\z)^{2k}] = \E[(\v^\top\bar\z)^{2k}r^{2k}] =
+    \E[(\v^\top\bar\z)^{2k}]\cdot \E[r^{2k}].
+  \end{align*}
+  Note that $r^2\sim\chi^2(d)$ and
+  $\v^\top\z\sim\Nc(\zero,\v^\top\v)$, so
+  \begin{align*}
+    \E[(\v^\top\bar\z)^{2k}] = \E[(\v^\top\z)^{2k}]\frac1{\E[r^{2k}]}
+    = (2k-1)!! (\v^\top\v)^k\frac{(d-2)!!}{(d+2k-2)!!}.
+  \end{align*}
+  In particular, for $k=2$ we get
+  $\E[(\v^\top\bar\z)^4]=\frac{3(\v^\top\v)^2}{d(d+2)}$. If
+  $\x=\Sigmab^{\frac12}\z$, then
+  \begin{align*}
+    \E\bigg[\Big(\frac{\v^\top\x\x^\top\v}{\x^\top\x}\Big)^2\bigg]\leq
+    \frac1{\lambda_{\min}^2}\E\big[(\v^\top\Sigmab^{\frac12}\bar\z)^4\big]
+    =\frac{3(\v^\top\Sigmab\v)^2}{\lambda_{\min}^2d(d+2)}.
+  \end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Better bound for the second moment}
+Assume that $\Sigmab=\diag(\lambda_{i})$ and $r=\tr(\Sigmab)$. Fix
+$\v\in\R^d$.\\
+Let $Z_i=\sum_{t\neq i}\lambda_tz_t$, $Z_{ij}=\sum_{t\neq
+  i,j}\lambda_tz_t$, and $\delta = 2\ee^{-c(r-2)}$ be H-W bound.
+\begin{align*}
+\hspace{-8mm}  
+&\E\bigg[\frac{(\v^\top\x)^4}{\|\x\|^4}\bigg] =
+    \E\bigg[\frac{(\sum_i \sqrt{\lambda_i}v_iz_i)^4}{\|\x\|^4}\bigg]
+  = \sum_iv_i^4
+\E\bigg[\frac{\lambda_i^2z_i^4}{\|\x\|^4}\bigg]+
+    \sum_{i\neq
+    j}v_i^2v_j^2\E\bigg[\frac{\lambda_i\lambda_jz_i^2z_j^2}{\|\x\|^4}\bigg]\\
+\hspace{-8mm}  &=  \sum_iv_i^4
+    \E\Bigg[\E\bigg[\frac{\lambda_i^2z_i^4}{(\lambda_iz_i^2+Z_i)^2}\mid z_i\bigg]\Bigg] +
+\sum_{i\neq j}v_i^2v_j^2
+\E\Bigg[\E\bigg[\frac{\lambda_i\lambda_jz_i^2z_j^2}
+{(\lambda_iz_i^2+\lambda_jz_j^2+Z_{ij})^2}\mid 
+    z_i,z_j\bigg]\Bigg]\\
+\hspace{-8mm}    &\leq  \sum_iv_i^4
+\Bigg(\E\bigg[\frac{\lambda_i^2z_i^4}{(\lambda_iz_i^2+\frac12\E[Z_i])^2}\bigg] \!+ \delta\!\Bigg) +
+    \sum_{i\neq
+    j}v_i^2v_j^2\Bigg(\E\bigg[\frac{\lambda_i\lambda_jz_i^2z_j^2}{(\lambda_iz_i^2+\lambda_jz_j^2+\frac12\E[Z_{ij}])^2}\bigg]
+                   \!+\!\delta\Bigg)\\
+  \hspace{-8mm}
+  &\leq \sum_iv_i^4
+\bigg(\frac{\lambda_i^2\E[z_i^4]}{(\frac12\E[Z_i])^2} \!+ \delta\!\bigg) +
+    \sum_{i\neq j}v_i^2v_j^2
+    \Bigg(\frac{\lambda_i\lambda_j\E[z_i^2]\E[z_j^2]}{(\frac12\E[Z_{ij}])^2}
+    \!+\!\delta\Bigg)\\
+  \hspace{-8mm}
+  &\leq \sum_{i,j}v_i^2v_j^2\Big(\frac{12\lambda_i\lambda_j}{(r-2)^2}
+    + \delta\Big) = \frac{12}{(r-2)^2}\big(\v^\top\Sigmab\v\big)^2 + 2\ee^{-c(r-2)}\|\v\|^4
+\end{align*}
+\end{frame}
+
+  \begin{frame}
+    \frametitle{Analyzing the second term}
+Let $\alpha_n = \x_n^\top\P_{-n}\x_n$ and $\bar\alpha=n/{\bar\gamma}$
+%    \begin{align*}
+% \|\B\| 
+% &= \big\|\E[\P_{-n}\x_n\x_n^\top(\gamma_n-\bar\gamma)]\bar\P\big\|\\
+% &\preceq \big\|\E[|\gamma_n-\bar\gamma|\cdot\x_n\x_n^\top]\bar\P\big\|\\
+% &=\Big\|\E\Big[\tfrac{|\bar\alpha-\alpha_n|}{\alpha_n}\cdot\bar\gamma\x_n\x_n^\top\Big]\bar\P\Big\|
+%    \end{align*}
+% Here, we have to deal with $1/\alpha_n$, which blows up when
+% $\alpha_n\rightarrow 0$.\\[4mm]
+% Alternatively, we can use
+\begin{align*}
+\hspace{-8mm}\|\B\| &=
+\Bigg\|\E\bigg[\E\Big[\frac{\P_{-n}\x_n\x_n^\top}{\x_n^\top\P_{-n}\x_n}
+(\bar\alpha-\alpha_n) \bar\gamma\mid\P_{-n}\Big]\bigg]\Bigg\|\\
+  &\leq \E\Bigg[\bigg\|\E\Big[\frac{\P_{-n}\x_n\x_n^\top}{\x_n^\top\P_{-n}\x_n}
+(\bar\alpha-\alpha_n)
+    \bar\gamma\mid\P_{-n}\Big]\bigg\|\Bigg]\\
+  &=\E\Bigg[\bigg\|\E\Big[\frac{\P_{-n}\x_n\x_n^\top\P_{-n}}{\x_n^\top\P_{-n}\x_n}
+(\bar\alpha-\alpha_n)
+    \bar\gamma\mid\P_{-n}\Big]\bigg\|\Bigg]\\
+  &=\E\Bigg[\max_{\v:\,\|\v\|=1}\v^\top\E\bigg[\frac{\P_{-n}\x_n\x_n^\top\P_{-n}}{\x_n^\top\P_{-n}\x_n}
+  (\bar\alpha-\alpha_n)
+    \bar\gamma\mid\P_{-n}\bigg]\v\Bigg]
+  \\
+&\leq \bar\gamma\, \E\Bigg[\max_{\v:\,\|\v\|=1}\underbrace{\sqrt{\E\bigg[
+\Big(\v^\top
+       \frac{\P_{-n}\x_n\x_n^\top\P_{-n}}{\x_n^\top\P_{-n}\x_n}\v\Big)^2\mid\P_{-n}\bigg]}}_{B_1}
+       \cdot\underbrace{\sqrt{\E\big[(\bar\alpha-\alpha_n)^2 \mid\P_{-n}\big]}}_{B_2}\Bigg]
+\end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bounding $B_1$}
+  First we lower bound the nuclear rank of $\P_{-n}\Sigmab\P_{-n}$:
+  \begin{align*}
+    \frac{\tr(\P_{-n}\Sigmab\P_{-n})} {\|\P_{-n}\Sigmab\P_{-n}\|}\geq
+    \tr(\P_{-n}\Sigmab) =
+    \|\Sigmab^{\frac12}-\Sigmab^{\frac12}\X_{-n}^\dagger\X_{-n}\|_F^2\geq
+    \overbrace{\sum_{i\geq n}\lambda_i}^{r_n}
+  \end{align*}
+  % Consider the eigenvector $\v$ of matrix $\P_{-n}\Sigmab\P_{-n}$
+  % associated with the smallest non-zero eigenvalue. Since
+  % $\P_{-n}\Sigmab\P_{-n}\v=\lambda\v\neq \zero$, vector $\v$ has to
+  % lie in the subspace of $\P_{-n}$, so:
+  % \begin{align*}
+  % \lambda_{\min}(\P_{-n}\Sigmab\P_{-n})=\v^\top\P_{-n}\Sigmab\P_{-n}\v=\v^\top\Sigmab\v\geq \lambda_{\min}.
+  % \end{align*}
+Note that $r_n\geq (d-n)\lambda_{\min}$.  Let $\x \sim\Nc(\zero, \P_{-n}\Sigmab\P_{-n})$.\\
+  Using the bound on  the rank one Gaussian projection, we get:
+  \begin{align*}
+B_1^2&=\E\bigg[\Big(\v^\top\tfrac{\P_{-n}\x_n\x_n^\top\P_{-n}}{\x_n^\top\P_{-n}\x_n}\v\Big)^2\mid
+    \P_{-n}\bigg]
+    =\E\bigg[\Big(\frac{\v^\top\x\x^\top\v}{\x^\top\x}\Big)^2\bigg] \\
+     &\leq
+      \frac{12(\v^\top\P_{-n}\Sigmab\P_{-n}\v)^2} {(r_n-2)^2} + 2\ee^{-c(r_n-2)}\|\v\|^4
+  \end{align*}
+  So, letting $\|\Sigmab\|=1$, we get $\max_{\v:\|\v\|=1}B_1= O(\frac1{r_n})$
+\end{frame}
+
+\begin{frame}
+  \frametitle{Decomposing $B_2$}
+Recall $\alpha_n = \x_n^\top\P_{-n}\x_n$. Let
+$\bar\alpha=\tr(\E[\P_{-n}]\Sigmab)$ and
+$\tilde\alpha=\tr(\P_{-n}\Sigmab)$.
+\begin{align*}
+\E[B_2]&=\E\Big[\sqrt{\E\big[(\bar\alpha-\tilde\alpha+\tilde\alpha-\alpha_n)^2
+         \mid\P_{-n}\big]}\Big]\\
+&=\E\Big[\sqrt{(\bar\alpha-\tilde\alpha)^2 +
+                                    \E\big[(\tilde\alpha-\alpha_n)^2\mid\P_{-n}\big]}\Big]\\
+&\leq \sqrt{\E\big[(\bar\alpha-\tilde\alpha)^2\big]
++ \E\big[(\tilde\alpha-\alpha_n)^2\big] },
+\end{align*}
+where the last step follows from Jensen's inequality.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Putting everything together}
+  Burkholder's inequality implies that:
+  \begin{align*}
+    \E\big[(\bar\alpha-\tilde\alpha_n)^2\big]
+    &= \E\big[\big(\tr\,\Sigmab(\E[\P_{-n}]-\P_{-n})\big)^2\big] \leq C\cdot n\, \|\Sigmab\|^2
+  \end{align*}
+  \vspace{5mm}
+  
+Bai-Silverstein lemma implies
+that: 
+  \begin{align*}
+\E\big[(\tilde\alpha-\alpha_n)^2\mid\P_{-n}\big] \leq C\cdot
+    \|\P_{-n}\Sigmab\|_F^2\leq C\cdot d\,\|\P_{-n}\Sigmab\|^2\leq
+    C\cdot d\,\|\Sigmab\|^2.
+  \end{align*}
+  \vspace{5mm}
+  
+  Combining, we get:   $\E[B_2] \leq C\cdot \sqrt{n+d}\,\|\Sigmab\|$\\
+  Putting everything together, assuming $\|\Sigmab\|=1$, we have:
+
+  \begin{align*}
+    \|\B\|=O\Big(\tfrac{\bar\gamma\sqrt{\!d}}{r_n}\Big)\overset{(*)}{=}
+O\Big(\tfrac{\kappa\bar\gamma}{\sqrt{\!d}}\Big),
+  \end{align*}
+  where $(*)$ holds when $n\leq d/2$
+\end{frame}
+
+\begin{frame}
+  \frametitle{Next steps}
+  % Note that $ \E[\|\P_{-n}\Sigmab\|_F^2] =
+  % \tr(\E[\P_{-n}]\Sigmab^2)\leq   \tr(\E[\P_{-n}]\Sigmab) $.
+
+  % Moreover,
+  We would like to replace $r_n$ with:
+  \begin{align*}
+\tr(\P_{-n}\Sigmab)\simeq
+\tr(\bar\P\Sigmab) =n/\bar\gamma \geq r-n,
+  \end{align*}
+  where $r=\frac{\tr(\Sigmab)}{\|\Sigmab\|}$ is the nuclear
+  rank. Overall, our goal is to show that:
+  \begin{align*}
+    \big\|\E[\P]\bar\P^{-1}-\I\big\| \leq
+    C\cdot\frac{\bar\gamma}{\sqrt{n}}
+\leq
+    \begin{cases}
+      \frac C{\sqrt r} &\text{for }n\leq r/2,\\
+      \frac {C\kappa}{\sqrt d} &\text{for }n\leq d/2,
+    \end{cases}  
+  \end{align*}
+  where $C$ is an \underline{absolute} constant, and $\kappa$ is the
+  condition number of $\Sigmab$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{New strategy for A}
+  Assume that $n< r$. Then, using $\bar\gamma\leq \frac{n}{r-n}$
+  and $\|\P_{-n}\Sigmab\|\leq 1$, we have
+\begin{align*}
+   \|\A\| & =
+          \Bigg\|\E\bigg[\frac{\P_{-n}\Sigmab}{\tr\,\P_{-n}\Sigmab}
+           \P_{-n}\bar\gamma\Sigmab\bigg]\Bigg\|
+  \leq \bar\gamma\,\E\bigg[\frac{\|\P_{-n}\Sigmab\|}{\tr\,\P_{-n}\Sigmab}\bigg]\\
+  &\leq \frac{n}{r-n}\,\E\bigg[\frac{\|\P_{-n}\Sigmab\|}{\tr\,\P_{-n}\Sigmab}\bigg]
+\end{align*}
+Let $s=\tr\,\E[\P_{-n}]\Sigmab$. Burkholder gives:
+$\Pr\{\tr\,\P_{-n}\Sigmab\leq  \frac12 s\}\leq\ee^{-\frac{cs}{\sqrt n}}$, so
+\begin{align*}
+  \E\bigg[\frac{\|\P_{-n}\Sigmab\|}{\tr\,\P_{-n}\Sigmab}\bigg]
+  &\leq
+    \E\bigg[\frac{\|\P_{-n}\Sigmab\|}{\tr\,\P_{-n}\Sigmab}\mid
+    \tr\,\P_{-n}\Sigmab\geq\frac12s\bigg]
+    +\Pr\big\{\tr\,\P_{-n}\Sigmab\leq \frac12 s\big\}\\
+  &\leq \frac2{s}+\ee^{-\frac{cs}{\sqrt n}} = O(\sqrt n/s)
+\end{align*}
+Then, we close the loop to replace $s$ with $\tr\,\bar\P\Sigmab$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Concentration using Burkholder}
+  Burkholder inequality says that for $k\geq 2$,
+  \begin{align*}
+    \E\big[(s - \tr\,\P_{-n}\Sigmab)^k\big]^{\frac1k}\leq Ck\,\sqrt{n}
+  \end{align*}
+  So, Markov's inequality says that:
+  \begin{align*}
+    \Pr\big\{|s - \tr\,\P_{-n}\Sigmab|\geq \alpha\big\}\leq
+    \Big(\frac{Ck\sqrt n}{\alpha}\Big)^k
+  \end{align*}
+  Setting $k=\frac {\alpha}{\ee C\sqrt n}$ we get:
+  \begin{align*}
+ \Pr\big\{|s - \tr\,\P_{-n}\Sigmab|\geq \alpha\big\}\leq
+    \Big(\frac1e\Big)^k\leq \ee^{-\frac{\alpha}{C\sqrt n}}
+    \end{align*}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Bounding the trace}
+Let $\alpha_n = \x_n^\top\P_{-n}\x_n$, $\hat\alpha =\E[\alpha_n]=
+\tr\,\E[\P_{-n}]\Sigmab$ and $\bar \alpha=\tr\,\bar\P
+\Sigmab$. \\
+Suppose that $\bar\alpha - \hat\alpha>0$. Since $\|\Sigmab\|=1$ and
+$\|\bar\gamma\Sigmab\bar\P\|=\frac{\bar\gamma}{\bar\gamma+1}$, we have:
+    \begin{align*}
+      \bar\alpha - \hat\alpha &\leq \tr\,\bar\P\Sigmab - \tr\,\E[\P]\Sigmab
+      = \tr\,(\I-\E[\P]\bar\P^{-1})\bar\P\Sigmab \\
+      &=\tr\, \E[\P_{-n}-\P]\bar\gamma\Sigmab\bar\P\Sigmab +
+        \tr\,\E\big[\P_{-n}\x_n\x_n^\top(\gamma_n-\bar\gamma)\big]\bar\P\Sigmab
+      \\
+      &\leq \tfrac{\bar\gamma}{\bar\gamma+1}\,
+        \E\bigg[\tr\,\frac{\P_{-n}\x_n\x_n^\top\P_{-n}}{\x_n^\top\P_{-n}\x_n}\bigg]
+        +\tfrac{\bar\gamma}{\bar\gamma+1}\,
+        \E\bigg[\tr\,\frac{\P_{-n}\x_n\x_n^\top\P_{-n}}{\x_n^\top\P_{-n}\x_n}
+        \cdot|\bar\alpha-\alpha_n|\bigg]\\
+&=\tfrac{\bar\gamma}{\bar\gamma+1}\Big(1 + \E\big[|\bar\alpha - \alpha_n|\big]\Big)\\
+      &=\tfrac{\bar\gamma}{\bar\gamma+1}\Big(1+ (\bar\alpha - \hat\alpha) +\E\big[|\hat\alpha-\alpha_n|\big]\Big)
+    \end{align*}
+    From Bei-Silverstein, we have
+    $\E\big[|\hat\alpha-\alpha_n|\big]\leq
+    C\sqrt{\E[\|\P_{-n}\Sigmab\|_F^2]}\leq C\sqrt{\hat\alpha}$,\\
+    so, closing the loop and assuming that $\bar\alpha\geq 1$, we get:
+    \begin{align*}
+      \tfrac1{\bar\gamma+1}(\bar\alpha-\hat\alpha)\leq
+      \tfrac{\bar\gamma} {\bar\gamma+1}
+      (1+C\sqrt{\hat\alpha})\leq\tfrac1{\bar\gamma+1}\tfrac{C'\bar\gamma}
+      {\sqrt{\bar\alpha}}\cdot\bar\alpha. 
+    \end{align*}
+    We conclude that $\hat\alpha\geq (1-\frac{C'\bar\gamma}{\sqrt{\bar\alpha}})\bar\alpha$.
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Rank-one bound with $y$}
+Let $\z\sim\Nc(\zero,\I)$ and $(\z,y)$ are jointly
+distributed. \\
+Let $\lambda_i$ be the eigenvalues of $\Sigmab$.
+\begin{align*}
+  \E\Big[\frac{\|\Sigmab^{\frac12}\z y\|^2}{(\z^\top\Sigmab\z)^2}\Big]
+  &=\sum_i
+   \E\bigg[\frac{\lambda_iz_i^2y^2}{(\sum_j\lambda z_j^2)^2}\bigg]\\
+ &\leq \sqrt{\E\bigg[\frac1{(\sum_i\lambda_iz_i^2)^4}\bigg]}\cdot\sum_i\sqrt{\E[\lambda_i^2 z_i^4y^4]}
+\end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bounding inverse moments}
+  Let $Z_S=\sum_{i\in S}\lambda_iz_i^2$, $r=\sum_i\lambda_i$
+  and  $1=\lambda_1\geq ...\geq\lambda_d$. Fix $a=2k+1$
+  \begin{align*}
+    \E\bigg[\frac1{(\sum_i\lambda_iz_i^2)^k}\bigg]
+    &=\E\Bigg[\E\bigg[
+      \frac1{(Z_{\leq a}  + Z_{>a})^k}\mid  Z_{\leq a}\bigg]\Bigg]\\
+    &\leq \frac1{(\frac12\E[Z_{>a}])^k} +
+      \ee^{-c(r-a)}\E\bigg[\frac1{(Z_{\leq a})^k}\bigg]\\
+    &\leq \Big(\frac 2{r-a}\Big)^k +
+      \ee^{-c(r-a)}\Big(\frac{1}{\lambda_{a}}\Big)^k\E\bigg[\frac1{(\sum_{i=1}^{a}z_i^2)^k}\bigg]\\
+    &=\Big(\frac 2{r-a}\Big)^k +
+      \ee^{-c(r-a)}\Big(\frac{1}{\lambda_{a}}\Big)^k\frac1{(a-2)!!},
+  \end{align*}
+  where we used $k$th inverse moment of the chi-squared
+  distribution.\\
+  Note that $r-a\leq (d-a)\lambda_a$, so if we assume
+  that $r\geq C(k+\ln d)$ then:
+  \begin{align*}
+    \Bigg(\E\bigg[\frac1{(\sum_i\lambda_iz_i^2)^k}\bigg]\Bigg)^{\!1/k}=
+    O\Big(\frac1r\Big).
+  \end{align*}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Inverse moments for general sub-Gaussians}
+  Let $z_1,...,z_d$ be i.i.d. sub-Gaussian and let $\A$ be
+  p.s.d.~with r = $\frac{\tr\,\A}{\|\A\|}$.\\ 
+There is an event $E$ such that $\Pr(E)\geq
+1-\ee^{-c\cdot r}$ and for any $k$:
+\begin{align*}
+  \Bigg(\E\bigg[\frac1{(\z^\top\A\z)^k}\mid E\bigg]\Bigg)^{1/k}
+  =O(1/r). 
+\end{align*}
+In particular, if $z_i$ is a Rademacher, the condition number of $\A$ is
+$\kappa<\infty$ and $r\geq c\ln\kappa$, then
+\begin{align*}
+  \Bigg(\E\bigg[\frac1{(\z^\top\A\z)^k}\bigg]\Bigg)^{1/k}
+  = O(1/r).
+\end{align*}
+Dependence on condition number (or failure event) is inevitable in general, because if
+$z_i$ is a Rademacher and $\one_d$ is an eigenvector of $\A$
+corresponding to $\lambda_{\min}$, then
+\begin{align*}
+    \Bigg(\E\bigg[\frac1{(\z^\top\A\z)^k}\bigg]\Bigg)^{1/k}\geq
+  \frac1{\one_d^\top\A\one_d}\cdot \Pr(\z = \one_d) =
+  \frac1{\lambda_{\min}d}\cdot 2^{-d}.
+\end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Rank-one projection bound for sub-Gaussians}
+  Assume that $z_i$ are i.i.d.~sub-Gaussian with mean zero and variance 1.\\
+  Let $E$ denote the event that
+  $\z^\top\A\z\geq\frac12\tr\,\A$. Hanson-Wright says:
+  \begin{align*}
+\Pr(\neg E)\leq 2\exp\Big(-c\min\Big\{\frac{(\tr\,\A)^2}{\tr\,\A^2},\frac{\tr\,\A}{\|\A\|}\Big\}\Big).
+  \end{align*}  
+Note that $\frac{(\tr\,\A)^2}{\tr\,\A^2}\geq
+\frac{\tr\,\A}{\|\A\|}=r$, so $\Pr(\neg E)\leq 2\ee^{-c\cdot r}$ and:
+  \begin{align*}
+    \E\bigg[\frac{\A^{\frac12}\z\z^\top\A^{\frac12}}{\z^\top\A\z}\bigg]
+    &\preceq \frac2{\tr\,\A} \E\big[\A^{\frac12}\z\z^\top\A^{\frac12}\mid E]\Pr(E)      + 
+      \E\bigg[\frac{\A^{\frac12}\z\z^\top\A^{\frac12}}{\z^\top\A\z}\mid \neg E\bigg]\Pr(\neg E)\\
+    &\preceq \frac 2{\tr\,\A}\E[\A^{\frac12}\z\z^\top \A^{\frac12}] +
+\E\Big[\frac{\z^\top\A\z\cdot \I}{\z^\top\A\z}\mid
+      \neg E\Big]2\ee^{-c\cdot r}\\
+    &= \frac {2}{\tr\,\A}\cdot \A + 2\ee^{-c\cdot r}\cdot \I =
+      O(1/r)\cdot \I.
+  \end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Rank-one projection for sub-Gaussians: precise analysis}
+  We apply Hanson-Wright more carefully:
+  \begin{align*}
+    \hspace{-6mm}\Pr\Big(|\z^\top\A\z-\tr\,\A|\geq \epsilon\,\tr\,\A\Big)\leq 
+    2\exp\Big(-c\min\Big\{\frac{\epsilon^2(\tr\,\A)^2}{\tr\,\A^2},
+    \frac{\epsilon\,\tr\,\A}{\|\A\|}\Big\}\Big)
+    \leq 2\ee^{-c\epsilon^2 r}.
+  \end{align*}
+  Using an analogous argument as in the previous slide, we get:
+  \begin{align*}
+    \Bigg\|\E\bigg[\frac{\A^{\frac12}\z\z^\top\A^{\frac12}}{\z^\top\A\z}\bigg]
+    -\frac{\A}{\tr\,\A}\Bigg\|
+    \leq\frac\epsilon r +2\ee^{-c\epsilon^2 r}.
+  \end{align*}
+  Setting $\epsilon =C\cdot \sqrt{\frac{\ln r}{r}}$ with appropriate $C$, we get:
+  \begin{align*}
+   \Bigg\|\E\bigg[\frac{\A^{\frac12}\z\z^\top\A^{\frac12}}{\z^\top\A\z}\bigg]
+    -\frac{\A}{\tr\,\A}\Bigg\|\leq C \sqrt{\frac{\ln r}{r}}\cdot \bigg\|\frac{\A}{\tr\,\A}\bigg\|
+    \end{align*}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Rank-one oblique projection}
+Set $\P_\x=\frac{\A\x\x^\top}{\x^\top\A\x}$,
+$\epsilon_\x=\frac{\tr\,\A\Sigmab}{\x^\top\A\x}-1$, and
+$E=\big[|\epsilon_\x|\leq \epsilon\big]$, with $\delta=\Pr(\neg E)$
+    \begin{align*}
+\hspace{-4mm}\Big\|\E\big[\P_\x\mid E\big]\Big\|
+&\leq\bigg\|\E\big[\P_\x\mid E\big] -
+        \E\Big[\frac{\A\x\x^\top}{\tr\,\A\Sigmab}\mid E\Big]\bigg\|
+        + \bigg\|\E\Big[\frac{\A\x\x^\top}{\tr\,\A\Sigmab}\mid E\Big]\Bigg\|\\
+      &=\bigg\|\frac{\A}{\tr\,\A\Sigmab}
+        \E\big[\epsilon_\x\x\x^\top\mid E\big]\bigg\|
+        +\bigg\|\frac{\A}{\tr\,\A\Sigmab}\E\big[\x\x^\top\mid E\big]\bigg\|
+    \end{align*}
+    Note that we have $\E[\x\x^\top\mid E]\preceq \big(1+
+    \frac{\delta}{1-\delta}\big)\cdot\Sigmab$ and
+    \begin{align*}
+      \big\|\E\big[\epsilon_\x\x\x^\top\mid E\big]\big\| \leq
+      \big\|\E\big[\epsilon_\x^+\x\x^\top\mid E\big]\big\|+
+      \big\|\E\big[\epsilon_\x^-\x\x^\top\mid E\big]\big\|\leq
+      2\epsilon\cdot \|\E[\x\x^\top\mid E]\|
+    \end{align*}
+    Overall, setting $\epsilon=C\cdot \sqrt{\frac{\ln r}{r}}$ we get
+    $\Pr(\neg E)\leq \epsilon$ and moreover:
+    \begin{align*}
+      \Big\|\E\big[\P_\z\mid E\big]\Big\|\leq
+      \big(1+O(\epsilon)\big)\cdot\frac{\|\A\|\,\|\Sigmab\|}{\tr\,\A\Sigmab}.
+      \end{align*}
+  \end{frame}
+
+
+  \begin{frame}
+    \frametitle{A new analysis of Theorem 1: high probability event}
+Let $\X = \Z\Sigmab^{\frac12}$, with $\|\Sigmab\|=1$ and
+$r=\tr\,\Sigmab$. $\Z$ has i.i.d.~sub-Gaussian rows\\
+    Let $E_i =
+    \Big[\Big|\frac{\tr\,\P_{-i}\Sigmab}{\x_i^\top\P_{-i}\x_i}-1\Big|\leq
+\epsilon\Big]$ and $F_i= \big[\x_i^\top\x_i\geq r/2\big]$ be
+    events for $i\in[n]$.\\
+    Hanson-Wright for the event $F_i$ gives: $\Pr(\neg F_i)\leq
+    \ee^{-c r}$.\\
+Denoting
+$r_i=\frac{\tr\,\Sigmab^{\frac12}\P_{-i}\Sigmab^{\frac12}}{\|\Sigmab^{\frac12}\P_{-i}\Sigmab^{\frac12}\|}\geq
+\tr\,\P_{-i}\Sigmab\geq r-n$, 
+we have:
+\begin{align*}
+\Pr(\neg E_i) = \E\big[\Pr(\neg E_i\mid \P_{-i})\big]\leq
+  \E\big[\ee^{-c\epsilon^2r_i}\big]\leq \ee^{-c\epsilon^2(r-n)}
+\end{align*}
+Now, we let $E = \bigwedge_{i=1}^n(E_i \wedge F_i)$ and union bound
+implies that:
+\begin{align*}
+  \Pr(\neg E)\leq 2n\,\ee^{-c\epsilon^2(r-n)}.
+\end{align*}
+Let $\rho = r/n$. Note that setting $\epsilon = C_\rho\cdot
+\sqrt{\frac{\ln r}{r}}$, we get $\Pr(\neg E)\leq \epsilon/r$
+  \end{frame}
+  
+  \begin{frame}
+    \frametitle{A new analysis of Theorem 1: decomposition}
+Recall that $\P=\I-\X^\dagger\X$ and $\bar\P=(\bar\gamma\Sigmab+\I)^{-1}$
+\begin{align*}
+\hspace{-5mm}\I-\E[\P]\bar\P^{-1}
+  &= \E[\X^\dagger\X] - \bar\gamma\E[\P]\Sigmab\\
+  &= \E[\X^\dagger\X\mid E]\Pr(E) +
+    \E[\X^\dagger\X\mid \neg E]\Pr(\neg E)
+    -\bar\gamma\E[\P]\Sigmab\\
+  &=n\,\E\bigg[\frac{\P_{-n}\x_n\x_n^\top}{\x_n^\top\P_{-n}\x_n}\mid
+    E\bigg]\Pr(E)-\bar\gamma\E[\P]\Sigmab \ +\     \E[\X^\dagger\X\mid \neg
+    E]\Pr(\neg E)\\
+  &=n\,\E\bigg[\frac{\P_{-n}\Sigmab}{\tr\,\P_{-n}\Sigmab}\bigg] +
+    n\bigg(\E\bigg[\frac{\P_{-n}\x_n\x_n^\top}{\x_n^\top\P_{-n}\x_n}\one_E-\frac{\P_{-n}\Sigmab}{\tr\,\P_{-n}\Sigmab}\bigg]\bigg)
+  \\
+  &\quad-\bar\gamma\E[\P]\Sigmab \ +\  \E[\X^\dagger\X\mid \neg E]\Pr(\neg E)
+\end{align*}
+Note that $\big\|\E[\X^\dagger\X\mid \neg E]\Pr(\neg
+E)\big\|\leq \Pr(\neg E)\leq \epsilon$. Next, we have:
+\begin{align*}
+\hspace{-8mm}n\,\bigg\|\E\bigg[\frac{\P_{-n}\x_n\x_n^\top}{\x_n^\top\P_{-n}\x_n}\one_E
+-\frac{\P_{-n}\Sigmab}{\tr\,\P_{-n}\Sigmab}\bigg]\bigg\|
+&\leq n\,\E\Bigg[\bigg\|\E\bigg[\frac{\P_{-n}\x_n\x_n^\top}{\x_n^\top\P_{-n}\x_n}\one_E\mid \P_{-n}\bigg] -\frac{\P_{-n}\Sigmab}{\tr\,\P_{-n}\Sigmab}\bigg\|\Bigg]\\
+&\overset{(*)}{\leq} n \, \E\bigg[\frac{O(\epsilon)}{\tr\,\P_{-n}\Sigmab}\bigg]
+\leq O(\epsilon)\cdot \frac{n}{r-n} \leq C_\rho' \cdot \sqrt{\frac{\ln r}{r}},
+\end{align*}
+where $(*)$ is shown on the next slide.
+\end{frame}
+
+  \begin{frame}
+    \frametitle{A new analysis of Theorem 1: oblique projection}
+let $\hat\C=\frac{\P_{-n}\x_n\x_n^\top}{\x_n^\top\P_{-n}\x_n}$, $\C=\frac{\P_{-n}\Sigmab}{\tr\,\P_{-n}\Sigmab}$ and
+$\varepsilon=\frac{\tr\,\P_{-n}\Sigmab}{\x_n^\top\P_{-n}\x_n}-1$.
+Condition on $\P_{-n}$. 
+    \begin{align*}
+\hspace{-5mm}\big\|\E\big[\hat\C \cdot \one _E\big]-\C\big\|
+&\leq\bigg\|\E\Big[\hat\C \cdot \one _E -
+\frac{\P_{-n}\x_n\x_n^\top}{\tr\,\P_{-n}\Sigmab} \one _E\Big]\bigg\|
+        + \bigg\|\E\Big[\frac{\P_{-n}\x_n\x_n^\top}{\tr\,\P_{-n}\Sigmab} \one_E\Big]
+-\C\Bigg\|\\ 
+      &=\bigg\|\frac{\P_{-n}}{\tr\,\P_{-n}\Sigmab}
+        \E\big[\varepsilon\x_n\x_n^\top\one_E\big]\bigg\|
+        +\bigg\|\frac{\P_{-n}}{\tr\,\P_{-n}\Sigmab}\Big(\E\big[\x_n\x_n^\top\one_E\big]-\Sigmab\Big)\bigg\|
+    \end{align*}
+Denoting $\delta = \Pr(\neg E)\leq \epsilon/r$, we have:
+\begin{align*}
+\Sigmab = \E[\x_n\x_n^\top] \succeq  \E[\x_n\x_n^\top\one_E]
+  &= \Sigmab - \delta\,\E[\x_n\x_n^\top\mid\neg E]\\
+  &\succeq \Sigmab - \delta\,
+    \E[\x_n^\top\x_n\,\I\mid\neg E]
+    \succeq \Sigmab  - \frac{\delta r}{2}\I\succeq \Sigmab - \epsilon\,\I,
+\end{align*}
+so $\|\E[\x_n\x_n\one_E]-\Sigmab\|\leq \epsilon$ and moreover it
+follows that:
+    \begin{align*}
+      \hspace{-4mm}
+      \big\|\E\big[\varepsilon\x_n\x_n^\top\one_E\big]\big\| \leq
+      \big\|\E\big[\varepsilon^+\x_n\x_n^\top\one_E\big]\big\|+
+      \big\|\E\big[\varepsilon^-\x_n\x_n^\top\one_E\big]\big\|\leq
+      2\epsilon\cdot \|\E[\x_n\x_n^\top\one_E]\|\leq 2\epsilon.
+    \end{align*}
+We conclude that $\|\E[\hat\C\cdot\one_E]-\C\|\leq O(\epsilon)\cdot
+\frac{\|\P_{-n}\|}{\tr\,\P_{-n}\Sigmab}=\frac{O(\epsilon)}{\tr\,\P_{-n}\Sigmab}$. 
+  \end{frame}
+
+
+
+\begin{frame}
+  \frametitle{A new analysis of Theorem 1: returning to the old proof}
+  In the previous slides we showed that:
+  \begin{align*}
+    \|\I-\E[\P]\bar\P^{-1}\|\leq
+    \bigg\|n\,\E\bigg[\frac{\P_{-n}\Sigmab}{\tr\,\P_{-n}\Sigmab}\bigg]
+    - \bar\gamma\E[\P]\Sigmab\bigg\| + C_\rho\cdot \sqrt{\frac{\ln r}{r}}
+  \end{align*}
+  It remains to use the old analysis, with $\bar s=\tr\bar\P\Sigmab$
+  and $\tilde s=\tr\,\P_{-n}\Sigmab$.
+  \begin{align*}
+   \bigg\| n\,\E\bigg[\frac{\P_{-n}\Sigmab}{\tr\,\P_{-n}\Sigmab}\bigg]
+    - \bar\gamma\E[\P]\Sigmab\bigg\|
+&=\bar\gamma\bigg\|\E\bigg[(\bar s - \tilde s)\cdot
+\frac{\P_{-n}\Sigmab}{\tr\,\P_{-n}\Sigmab}\bigg]
++ \E[\P_{-n}-\P]\Sigmab\bigg\|\\
+&\leq \bar\gamma \E\bigg[|\bar s-\tilde s|\cdot
+\frac{\|\P_{-n}\Sigmab\|}{\tr\,\P_{-n}\Sigmab}\bigg]
++\bar\gamma\bigg\|\E\bigg[\frac{\P_{-n}\x_n\x_n\P_{-n}}{\x_n^\top\P_{-n}\x_n}\bigg]\bigg\|
+    \\
+    &\leq \bar\gamma\,\Big(\E\big[|\bar s-\tilde s|\big] + 2\Big)\cdot
+      \frac1{r-n}\leq C_\rho\cdot \frac1{\sqrt r}
+  \end{align*}
+\end{frame}
+
+  \begin{frame}
+    \frametitle{Eliminating the $\ln(r)$: high probability event}
+Let $\X = \Z\Sigmab^{\frac12}$, with $\|\Sigmab\|=1$ and
+$r=\tr\,\Sigmab$. $\Z$ has i.i.d.~sub-Gaussian rows\\
+    Let $E_i =
+    \Big[\Big|\frac{\tr\,\P_{-i}\Sigmab}{\x_i^\top\P_{-i}\x_i}-1\Big|\leq\frac12\Big]$ and $F_i= \big[\frac{\tr\Sigmab}{\x_i^\top\x_i}\leq 2\big]$ be
+    events for $i\in[n]$.\\
+    Hanson-Wright for the event $F_i$ gives: $\Pr(\neg F_i)\leq
+    \ee^{-c r}$.\\
+Denoting
+$r_i=\frac{\tr\,\Sigmab^{\frac12}\P_{-i}\Sigmab^{\frac12}}{\|\Sigmab^{\frac12}\P_{-i}\Sigmab^{\frac12}\|}\geq
+\tr\,\P_{-i}\Sigmab\geq r-n$, 
+we have:
+\begin{align*}
+\Pr(\neg E_i) = \E\big[\Pr(\neg E_i\mid \P_{-i})\big]\leq
+  \E\big[\ee^{-cr_i}\big]\leq \ee^{-c(r-n)}
+\end{align*}
+Now, we let $E = \bigwedge_{i=1}^n(E_i \wedge F_i)$ and a union bound
+implies that:
+\begin{align*}
+  \Pr(\neg E)\leq 2n\,\ee^{-c(r-n)}\leq  \frac{C_\rho}{\sqrt{r}}
+\end{align*}
+where $\rho = r/n>1$, assuming that $r\geq C_\rho$ for appropriately
+chosen $C_\rho$.
+  \end{frame}
+
+
+\begin{frame}
+  \frametitle{Eliminating $\ln(r)$: decomposition}
+  Recall that $\P=\I-\X^\dagger\X$ and
+  $\bar\P=(\bar\gamma\Sigmab+\I)^{-1}$ and $\hat s =
+  \x_n^\top\P_{-n}\x_n$, $\bar s=n/\bar\gamma$
+\begin{align*}
+\hspace{-5mm}\I&-\E[\P]\bar\P^{-1}
+  = \E[\X^\dagger\X] - \bar\gamma\E[\P]\Sigmab\\
+  &= \E[\X^\dagger\X\one_E] +
+    \E[\X^\dagger\X \one_{\neg E}]
+    -\bar\gamma\E[\P]\Sigmab\\
+  &=n\,\E\bigg[\frac{\P_{-n}\x_n\x_n^\top}{\x_n^\top\P_{-n}\x_n}\one_E\bigg]
+    -\bar\gamma\E[\P]\Sigmab \ +\     \E[\X^\dagger\X\one_{\neg E}]\\
+  &=\bar\gamma\,\underbrace{\E\bigg[(\bar s-\hat
+    s)\cdot\frac{\P_{-n}\x_n\x_n^\top}{\x_n^\top\P_{-n}\x_n}\one_E\bigg]}_{\T}
+  + \bar\gamma\E[\P_{-n}\x_n\x_n^\top\one_E] -\bar\gamma\E[\P_{-n}]\Sigmab \\[-4mm]
+  &\hspace{5cm}+ \E[\P_{-n}-\P]\bar\gamma\Sigmab +\E[\X^\dagger\X\one_{\neg E}]
+\end{align*}
+Note that $\|\E[\X^\dagger\X\one_{\neg E}]\|\leq \frac{C_\rho}{\sqrt{r}}$ and $\|\E[\x_n\x_n^\top\one_E\mid\P_{-n}]-\Sigmab\|\leq
+\frac{C_\rho}{\sqrt{r}}$ so:
+\begin{align*}
+\big\|\E[\P_{-n}]\Sigmab -
+\E[\P_{-n}\x_n\x_n^\top\one_E]\big\|
+  =\Big\|\E\Big[\P_{-n}\big(\Sigmab-\E[\x_n\x_n^\top\one_E\mid\P_{-n}]\big)\Big]\Big\|\leq \frac{C_\rho}{\sqrt{r}}
+\end{align*}
+\textbf{Question:} How do we bound $\|\T\|$?
+\end{frame}
+
+\begin{frame}
+  \frametitle{Eliminating $\ln(r)$: last term}
+\begin{align*}
+\hspace{-8mm}   
+\|\T\|    &= \bigg\|\E\bigg[\P_{-n}\E\Big[(\bar s-\hat s)\cdot
+            \frac{\x_n\x_n^\top}{\x_n^\top\P_{-n}\x_n}\one_E\mid\P_{-n}\Big]\bigg]\bigg\|
+  \\
+  &\leq\E\bigg[\|\P_{-n}\|\cdot \Big\|\E\Big[|\bar s-\hat s|\cdot
+    \frac{\x_n\x_n^\top}{\x_n^\top\P_{-n}\x_n}\one_E\mid\P_{-n}\Big]
+    \Big\|\bigg]
+  \\
+          &\leq \frac2{r-n} \cdot \E\bigg[\sup_{\v\in S^{d-1}}\E\Big[
+            |\bar s-\hat s|\cdot \v^\top\x_n\x_n^\top\v\cdot\one_E\mid
+            \P_{-n}\Big]\bigg]
+  \\
+  &\leq \frac{C_\rho}{r}\cdot \E\bigg[\underbrace{\sqrt{\E\big[(\bar s-\hat
+    s)^2\mid\P_{-n}\big]}}_{O(\sqrt r)}\cdot
+    \underbrace{\sup_{\v\in S^{d-1}}\sqrt{\E\big[(\v^\top\x_n)^4\mid \P_{-n}\big]}}_{O(1)}\bigg]
+   \end{align*}
+ \end{frame}
+
+ 
+ \begin{frame}
+   \frametitle{A new analysis of Theorem 2: decomposition}
+   Define $\Q = \X^\dagger \X$ and
+   $\bar\Q=\bar\gamma\Sigmab(\bar\gamma\Sigmab+\I)^{-1}$. We use
+   $\E_E$ to mean $\E[\cdot\mid E]$
+   \begin{align*}
+     \bar\Q^{-\frac12}\E_E[\Q]\bar\Q^{-\frac12} - \I
+     &=\bar\Q^{-\frac12}(\E_E[\Q]\bar\Q^{-1} - \I)\bar\Q^{\frac12}
+     \\
+     &=\bar\Q^{-\frac12}(\I-\E_E[\P]\bar\P^{-1})\bar\gamma^{-1}\Sigmab^{-1}\bar\Q^{\frac12}
+     \\
+     &=\bar\P^{-\frac12}(\bar\gamma\Sigmab)^{-\frac12}(\I-\E_E[\P]\bar\P^{-1})(\bar\gamma\Sigmab)^{-\frac12}\bar\P^{\frac12}
+     \\
+     &=\bar\P^{-\frac12}\Sigmab^{-\frac12}
+       (\T_1 + \T_2 + \T_3) \Sigmab^{-\frac12}\bar\P^{\frac12},
+   \end{align*}
+   where we have:
+   \begin{align*}
+     \T_1
+     &= \E_E\bigg[(\bar s - \hat s)\cdot
+            \frac{\P_{-n}\x_n\x_n^\top}{\x_n^\top\P_{-n}\x_n}\bigg],
+     \\
+     \T_2 
+     &=\E_E[\P_{-n}\x_n\x_n^\top] - \E_E[\P_{-n}]\Sigmab,
+     \\
+     \T_3
+     &=\E_E[\P_{-n} - \P]\Sigmab.
+   \end{align*}
+ \end{frame}
+
+
+
+ \begin{frame}
+   \frametitle{A new analysis of Theorem 2: analyzing $\T_1$}
+   \begin{align*}
+      \|\Sigmab^{-\frac12}\T_1 \Sigmab^{-\frac12}\| \leq
+     \underbrace{\E_E\Big[\big\|\Sigmab^{-\frac12}\P_{-n}\Sigmab^{\frac12}\big\|\Big]}_{=O(\sqrt{d/r}\,) \ ???}
+     \cdot
+     \underbrace{\E_E\bigg[\Big\|\E_E\Big[(\bar s- \hat s)\cdot
+     \frac{\z_n\z_n^\top}{\x_n^\top\P_{-n}\x_n}\mid
+     \P_{-n}\Big]\Big\|\bigg]}_{=O(1/\sqrt r\,)} 
+   \end{align*}
+   Note that we have:
+   \begin{align*}
+     \big\|\Sigmab^{-\frac12}\P_{-n}\Sigmab^{\frac12}\big\|
+     &= \big\|\I -
+       \Sigmab^{-\frac12}\X_{-n}^\dagger\X_{-n}\Sigmab^{\frac12}\big\|
+     \\
+     &\leq 1 +
+       \big\|\Sigmab^{-\frac12}\Sigmab^{\frac12}\Z_{-n}^\top(\X_{-n}\X_{-n}^\top)^{\dagger}\Z_{-n}\Sigmab\big\|
+     \\
+     &= 1 +
+       \big\|\Z_{-n}^\top(\X_{-n}\X_{-n}^\top)^{\dagger}\Z_{-n}\Sigmab\big\|
+   \end{align*}
+Furthermore, we can show that:
+\begin{align*}
+  \X_{-n}\X_{-n}^\top\simeq r\cdot \I\
+  \quad\text{and}\quad
+  \Z_{-n}\Z_{-n}^\top \simeq d\cdot\I,
+\end{align*}
+so we get:
+\begin{align*}
+  \hspace{-5mm}\big\|\Z_{-n}^\top(\X_{-n}\X_{-n}^\top)^{\dagger}\Z_{-n}\Sigmab\big\|
+  &\simeq \tfrac1{r}  \big\|\Z_{-n}^\top\Z_{-n}\Sigmab\big\|
+= \tfrac1r \sqrt{\|\Sigmab
+    \Z_{-n}^\top\Z_{-n}\Z_{-n}^\top\Z_{-n}\Sigmab\|}
+  \\
+  &\simeq \tfrac{\sqrt
+    d}{r}\sqrt{\|\Sigmab\Z_{-n}^\top\Z_{-n}\Sigmab\|}
+    \leq
+    \tfrac{\sqrt d}{r}\sqrt{\|\X_{-n}\X_{-n}^\top\|}
+    =
+    O\big(\sqrt{d/r}\,\big).
+  \end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Net argument}
+  Let $\b\in\R^k$ be a unit vector and 
+  $\Z\in \R^{k\times d}$ have
+  i.i.d.~$\Nc(0,1)$ entries. Then $\Z^\top\b\sim \Nc(\zero,\I_d)$,
+so letting $r=\tr\,\Sigmab$, Hanson-Wright says:
+  \begin{align*}
+\hspace{-6mm}\Pr\Big(|\b^\top\Z\Sigmab\Z^\top\b-r|\geq
+    \epsilon\,r\Big)\leq  
+    2\exp\Big(-c\min\Big\{\frac{\epsilon^2(\tr\,\Sigmab)^2}{\tr\,\Sigmab^2},
+    \frac{\epsilon\,\tr\,\Sigmab}{\|\Sigmab\|}\Big\}\Big)
+    \leq 2\ee^{-c\epsilon^2 r}
+  \end{align*}
+  Setting $\epsilon = \sqrt{\frac kr} + \frac t{\sqrt r}$, we have with
+  probability $\ee^{-c(k+t^2)}$:
+  \begin{align*}
+    \Big|\frac1r\|\Sigmab^{\frac12}\Z^\top\b\|^2-1\Big|\leq \sqrt{\frac kr} + \frac t{\sqrt r},
+  \end{align*}
+Using a net argument over unit vectors $\b$, we conclude that $\X=\Z\Sigmab^{\frac12}$ with
+probability $1-\ee^{-t^2}$ satisfies:
+\begin{align*}
+  \sqrt r - C(\sqrt k +t)\leq \sigma_{\min}(\X)\leq
+  \sigma_{\max}(\X)\leq\sqrt r+C(\sqrt k+t)
+\end{align*}
+\end{frame}
+
+\begin{frame}{New strategy}
+Note that for any matrices $\A, \B$ of the same dimension, we have that $\A\B$ and $\B \A$ share the same eigenvalue and we denote $\A\B \sim \B\A$. As such
+\[
+  \bar \Q^{-\frac12} \E_E[\Q] \bar \Q^{-\frac12} - \I \sim (\T_1 + \T_2 + \T_3) \Sigmab^{-1}
+\]
+so that $\| \bar \Q^{-\frac12} \E_E[\Q] \bar \Q^{-\frac12} - \I \| \le \sum_{k=1}^3 \| \T_k \Sigmab^{-1} \|$ (eigenvalue bounded by spectral norm). Since 
+\begin{align*}
+  \| \T_1 \Sigmab^{-1} \| & = \left\| \E_E \left[ (\bar s - \hat s) \cdot \frac{ \P_{-n} \x_n \x_n^\top \Sigmab^{-1} }{\x_n^\top \P_{-n} \x_n} \right] \right\| \\ 
+  %%%
+  &\le \E_E \left\| \E_E \left[ (\bar s - \hat s) \cdot \frac{ \Sigmab^{\frac12} \z_n \z_n^\top \Sigmab^{-\frac12} }{\x_n^\top \P_{-n} \x_n} \mid \P_{-n} \right] \right\| 
+\end{align*}
+\end{frame}
+ 
+
+\begin{frame}
+    \frametitle{Rank-one projection for sub-Gaussians: higher moments}
+Let  $\x=\A^{\frac12}\z$, fix any $\v$ and let $E$ be the event that
+$\x^\top\x\geq \frac12\tr\,\A$.
+    \begin{align*}
+      \hspace{-3mm}\E\bigg[\Big(\v^\top\frac{\x\x^\top}
+      {\x^\top\x}\v\Big)^2\bigg]
+      &\leq
+        \Big(\frac2{\tr\,\A}\Big)^2\E\big[(\v^\top\x)^4\mid
+        E\big]\Pr(E) +
+        \E\bigg[\Big(\v^\top\frac{\x\x^\top}
+      {\x^\top\x}\v\Big)^2 \mid
+        E\bigg]\Pr(\neg E)\\
+      &\leq
+        \Big(\frac2{\tr\,\A}\Big)^2\E\big[(\z^\top\A^{\frac12}\v\v^\top\A^{\frac12}\z)^2\big]
+        + 2\ee^{-c  r} \|\v\|^4\\
+      &\overset{(*)}{\leq}
+        C\cdot\Big(\frac{1}{\tr\,\A}\Big)^2\tr\,(\A^{\frac12}\v\v^\top\A^{\frac12})^2
+        + 2\ee^{-c  r} \|\v\|^4 \\
+      &\leq C\cdot
+        \Big(\frac{\|\A\|}{\tr\,\A}\Big)^2\|\v\|^4+2\ee^{-cr}\|\v\|^4
+        = O(1/r^2)\cdot \|\v\|^4,
+    \end{align*}
+    where $(*)$ uses Bai-Silverstein, so it can easily be extended to
+    higher moments
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Bounds using nuclear rank}
+    Let $\bar s = \tr\,\bar\P\Sigmab = n/\bar\gamma$. Our current bounds are of the form:
+    \begin{align*}
+      \|\I-\E[\P]\bar\P^{-1}\| =
+      O\Big(\bar\gamma^{\alpha}\tfrac{\sqrt{n+\bar s}}{\bar s}\Big)
+    \end{align*}
+W.l.o.g.~assume that $\lambda_1=1$. We lower-bound $\bar s$ and upper bound $\bar\gamma$:
+    \begin{align*}
+n= \sum_i \frac{\bar\gamma\lambda_i}{\bar\gamma\lambda_i + 1}
+      \geq
+      \frac{\bar\gamma\lambda_1}{\bar\gamma\lambda_1+1}\frac{\sum_i\lambda_i}{\lambda_1}
+      = \frac{\bar\gamma}{\bar\gamma+1}\cdot r\\
+\Rightarrow \quad
+      \bar\gamma\leq \frac n{r-n}
+\quad\text{and}\quad
+      \bar s\geq \frac1{\frac n{r-n}+1}\cdot r = r-n
+    \end{align*}
+Fixing $\rho = r/n>1$, we have
+    $\bar\gamma\leq \frac1{\rho-1}$ and $\bar s\geq r\,\frac{\rho-1}{\rho}$, so:
+    \begin{align*}
+      \|\I-\E[\P]\bar\P^{-1}\| = O\Big(C_\rho\cdot\frac1{\sqrt r}\Big)
+      = O\Big(C_\rho\cdot\sqrt{\frac{\kappa}{d}}\ \Big),
+    \end{align*}
+because $r\geq d/\kappa$, but note that we require $r/n>1$ instead of $d/n>1$
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Bounds using the dimension}
+    Let $\bar s = \tr\,\bar\P\Sigmab = n/\bar\gamma$. Our current bounds are of the form:
+    \begin{align*}
+      \|\I-\E[\P]\bar\P^{-1}\| =
+      O\Big(\bar\gamma^{\alpha}\tfrac{\sqrt{n+\bar s}}{\bar s}\Big)
+    \end{align*}
+W.l.o.g., $\lambda_1=1$. We lower/upper-bound $\bar s$ and $\bar\gamma$:
+    \begin{align*}
+n= \sum_i \frac{\bar\gamma\lambda_i}{\bar\gamma\lambda_i + 1}
+      &\geq
+      \frac{\bar\gamma\lambda_{\min}}{\bar\gamma\lambda_{\min}+1}\cdot d\\
+\Rightarrow \quad
+      \bar\gamma\leq \frac1{\lambda_{\min}}\frac n{d-n}
+\quad&\text{and}\quad
+      \bar s\geq \frac{\lambda_{\min}}{\frac n{d-n}+1}\cdot d = \lambda_{\min}(d-n)
+    \end{align*}
+For $\rho = d/n>1$ and $\kappa=\frac1{\lambda_{\min}}$, we have
+$\bar\gamma\leq \frac\kappa{\rho-1}$ and $\bar s\geq r\,\frac{\rho-1}{\kappa\rho}$, so: 
+    \begin{align*}
+      \|\I-\E[\P]\bar\P^{-1}\| = O\Big(C_\rho\cdot \frac{\kappa^{\alpha+\frac12}}{\sqrt d}\Big)
+    \end{align*}
+\end{frame}
+    
+    \begin{frame}
+      \frametitle{Interpolated bounds}
+    Let $\bar s = \tr\,\bar\P\Sigmab = n/\bar\gamma$. Our current bounds are of the form:
+    \begin{align*}
+      \|\I-\E[\P]\bar\P^{-1}\| =
+      O\Big(\bar\gamma^{\alpha}\tfrac{\sqrt{n+\bar s}}{\bar s}\Big)
+    \end{align*}
+W.l.o.g., $\lambda_1=1$. We lower/upper-bound $\bar s$ and $\bar\gamma$:
+  \vspace{-5mm}
+    \begin{align*}
+      n= \sum_i \frac{\bar\gamma\lambda_i}{\bar\gamma\lambda_i + 1}
+      \geq
+      \frac{\bar\gamma\lambda_k}{\bar\gamma\lambda_k+1}
+      \overbrace{\bigg(k-1+\frac{\sum_{i\geq k}\lambda_i}{\lambda_k}\bigg)}^{r_k}\\
+\Rightarrow \quad
+      \bar\gamma\leq \frac1{\lambda_k}\frac n{r_k-n}
+\quad\text{and}\quad
+      \bar s\geq \frac{\lambda_k}{\frac n{r_k-n}+1}\cdot r_k = \lambda_k(r_k-n)
+    \end{align*}
+For $\rho = \frac{r_k}{n}>1$ and $\kappa_k=\frac1{\lambda_k}$, we have
+    $\bar\gamma\leq \frac{\kappa_k}{\rho-1}$ and $\bar s\geq r_k\frac{\rho-1}{\kappa_k\rho}$, so:
+    \begin{align*}
+      \|\I-\E[\P]\bar\P^{-1}\| = O\Big(C_\rho\cdot\frac{\kappa_k^{\alpha+\frac12}}{\sqrt {r_k}}\Big)
+    \end{align*}
+For $k=1$ we recover nuclear rank, for $k=d$ we recover the dimension.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Interpolated bounds: motivating example}
+  Let $\lambda_1=1$ and $\lambda_2=...=\lambda_t=\frac1{t^\beta}$ and
+  $\lambda_{t+1}=\epsilon$.\\[3mm]
+  Let $k=1$: We have $r_1 \simeq  t^{1-\beta}$ and $\kappa_1=1$ so
+\begin{align*}
+  n=\Omega(t^{1-\beta})\quad\text{and}\quad
+  \|\I-\E[\P]\bar\P^{-1}\|= O\Big(C_\rho \frac1{\sqrt{t^{1-\beta}}}\Big). 
+\end{align*}
+Let $k=2$: We have $r_2 \simeq t$ and $\kappa_2 = t^\beta$ so
+\begin{align*}
+    n=\Omega(t)\quad\text{and}\quad
+  \|\I-\E[\P]\bar\P^{-1}\|= O \Big(C_\rho
+  \frac{t^{\beta(\alpha+\frac12)}}{\sqrt{t}}\Big) = O\Big(C_\rho\frac1{\sqrt{t^{1-\beta(2\alpha+1)}}}\Big)
+\end{align*}
+Conclusions:
+\begin{enumerate}
+\item The convergence rate seems best for $k=1$
+\item But the range of applicable $n$ is better for $k>1$.
+\end{enumerate}
+\end{frame}
+
+% \begin{frame}
+%   \frametitle{Converting from main theorem to sketching}
+%   Let $\A\in\R^{m\times n}$ and let $\S$ be a $k\times m$ sketching
+%   matrix, $\E[\S^\top\S]=\I$\\
+%   Define $\Sigmab=\A^\top\A$. We let $\Z$ be a $k\times n$ random
+%   matrix such that:
+%   \begin{align*}
+% \Z = \S\A\Sigmab^{-\frac12}
+%   \end{align*}
+%   Note that if $\S$ has i.i.d.~rows then so does $\Z$. Moreover:
+%   \begin{align*}
+% \Z\Sigmab^{\frac12} = \S\A\quad\text{and}\quad \E[\Z^\top\Z] =
+%     \Sigmab^{-\frac12}\A^\top\E[\S^\top\S]\A\Sigmab^{-\frac12} = \I
+%   \end{align*}
+% Suppose that $\S$ is the leverage score sampling sketch, i.e.,
+% $\s_i=\frac1{\sqrt{k p_{j_i}}}\e_{j_i}$, and $p_{j_i}=\frac1n\a_{j_i}^\top\Sigmab^{-1}\a_{j_i}$.
+%   Then $\|\z_i\|^2= \frac nk$ with probability $1$ for all $i$.
+%   \begin{align*}
+%     \E\big[\ee^{(\v^\top\z)^2/t^2}\big]
+%     &\leq \E\big[\ee^{\|\v\|^2\|\z\|^2/t^2}\big] =\ee^{n/(k t^2)}
+%       \quad\text{for }\v\in S^{n-1}\\
+%         \|\z\|_{\psi_2}
+%     & = \sup_{\v\in S^{n-1}}\|\v^\top\z\|_{\Psi_2} \\
+%     &= \sup_{\v\in
+%       S^{n-1}}\inf\Big\{t>0:\E\big[\ee^{(\v^\top\z)^2/t^2}\big]\leq
+%       2\Big\}\leq \sqrt{ 2n/k}
+%   \end{align*}
+% \end{frame}
+
+
+  \begin{frame}
+    \frametitle{Rotational invariance of the sub-gaussian norm}
+    Let $\z$ be an $m$-dimensional sub-gaussian random variable.\\
+    Let $\U\in\R^{m\times n}$ be a matrix such that $\|\U\v\|=\|\v\|$
+    for all $\v\in\R^n$\\
+    This means that if $\v\in S^{n-1}$ then $\U\v\in S^{m-1}$, so
+    \begin{align*}
+      \|\U^\top\z\|_{\psi_2} = \sup_{\v\in
+      S^{n-1}}\|(\U\v)^\top\z\|_{\psi_2}
+      \leq\sup_{\u\in S^{m-1}}\|\u^\top\z\|_{\psi_2} = \|\z\|_{\psi_2}
+    \end{align*}
+\textbf{Reduction} from $\Z\Sigmab^{\frac12}$ to $\S\A$ for a
+non-square $\A$\\[3mm]
+Let $\A\in\R^{m\times n}$ be a rank $n$ matrix and let
+$\U=\A\Sigmab^{-\frac12}$, $\Sigmab = \A^\top\A$\\
+Let $\S$ be a $k\times m$ matrix with i.i.d.~sub-gaussian rows
+and let $\Z=\S\U$.\\[2mm]
+
+Then $\Z$ also has i.i.d.~sub-gaussian rows with the same constant,
+so Theorem 1 applies to $\X=\S\A = \Z\Sigmab^{\frac12}$\\[5mm]
+
+\textbf{Todo:}
+\begin{enumerate}
+\item Check if this reduction works for Gaussian and Rademacher sketches
+  (for Gaussians the reduction is not necessary, just a sanity check)
+\item Extend this to allow a rank-deficient matrix $\A$
+\end{enumerate}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Applying Theorem 1 to the Gaussian sketch}
+   Let $\S\sim\Nc_{k\times m}(\zero,\I_k,\I_m)$, so that $\E[\S^\top\S]=k\I$\\
+   Fix any $m\times n$ matrix $\A$. Then $\S\A\sim
+   \Nc_{k\times n}(\zero,\I_k,\A^\top\A)$\\
+   Let $\Sigmab=\A^\top\A$ and $\Z\sim\Nc_{k\times n}(\zero,\I_k,\I_n)$. Then
+   $\Z\Sigmab^{\frac12}\overset{d}{=}\S\A$\\
+   Each row $\s_i^\top$ of $\S$ as well as $\z_i^\top$ of $\Z$
+   has constant sub-Gaussian norm.\\[5mm]
+
+   \textbf{Testing rotational invariance.}
+   Let $\Z' = \S\A\Sigmab^{-\frac12}$. Then,
+   $\Z'\overset{d}{=}\Z$,\\
+   so the sub-Gaussian norm of each row of $\Z'$ is also constant
+  \end{frame}
+  
+  \begin{frame}
+    \frametitle{Applying Theorem 1 to the Rademacher sketch}
+   Let $\S$ be $k\times m$ with i.i.d.~Rademacher entries, so that $\E[\S^\top\S]=k\I$\\
+   Each row $\s_i^\top$ of $\S$ is sub-Gaussian with
+   $\|\s_i\|_{\psi_2}\leq 2$.\\
+   Fix any $m\times n$ matrix $\A$ and let $\Sigmab=\A^\top\A$. In
+   general,   $\S\Sigmab^{\frac12}\overset{d}{\neq}\S\A$\\[5mm] 
+
+   \textbf{Applying rotational invariance.}
+   Let $\Z = \S\A\Sigmab^{-\frac12}$. In general,
+   $\Z\overset{d}{\neq}\S$,\\
+   but the covariance matrix of each row is the $\I$, the same for
+   $\Z$ and $\S$\\
+   and sub-Gaussian norm of each row of $\Z$ is bounded by $2$\\
+   Since $\Z\Sigmab^{\frac12}=\S\A$, we can apply Theorem 1.\\[5mm]
+
+\textbf{Note:} This immediately generalizes to any sketching matrix
+$\S$ consisting of i.i.d.~entries with constant sub-Gaussian norm.
+ \end{frame}
+
+ \begin{frame}
+   \frametitle{Applying Theorem 1 to the i.i.d.~row-sampling sketch}
+   Let $\S$ be $k\times m$, with $i$th row $\s_i$ equal to
+   $\frac1{\sqrt p_{j}}\e_j$ w.p.~$p_j$, so $\E[\S^\top\S]=k\I$\\
+   Each row $\s_i^\top$ of $\S$ is sub-Gaussian because for $\v\in S^{m-1}$:
+   \begin{align*}
+\E\big[\ee^{(\v^\top\s)^2/t^2}\big] =
+     \sum_{j=1}^mp_j\ee^{v_i^2/(p_it^2)}\leq 1 +
+     p_{\min}\ee^{1/(p_{\min}t^2)}
+   \end{align*}
+   This implies that $\|\s\|_{\psi_2}\leq \frac2{\sqrt{p_{\min}}}$\\
+   Note that this bound is at least $2\sqrt m$ for any distribution $p_1,...,p_m$\\[5mm]
+Thus, rotational invariance reduction is not sufficient because it
+leads to at least an additional factor $m$ in the error bound of
+Theorem 1.
+ \end{frame}
+
+  \begin{frame}
+    \frametitle{Applying Theorem 1 to leverage score sampling}
+    Let $\S$ be $k\times m$, with $i$th row $\s_i$ equal to
+    $\frac1{\sqrt p_{j}}\e_j$ w.p.~$p_j$, so $\E[\S^\top\S]=k\I$\\
+    Fix $m\times n$ matrix $\A$ and let $\Sigmab=\A^\top\A$. Set $p_j
+    = \frac1n\a_j^\top\Sigmab^{-1}\a_j$.\\
+Note that still $\|\s_i\|\geq \sqrt m$, so we define $\Z=\S\A\Sigmab^{-\frac12}$.\\
+Since $\|\z_i\|^2=n$, each row of $\Z$ is sub-Gaussian because for $\v\in S^{m-1}$:
+  \begin{align*}
+    \E\big[\ee^{(\v^\top\z)^2/t^2}\big]
+    \leq \E\big[\ee^{\|\v\|^2\|\z\|^2/t^2}\big] =\ee^{n/t^2}
+  \end{align*}
+  This implies a bound of $\|\z\|_{\psi_2}\leq 2\sqrt n$. This is
+  potentially far better then $\frac2{\sqrt{p_{\min}}}\geq 2\sqrt m$ which
+  follows via rotational invariance.\\[5mm]
+
+\textbf{Note:}  This bound is still too weak to give non-vacuous
+guarantees in Theorem 1. Moreover, it is tight for example when
+$\A=\I_n$.\\[4mm]
+\textbf{Conclusion:} The only way that row sampling can have a small
+sub-Gaussian norm is if the matrix $\A$ itself was generated from
+i.i.d.~samples of sub-Gaussian distribution
+
+ \end{frame}
+
+
+\begin{frame}
+  \frametitle{Converting to trace bounds for low-rank approximation}
+  Let $\A\in\R^{m\times n}$ and let $\S$ be a $k\times m$ sketching
+  matrix, $\E[\S^\top\S]=\I$\\
+    Define $\Sigmab=\A^\top\A$, $\Z=\S\A\Sigmab^{-1}$ and $\X=\Z\Sigmab^{\frac12}$. Suppose
+    that we show
+    \begin{align*}
+      (1-\epsilon)\bar\P\preceq \E[\I-\X^\dagger\X]\preceq(1+\epsilon)\bar\P.
+    \end{align*}
+    Then, it follows that:
+    \begin{align*}
+      \E\big[\|\A-\A(\S\A)^\dagger(\S\A)\|_F^2\big]
+      &= \tr\,\A\E\big[\I-(\S\A)^\dagger(\S\A)\big]\A^\top\\
+      &= \tr\,\A\E\big[\I-\X^\dagger\X\big]\A^\top\\
+       &\leq (1+\epsilon)\cdot \tr\,\A\bar\P\A^\top,
+    \end{align*}
+    and the lower bound follows analogously.
+  \end{frame}
+
+\begin{frame}
+  \frametitle{The Counterexample}
+
+  Suppose that $\X=\Z\Sigmab^{\frac12}$ where $\Z$ has
+  i.i.d.~Rademacher entries and $\one_d$ is the eigenvector of
+  $\Sigmab$ corresponding to $\lambda_{\min}$. \\
+$\one_d$ is an eigenvector of
+$\I-\bar\P=\bar\gamma\Sigmab(\bar\gamma\Sigmab+\I)^{-1}$ with
+eigenvalue $\frac{\bar\gamma\lambda_{\min}}{\bar\gamma\lambda_{\min}+1}$.\\
+Let $E = [\z_1=\one_d]$. If $E$ holds then
+  $\x_1=\sqrt{\lambda_{\min}}\one_d$.
+  
+  \begin{align*}
+    \|(\I-\bar\P)^{-\frac12}\E[\X^\dagger\X](\I-\bar\P)^{-\frac12}-\I\|
+    &\geq \frac1d\one_d^\top
+      (\I-\bar\P)^{-\frac12}\E[\X^\dagger\X](\I-\bar\P)^{-\frac12}\one_d-1\\
+    &=\frac{\bar\gamma\lambda_{\min}+1}{d\bar\gamma\lambda_{\min}}
+      \one_d^\top\E[\X^\dagger\X]\one_d-1\\
+&\geq \frac1{d\bar\gamma\lambda_{\min}}
+\E[\one_d^\top\X^\dagger\X\one_d\mid E]\Pr(E)-1\\
+&=     \frac1{d\bar\gamma\lambda_{\min}}
+\one_d^\top\one_d2^{-d}-1 = \frac{2^{-d}}{\bar\gamma\lambda_{\min}}-1
+  \end{align*}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Inverting the expression: exponential decay}
+  Suppose that $\lambda_i = C\cdot a^{i-1}$ for some
+  $a\in(0,1)$. W.l.o.g., assume that $C=1$.
+  \begin{align*}
+    k&=  \sum_{i\geq 1} \frac{\gamma\lambda_i}{\gamma\lambda_i+1}
+=\sum_{i\geq 0}\frac1{1 + \gamma^{-1}a^{-i}}
+      \\
+      & \simeq \int_0^\infty \frac1{1+\gamma^{-1}a^{-x}}dx
+        =\frac{\ln(a^x+\gamma^{-1})}{\ln(a)} \Big|_0^\infty
+    \\
+    &= \frac{\ln(\gamma^{-1})}{\ln(a)} -
+      \frac{\ln(1+\gamma^{-1})}{\ln(a)} = \frac{\ln(1/(\gamma+1))}{\ln(a)}.
+  \end{align*}
+ From this, we get $\gamma \simeq a^{-k}-1$ and the low-rank
+ approximation error is:
+ \begin{align*}
+   \E\big[\|\A-\A\P\|_F^2\big] \simeq k/\gamma\simeq \frac{C\cdot k}{a^{-k}-1}.
+ \end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Inverting the expression: harmonic decay}
+  Suppose that $\lambda_i = 1/i$. Then, we have:
+  \begin{align*}
+    k&=  \sum_{i=1}^n \frac{\gamma\lambda_i}{\gamma\lambda_i+1}
+=\sum_{i=1}^n\frac1{1 + \gamma^{-1}i}
+      \\
+      & \simeq \int_0^n \frac1{1+\gamma^{-1}x}dx
+        =\gamma\ln(1+\gamma^{-1}x) \big|_0^n
+    \\
+    &= \gamma\ln(1+n/\gamma).
+  \end{align*}
+  It follows that $E \simeq k/\gamma$ satisfies the equation: $E =
+  \ln(1+\frac nk E)$.\\
+  As long as $n>2k$, this will converge to the solution starting from
+  $E_0=1$, \\
+  so we get a series of improving approximations:
+  \begin{align*}
+    E_1 = \ln(1+\tfrac nk),\quad E_2 = \ln\!\Big(1+\tfrac
+    nk\ln\!\big(1+\tfrac nk\big)\Big),\quad ...
+  \end{align*}
+  It can also be expressed via the Lambert W-function:
+  \begin{align*}
+    \E\big[\|\A-\A\P\|_F^2\big]\simeq  -W\big(-\tfrac nk\ee^{k/n}\big) - \tfrac kn
+  \end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Inverting the expression: quadratic decay}
+  Suppose that $\lambda_i = 1/i^2$. Then, we have:
+  \begin{align*}
+    k&=  \sum_{i\geq 1} \frac{\gamma\lambda_i}{\gamma\lambda_i+1}
+=\sum_{i\geq 1}\frac1{1 + \gamma^{-1}i^2}
+= \frac\pi 2 \sqrt\gamma \underbrace{\coth(\pi\sqrt\gamma)}_{\simeq 1} - \frac12,
+       % = \frac\pi 2 \sqrt\gamma \,\frac{\ee^{2 \pi\sqrt\gamma}+1}{\ee^{2
+       % \pi\sqrt\gamma}-1} - \frac12
+  \end{align*}
+  so we obtain that $\gamma \simeq (2k+1)^2/\pi^2$ and so:
+  \begin{align*}
+    \E\big[\|\A-\A\P\|_F^2\big]\simeq \frac{\pi^2 k}{(2k+1)^2}    
+  \end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Inverting the expression: polynomial decay}
+  Suppose that $\lambda_i = 1/i^\alpha$ for $\alpha>1$. Then, we have:
+  \begin{align*}
+    k&=  \sum_{i\geq 1} \frac{\gamma\lambda_i}{\gamma\lambda_i+1}
+       =-1 + \sum_{i\geq 0}\frac1{1 + \gamma^{-1}i^\alpha}
+    \\
+&\simeq -\frac12+\int_0^\infty \frac1{1 + \gamma^{-1}x^\alpha}dx = -\frac12 +
+         \gamma^{1/\alpha}\,\frac\pi\alpha\mathrm{csc}\Big(\frac\pi\alpha\Big).
+  \end{align*}
+  It follows that $\gamma \simeq
+  \big((k+\frac12)\frac\alpha\pi\sin(\frac\pi\alpha)\big)^\alpha$, and
+  \begin{align*}
+    \E\big[\|\A-\A\P\|_F^2\big]\simeq \frac
+    k{(k+\frac12)^\alpha}\,\bigg(\frac{\pi/\alpha}{\sin(\pi/\alpha)}\bigg)^\alpha. 
+  \end{align*}
+  For large $\alpha$, 
+  $\sin(\frac\pi\alpha)\simeq\frac\pi\alpha$,
+  so then we get $\gamma\simeq (k+\frac12)^\alpha$.
+\end{frame}
+
+  \begin{frame}
+    \frametitle{Spectral norm using Burkholder and $\epsilon$-net}
+    Let $\Nc\subseteq S^{d-1}$ be an $\epsilon$-net of the unit
+    sphere. Then for any $\C$:
+    \begin{align*}
+      \|\Sigmab^{\frac12}(\P_{\perp}-\E[\P_{\perp}])\Sigmab^{\frac12}\|
+      \overset\epsilon\simeq
+      \sup_{\u\in\Nc}\u^\top\Sigmab^{\frac12}
+      (\P_{\perp}-\E[\P_{\perp}])\Sigmab^{\frac12}\u.
+    \end{align*}
+Note that $\u^\top\Sigmab^{\frac12}(\P-\P_{-i})\Sigmab^{\frac12}\u\leq
+\u^\top\Sigmab\u\leq \|\Sigmab\|=1$. So Azuma-Hoeffding says that:
+    \begin{align*}
+      \Pr\big\{|\u^\top\Sigmab^{\frac12}(\P_{\perp}-\E[\P_{\perp}])\Sigmab^{\frac12}\u|\geq t\big\}\leq
+      \ee^{-\frac{t^2}{8k}}.
+    \end{align*}
+    So using a union bound, and noting that $|\Nc|\leq (3/\epsilon)^d$, we have 
+    \begin{align*}
+      \Pr\Big\{\|\Sigmab^{\frac12}(\P_{\perp}-\E[\P_{\perp}])\Sigmab^{\frac12}\|\Big\}
+      &\leq \sum_{\u\in\Nc}
+\Pr\big\{|\u^\top\Sigmab^{\frac12}(\P_{\perp}-\E[\P_{\perp}])\Sigmab^{\frac12}\u|\geq
+        t\big\}
+        \\
+      &\leq (3/\epsilon)^d\ee^{-\frac{t^2}{8k}} =
+        \ee^{-\frac{t^2}{8k} + d\ln(3/\epsilon)}
+    \end{align*}    
+  \end{frame}
+
+
+  \begin{frame}
+    \frametitle{Integrating out the tail}
+    Let $\x\sim\Nc(\zero,\I_d)$. Note that $\E[\x^\top\x]=d$. Take any
+    $\Ec$ s.t. $\Pr(\neg \Ec)=\delta$.\\
+    \emph{Goal}:
+    Find an upper bound for $\E[\x^\top\x\cdot \one_{\neg \Ec}]$.
+    \begin{align*}
+      \E[\x^\top\x\cdot \one_{\neg \Ec}]
+      &= \int_{0}^\infty\Pr(\x^\top\x\cdot \one_{\neg \Ec}\geq x)\,dx
+      \\
+      &\leq 2d\delta + \int_{2d}^\infty\Pr(\x^\top\x\geq x)\,dx
+      \\
+      &\leq 2d\delta + \int_{2d}^\infty\ee^{-cx}\,dx
+      \\
+      &=2d\delta + \frac1c\ee^{-2cd}.
+    \end{align*}
+\emph{Note}: In our setting we have roughly $\delta \leq \ee^{-cd}$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Using just the variance via Chebychev}
+  Assume that $\Var[\x^\top\x]\leq Cd$. Then, Chebychev says that for $x>0$:
+  \begin{align*}
+    \Pr(\x^\top\x\geq d+x)\leq\frac {Cd}{x^2}.
+  \end{align*}
+  Using this as the tail bound we get:
+    \begin{align*}
+      \E[\x^\top\x\cdot \one_{\neg \Ec}]
+      &= \int_{0}^\infty\Pr(\x^\top\x\cdot \one_{\neg \Ec}\geq x)\,dx
+      \\
+      &\leq 2d^2\delta + \int_{2d^2}^\infty\Pr(\x^\top\x\geq x)\,dx
+      \\
+      &\leq 2d^2\delta +C'd\int_{2d^2}^\infty\frac{1}{x^2}\,dx
+      \\
+      &\leq 2d^2\delta + C'd\cdot \frac1{2d^2}
+      \\
+      &=O\Big(\frac1d\Big)\quad\text{for}\quad\delta\leq 1/d^3.
+  \end{align*}
+\end{frame}
+
+\end{document}

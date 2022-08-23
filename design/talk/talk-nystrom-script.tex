@@ -1,0 +1,241 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=.5in]{geometry}
+\usepackage{xcolor}
+\usepackage{url}
+%\usepackage[sc]{mathpazo}
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+\newcommand{\Hrule}{\rule{\linewidth}{0.3mm}}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\makeatletter% since there's an at-sign (@) in the command name
+\renewcommand{\@maketitle}{%
+  \parindent=0pt% don't indent paragraphs in the title block
+  \centering
+  {\Large \bfseries\textsc{\@title}}
+  \HRule\par%
+  \textbf{\@author \hfill \@date}
+  \par
+}
+\def\b{{~\textbullet~}}
+\makeatother% resets the meaning of the at-sign (@)
+
+
+\title{Nystr\"om Talk Script}
+\author{Micha{\l} Derezi\'{n}ski}
+\date{\texttt{mderezin@berkeley.edu}}
+
+\begin{document}
+  \maketitle% prints the title block
+\setlength{\parskip}{0.5\baselineskip}
+\setlength{\parindent}{0pt}
+
+
+Hi, my name is Micha{\l}, and I will be talking about an intriguing
+phenomenon, which we refer to as the multiple-descent curve in subset
+selection. This is joint work with Rajiv and Michael. 
+
+A core motivation for the tasks we are studying is interpretable
+dimensionality reduction. As an example, consider a biological
+application, with a large genetics dataset where each individual is
+described by a sequence of genetic variations, called Single
+Nucleotide Polymorphisms, SNPs for short. Prior work has shown that
+such data can be effectively characterized by a subset of SNPs, chosen
+so that it is correlated with the top Principal Components of the data
+matrix. This subset of SNPs can then be used by domain experts to
+extract insight from the data. Many other applications of
+interpretable dimensionality reduction have been demonstrated in the
+literature, including for example document clustering. 
+
+The two basic dimensionality reduction tasks we consider in this work
+are Column Subset Selection and the
+Nystrom method. Those two tasks are very closely related, even though they often
+appear independently in the literature. The first one, on the left, is
+most commonly described as feature selection from a data matrix A,
+although we could just as well consider a setting where the columns of
+A are the instances instead of features. For the Nystrom method, on
+the right, the matrix in question is a square kernel matrix, and we
+wish to represent it by a subset of entries. This task arises in the
+context of kernel machines, Gaussian Process regression and
+Independent Component Analysis, among others. As we demonstrate in the
+paper, an equivalence between these tasks can be established, which
+means that all of our results apply in both settings. 
+
+In low-rank approximation our goal is to project data onto a
+low-dimensional subspace, while minimizing the projection
+error. Without additional constraints, there is a unique choice to
+minimize this error, by projecting onto the top k principal components
+in the data. However, typically these principal component vectors will
+not correspond to any interpretable feature or instance, which is why
+we may want to\b choose a subspace spanned by a column subset of the
+data matrix. Naturally, there are other notions of interpretability
+than selecting subsets of the data matrix, however this model provides
+a useful framework for analyzing, what can be described as, the cost
+of interpretability. We measure this cost via the so-called
+approximation factor, comparing the error of the best interpretable
+representation, relative to the optimal non-interpretable choice given
+by the principal components, for a given dimensionality parameter k.  
+
+A large body of literature has been dedicated to obtaining worst-case
+bounds on the approximation factor that describes the cost of
+interpretability. In particular, it was shown, for 
+Column Subset Selection by Deshpande, Rademacher, Vempala and Wang,
+and for the Nystrom method by Belabbas and Wolfe, that the cost of
+interpretability in rank k approximation can always be bounded by a
+factor of k+1. These results are still used as a technical tool
+in recent works, including the best paper at the 2019 International
+Conference on Machine Learning, which
+applied them to sparse variational Gaussian Process regression. The
+above bound is in fact worst-case optimal in that there are problem
+instances for which factor k+1 cannot be improved. Nevertheless, these
+results are still somewhat unsatisfying because they suggest that the
+cost of interpretability gets progressively higher as the rank
+parameter k grows, as seen in the plot below, which is not generally
+observed in practice. To understand this,\b we empirically tested the
+approximation factor for the worst-case example given by Deshpande et
+al. As we can see, the factor does reach the worst-case bound for one
+value of k, but then it rapidly drops down in either direction. So,
+even for the worst-case example, a high approximation factor is only a
+corner case. To explain this,\b we go beyond worst-case analysis, and
+our bounds are able to accurately capture the non-linear behavior of
+the approximation factor. 
+
+In particular, our new guarantees show that the worst-case example is
+part of a larger phenomenon, which we refer to as the multiple-descent
+curve in subset selection. This curve is illustrated in the
+following plot, both empirically and through our theory. As we can
+see, the approximation factor exhibits occasional sharp spikes, but is
+otherwise very small.  Our new lower bound shows that more than one
+spike can occur for one data matrix, which was not the case for the
+previously demonstrated worst-case constructions. Moreover, we show
+that the spikes are correlated with sharp drops in the data spectrum. 
+
+The multiple-descent curve in subset selection is very much
+reminiscent of the so-called double descent curve, proposed by Belkin
+et al, which is exhibited by the generalization error of many machine
+learning models, when varying the ratio between the number of
+parameters and the training data size. In this context, we can
+distinguish two regimes: the Classical one, where we have more data
+than parameters, and the Modern one, which includes deep learning
+architectures, where there is more parameters than data and so the
+model can interpolate the training set. The phase transition between
+the two regimes exhibits a peak in the generalization
+error. Naturally, there are important differences compared to our
+setting: first, we consider a combinatorial optimization task of
+subset selection, as opposed to a statistical learning one, and
+second, we study the approximation factor instead of the
+generalization error. However, several connections arise.\b Similarly as
+in the case of multiple-descent in subset selection, the double
+descent peak is correlated with the condition number of the data, and
+moreover, recent works showed that the generalization error can also
+exhibit multiple peaks. Finally, techniques similar to ours can be
+used to obtain exact expressions for double descent in terms of the
+mean squared error of the minimum norm interpolating linear model,
+which is actually what we used to generate the plot shown on the
+right. 
+
+So, what properties of the data affect the non-linear behavior of the
+cost of interpretability? For example, 
+do we expect the cost to be smaller if the data
+is more or less uniformly distributed in the domain space, as in
+Dataset 1, or if it has some low-dimensional structure, as in Dataset 2?
+Well, first, we need to be able to easily characterize such properties of the data.\b For
+this we can use the so-called ``spectral decay profile'', which looks at
+the magnitude of the largest directions of variance in the data, represented
+mathematically as the singular
+values of the data matrix. To illustrate the structure of the dataset through spectral decay, we plot
+the top singular values in decreasing order. For example, for the first dataset, we see a relatively
+flat decay with multiple singular values of comparable
+magnitude, because there are many directions with large
+variance, whereas for the second dataset, there is one or two large singular values
+followed by a rapid decay. This corresponds to the
+low-dimensional structure we can see in the top right.
+
+There are several types of spectral decays which are commonly
+observed in real world datasets, such as a flat decay, a sharp
+drop, and a  range of smooth decays with polynomial or
+exponential rates. In fact, often we may be able to anticipate
+the type of spectral decay even before we look at the data, for
+example because of some prior knowledge coming from domain
+experts about the underlying data distribution, and in some cases
+we can actually control it through model selection, by choosing
+an apprioriate similarity kernel.
+
+
+In this work, we used the spectral decay profile of the data to
+provide a complete characterization of the cost of interpretability,
+showing that if the data exhibits sufficiently 
+smooth spectral decay, then the spikes in the multiple-descent curve
+can be avoided. In particular, this  
+allows us to deduce that the spikes in the cost of
+interpretability are directly correlated with sharp drops in the
+spectrum of the data. This also implies that when the spectral decay is
+sufficiently smooth, for example, when it exhibits a polynomial
+rate which is commonly observed in practice, then we can prove
+that there is no spikes and the cost of interpretability is
+small for all values of the dimensionality parameter,
+significantly improving on the prior work.
+
+Of course, the practical performance of dimensionality reduction depends on
+the subset selection method used. Here, we focus primarily on the method called
+Determinantal Point Process sampling. % , although in the paper we
+% empirically demonstrate that the multiple-descent curve is also
+% exhibited by another commonly used method, called greedy subset
+% selection.
+A Determinantal Point Process is a non-i.i.d. randomized
+method that uses negative correlation to induce diversity in the
+sampled subset. DPPs have found many applications in machine
+learning for the past 15 years or so, including in recommendation
+systems, experimental design and stochastic optimization, and they can
+be implemented very efficiently, with runtimes faster than singular
+value decomposition. For a state-of-the-art implementation, check out
+a paper by myself, Daniele Calandriello and Michal
+Valko from the last year's Neurips conference. And to learn more about
+related applications of DPPs, see a new 
+survey by myself and Michael Mahoney, as well as an earlier monograph
+by Kulesza and Taskar. 
+
+In our empirical results, we showed that the multiple-descent
+phenomenon can be observed not only in worst-case 
+examples but also in real-world subset selection tasks. Here, we
+demonstrate this for the Nystrom method with the Gaussian RBF kernel,
+studying the effect of varying the RBF parameter. On the top plots, we
+show the Nystrom approximation factor for two Libsvm datasets whereas
+at the bottom we compare it to decreasing singular values of the
+data. We can clearly see that the spikes in approximation factor align
+with big drops in the spectral decay, and that this behavior is
+greatly influenced by the value of the RBF parameter. Decreasing this
+parameter results in a smoother spectral decay, which in turn
+eliminates the spikes, resulting in a uniformly small approximation
+factor. The right choice of the RBF parameter ultimately depends on
+the down-stream machine learning task, so depending on the structure
+of the problem, we may end up in the regime where the
+approximation factor exhibits a multiple-descent curve or in the
+regime where it is relatively flat. Here, I showed the results when using a
+Determinantal Point Process for subset selection, however, remarkably,
+we can observe the same phenomenon even if we switch to a completely
+different method, called Greedy Subset Selection.\b This suggests that
+the multiple-descent curve is not specific to DPPs, but rather
+it is a method-agnostic phenomenon.
+
+So, to conclude, in this work we studied the cost of interpretability
+in dimensionality reduction. We particularly focused on two methods of
+dimensionality reduction, namely, Column Subset Selection and the
+Nystrom method, both of which use data subsets to construct small
+interpretable representations of large datasets. In our main results,
+we overcome the limitations of prior worst-case analysis to accurately
+capture the non-linear behavior of the cost of interpretability. Moreover, our
+analysis reveals that the previously observed worst-case examples are
+part of a larger phenomenon, which we call the multiple-descent curve
+in subset selection. This multiple-descent curve can be observed not
+only in artificially constructed pathological examples but also in
+real-world problems. However, it can generally be avoided by tuning
+model parameters. 
+
+Here is a complete list of references from the talk, and thank you
+very much for your attention!
+
+\newpage
+      
+      
+\end{document}  

@@ -1,0 +1,564 @@
+
+\documentclass{beamer}
+%\beamertemplateshadingbackground{brown!70}{yellow!10}
+\mode<presentation>
+{
+  %\usetheme{Warsaw}
+  \usecolortheme{crane}
+  % or ...
+
+%  \setbeamercovered{transparent}
+  % or whatever (possibly just delete it)
+}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]{}
+\usepackage{tikz,pgfplots}
+\pgfplotsset{compat=newest}
+\usepackage[utf8]{inputenc}
+\usetikzlibrary{patterns}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{colortbl}
+%\usepackage{multicol}
+\usepackage{cancel}
+\usepackage{ulem}
+\usepackage{multirow}
+\usepackage{relsize}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{forloop}% http://ctan.org/pkg/forloop
+\newcounter{loopcntr}
+\newcommand{\rpt}[2][1]{%
+  \forloop{loopcntr}{0}{\value{loopcntr}<#1}{#2}%
+}
+%\pagestyle{plain}
+%\input{defs2}
+\input{../shortdefs}
+
+\edef\polishl{\l}
+\setlength{\columnsep}{0.7em}
+\setlength{\columnseprule}{0mm}
+\setlength{\arrayrulewidth}{1pt} 
+
+\newcommand{\svr}[1]{{\textcolor{darkSilver}{#1}}}
+\definecolor{brightyellow}{cmyk}{0,0,0.7,0.0}
+\definecolor{lightyellow}{cmyk}{0,0,0.3,0.0}
+\definecolor{lighteryellow}{cmyk}{0,0,0.1,0.0}
+\definecolor{lightestyellow}{cmyk}{0,0,0.05,0.0}
+\AtBeginSection[]
+{
+\begin{frame}<beamer>
+\frametitle{Outline}
+\tableofcontents[currentsection]
+\end{frame}
+}
+
+
+%  \fboxsep=3pt
+% %\fboxsep=0mm%padding thickness
+% \fboxrule=2pt%border thickness
+
+
+\setkeys{Gin}{width=0.7\textwidth}
+
+\title[]{Unbiased estimators for linear regression \\
+  and experimental design}
+
+\author[]{Micha{\polishl } Derezi\'{n}ski\\
+  \textit{Department of Statistics, UC Berkeley}\\[4mm]
+  \footnotesize Based on joint work with Manfred Warmuth, Daniel Hsu, \\
+Michael Mahoney and Ken Clarkson}
+% \date{ETH Z\"urich\\
+% June 4, 2019}
+\date{CMStatistics 2019\\
+  December 16, 2019}
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\linespread{1.3}
+
+\section{Correcting the bias in least squares regression}
+
+\begin{frame}{Bias of the least-squares estimator}
+\transfade<2-4,6>[duration=0.25]%\transfade
+\begin{columns}
+\begin{column}{0.45\textwidth}
+\only<1>{
+\centerline{\includegraphics[width=\textwidth]{figs/regression-points}}}
+\only<2->{
+\centerline{\includegraphics[width=\textwidth]{figs/regression-simple}}
+\vspace{0mm}}
+\end{column}
+\begin{column}{0.43\textwidth}
+\begin{align*}
+S=(x_1,y_1),\dots,(x_n,y_n) \overset{\text{\fontsize{6}{6}\selectfont i.i.d.}}{\sim} \dxy
+\end{align*}
+%\vspace{1mm}
+\only<1>{
+\vspace{2cm}
+}
+
+\pause
+\only<2-4>{
+\Blue{\textbf{Statistical regression}}
+\vspace{-2mm}
+\begin{align*}
+y &= x\!\cdot\! \Green{w^*} + \xi,\quad\E[\,\xi\,] = 0
+\end{align*}
+}
+\only<5-6>{
+\Red{\textbf{Worst-case regression}}
+\vspace{-2mm}
+\begin{align*}
+\Green{w^*} \!= \argmin_w\, \E_\dxy\!\big[ (x\!\cdot\! w - y)^2\big]
+\end{align*}
+\vspace{0mm}
+}
+\vspace{5mm}
+\end{column}
+\end{columns}
+\vspace{-2mm}
+\begin{align*}
+\onslide<3->{&\of{w^*}S = \argmin_w  \sum_i (x_i\!\cdot\! w - y_i)^2}\\
+\onslide<4,6>{~&
+\only<4>{\text{\Blue{Unbiased!}}\quad \E\big[\of{w^*}S\big] = \Green{w^*}}
+\only<6>{\text{\Red{Biased!}}\quad \E\big[\of{w^*}S\big] \neq \Green{w^*}}}
+\end{align*}
+\vspace{-2cm}
+\end{frame}
+
+\begin{frame}
+\frametitle{Correcting the worst-case bias}
+\transfade<2-4>[duration=0.25]
+\begin{columns}
+\begin{column}{0.45\textwidth}
+\centerline{\includegraphics[width=\textwidth]{figs/regression-correction}}
+\vspace{1mm}
+\end{column}
+\begin{column}{0.43\textwidth}
+\begin{align*}
+S=(x_1,y_1),\dots,(x_n,y_n) \overset{\text{\fontsize{6}{6}\selectfont i.i.d.}}{\sim} \dxy
+\end{align*}
+\vspace{0mm}
+
+\Red{\textbf{Worst-case regression}}
+\vspace{-5.5mm}
+\begin{center}\fcolorbox{reddishyellow}{lightyellow}{
+ \parbox{0.95\textwidth}{
+\vspace{-5mm}
+\begin{align*}
+&\text{Sample}&\quad \Blue{x_{n+1}} \ &\sim\  x^2\cdot \dx\\
+\onslide<2->{&\text{Query}&\quad \Blue{y_{n+1}}\ &\sim\ \dxy_{{\cal Y} |x=x_{n+1}}}
+\end{align*}
+\vspace{-7mm}
+}}\end{center}
+\pause
+\vspace{2mm}
+\end{column}
+\end{columns}
+\pause
+\vspace{-2mm}
+\begin{align*}
+&S'\ \leftarrow\ S \ \cup\  (\Blue{x_{n+1}},\Blue{y_{n+1}})\\[2mm]
+\onslide<4->{&\text{\Blue{Unbiased!}}\quad \E\big[\of{w^*}{S'}\big] = \Green{w^*}}
+\end{align*}
+\vspace{-2cm}
+\end{frame}
+
+\begin{frame}
+\frametitle{In general: \textit{add dimension many points} \cite{correcting-bias-journal}}
+\transfade<2,4->[duration=0.25]
+\Red{\textbf{Worst-case regression}} in $d$ dimensions
+\vspace{-1mm}
+\begin{align*}
+S=(\x_1,y_1),\dots,(\x_n,y_n) \overset{\text{\fontsize{6}{6}\selectfont i.i.d.}}{\sim} \dxy,
+\quad\quad (\x,y)\in\R^d\!\times\! \R
+\end{align*}
+\pause
+\Green{\textbf{Estimate the optimum}}
+\vspace{-2mm}
+\begin{align*}
+\Green{\w^*} \!= \argmin_{\w\in\R^d}\, \E_\dxy\!\big[ (\x^\top\w - y)^2\big]
+\end{align*}
+\pause
+\vspace{-4mm}
+\begin{center}\fcolorbox{reddishyellow}{lightyellow}{
+    \parbox{0.95\textwidth}{
+\textit{Volume-rescaled sampling}\pause
+\vspace{-4mm}
+\begin{align*}
+&\text{Sample}& &\Blue{\overset{\text{$d$ points}}{\x_{n+1},\dots,\x_{n+d}}}\ \sim\ \det\!
+\text{\fontsize{9}{9}\selectfont$\begin{pmatrix}
+-\x_{n+1}^\top-\\
+\dots\\
+-\x_{n+d}^\top-
+\end{pmatrix}^{\!\!\!2}$} \cdot (\dx)^d\\
+\onslide<5->{&\text{Query}&&\Blue{y_{n+i}}\ \sim\ \dxy_{{\cal Y} |\x=\x_{n+i}}\quad \forall_{i=1..d} }
+\\[2mm]
+\onslide<6->{
+&\text{Add}&&\Blue{S_{\circ}} =\,  (\x_{n+1},y_{n+1}),\dots,(\x_{n+d},y_{n+d})\ \,\text{ to }\, S}
+\end{align*}
+\vspace{-6mm}
+}}\end{center}
+\pause\pause\pause
+\begin{align*}
+\fcolorbox{reddishyellow}{lightyellow}{\textbf{\ Theorem} \quad 
+$\E\big[\of{\w^*}{S\cup \Blue{S_\circ}}\big] = \Green{\w^*}$\ }
+\qquad\text{\fontsize{9}{9}\selectfont even though\quad
+$\E\big[\w^*\!(S)\big] \neq \Green{\w^*}$}
+\end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Effect of correcting the bias}
+Let $\wbh = \frac1T\sum_{t=1}^T\w^*(S_t)$, for
+  independent samples $S_1,...,S_T$\pause\\[1mm]
+%Error: $\|\wbh-\w^*\|$\pause\\[1mm]
+\textbf{Question:} Is the estimation error $\|\wbh-\w^*\|$ converging
+to 0?\pause
+\begin{align*}
+\text{Example:}\quad \x^\top\! = (x_1,\dots,x_5)\overset{\text{i.i.d.}}{\sim} \Nc(0,1) ,\quad\ y =
+    \underbrace{\sum_{i=1}^5 x_i + \frac{x_i^3}{3}}_{\text{nonlinearity}} +\epsilon,
+\end{align*}
+  \centering
+  \includegraphics[width=0.7\textwidth]{../figs/gaussian}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Volume-rescaled sampling algorithms}
+  How expensive is volume-rescaled sampling?\pause
+  \begin{itemize}
+  \item $\dx$ is a multivariate Gaussian: $\dx=\Nc(\zero,\Sigmab)$\hfill ($\Sigmab$ unknown)\\\pause
+    \textbf{Answer:} \textit{We need $2d+2$ i.i.d.~samples from $\dx$.}
+    \pause
+  \item $\dx$ is a uniform distribution over a set $\{\x_1,...,\x_N\}$.\\\pause
+    \textbf{Answer:} \textit{Near-linear time sampling algorithm.}\pause
+  \item $\dx$ is an arbitrary distribution with bounded support\\\pause
+    \textbf{Answer:} \textit{We need $O(Kd\log d)$ i.i.d.~samples, where}
+    \begin{align*}
+      K = \sup_{\x\in\mathrm{supp}(\dx)}\x^\top\Sigmab^{-1}\x,\qquad \Sigmab=\E_{\dx}[\x\x^\top]. 
+    \end{align*}
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Discussion}
+
+  \begin{itemize}
+  \item First-of-a-kind \emph{unbiased estimator} for random designs\\[4mm]
+    \pause
+  \item Augmentation uses a determinantal point process (DPP) we call \emph{volume-rescaled sampling}\\[4mm]
+    \pause
+  \item There are many \emph{efficient sampling algorithms}\\[4mm]
+    \pause
+  \item A new \emph{mathematical framework} for computing expectations
+  \end{itemize}\pause\vspace{6mm}
+  
+  \textbf{Key application:} \ Experimental design
+\end{frame}
+
+
+\section{Minimax experimental design}
+\begin{frame}
+  \frametitle{Classical experimental design}
+  Consider $n$ parameterized experiments:
+  $\x_1,\dots,\x_n\in\R^d$.\\
+  Each experiment has a real random response $y_i$ such that:
+  \begin{align*}
+    y_i = \x_i^\top\w^* + \xi_i,\qquad \xi_i\sim\Nc(0,\sigma^2)
+  \end{align*}
+  \pause
+\textbf{Goal:} Select $k\ll n$ experiments to best estimate $\w^*$
+  \pause
+\begin{columns}
+\begin{column}{0.3\textwidth}
+\\ \vspace{0.8cm}
+Select $S=\{4,6,9\}$\\
+\vspace{1cm}
+Receive $y_4, y_6, y_9$
+\end{column}
+\begin{column}{0.5\textwidth}
+\begin{center}
+	\begin{tikzpicture}[scale=0.9]
+          \draw [fill=brown!30] (-2,0) rectangle (0,3);
+          \draw [color=black] (-2,2) -- (0,2);
+          \draw (-2.25,2) node {\mbox{\footnotesize $\x_4^\top$}}; 
+          \draw [color=black] (-2,1.5) -- (0,1.5);
+          \draw (-2.25,1.5) node {\mbox{\footnotesize $\x_6^\top$}}; 
+          \draw [color=black] (-2,0.5) -- (0,0.5);
+          \draw (-2.25,0.5) node {\mbox{\footnotesize $\x_9^\top$}}; 
+	   \draw (-3,3) node {fixed $\X$}; 
+           \draw [decorate,decoration={brace}] (-2,3.1) -- (0,3.1);
+          \draw (-1,3.4) node {\mbox{\fontsize{8}{8}\selectfont $d$}}; 
+            \draw [color=lightgray,line width =0.5mm] (1,0) -- (1,3);
+            \draw [color=lightgray] (0.75,3) node {$\y$};
+            \draw (0.75,2) node {\mbox{\footnotesize $y_4$}}; 
+            \draw (1,2) node {.}; 
+            \draw[mark=*,mark size=1.5pt] plot coordinates{(1,2)};
+            \draw (0.75,1.5) node {\mbox{\footnotesize $y_6$}}; 
+            \draw (1,1.5) node {.}; 
+            \draw[mark=*,mark size=1.5pt] plot coordinates{(1,1.5)};
+            \draw (0.75,0.5) node {\mbox{\footnotesize $y_9$}}; 
+            \draw[mark=*,mark size=1.5pt] plot coordinates{(1,.5)};
+	\end{tikzpicture}
+\end{center}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{A-optimal design}
+  Find an unbiased estimator $\wbh$ with smallest
+  \textit{mean squared error}:
+  \begin{align*}
+    \min_{\wbh}\max_{\w^*}\quad
+    \underbrace{\E_{\wbh}\big[\|\wbh-\w^*\|^2\big]}_{\mathrm{MSE}[\wbh]}\quad\text{subject
+    to}\quad\E\big[\wbh\big]=\w^*\ \ \forall_{\w^*}
+  \end{align*}
+  \pause
+Given every $y_1,\dots,y_n$, the optimum is \textit{least squares}: $\wbh=\X^\dagger\y$
+  \begin{align*}
+\MSE{\X^\dagger\y}=\tr\big(\Var[\X^\dagger\y]\big)=\sigma^2\underbrace{\tr\big((\X^\top\X)^{-1}\big)}_{\phi}
+  \end{align*}
+  \pause
+  \vspace{-4mm}
+  
+\begin{center}\fcolorbox{reddishyellow}{lightyellow}{
+ \parbox{0.95\textwidth}{  
+   \textbf{Theorem} (based on \cite{avron-boutsidis13})\\
+   There is an experimental design $S$ of size
+$k\leq\Blue{d+\phi/\epsilon}$ such that
+$$\mathrm{MSE}[\X_S^\dagger\y_S]\leq \epsilon\cdot \tr(\Var[\xib])$$
+}}\end{center}
+\pause
+\Red{
+    Required assumption:\quad $y_i = \x_i^\top\w^* +
+    \xi_i,\quad\xi_i\sim\Nc(0,\sigma^2)$
+  }
+\end{frame}
+
+\begin{frame}
+  \frametitle{What if $\xi_i$ is not $\Nc(0,\sigma^2)$?}
+  \begin{align*}
+    \y&\text{ - any random vector in $\R^n$ with finite second moment}
+    \\
+\onslide<2->{    \w^*_{\y|\X}&\defeq  \argmin_\w \E_\y \big[\|\X\w-\y\|^2\big]
+}
+    \\ \onslide<3->{\xib_{\y|\X}&\defeq \y-\X\w^*_{\y|\X} }
+  \end{align*}
+  \pause\pause\pause\vspace{3mm}
+
+Two special cases:\vspace{2mm}
+\pause
+\begin{enumerate}
+\item Statistical regression:\quad\quad\  $\E\big[\xib_{\y|\X}\big]=\zero$
+  \pause
+\item Worst-case regression:\quad $\Var\big[\xib_{\y|\X}\big]=\zero$
+\end{enumerate}
+
+\end{frame}
+
+  \begin{frame}
+    \frametitle{Minimax experimental design}
+    \begin{theorem}[\cite{minimax-experimental-design}]
+For any $\epsilon>0$, there is a random experimental design $(S,\wbh)$
+of size
+\[k=O(\Blue{d}\log n\Blue{\,+\,\phi/\epsilon}), \quad\text{where}\quad\phi=\tr\big((\X^\top\X)^{-1}\big),\]
+such that for any random $\y$ we have
+\begin{align*}
+\text{(unbiasedness)}\quad  \E\big[\wbh(\y_S)\big]&= \w^*_{\y|\X},\\[3mm]
+\mathrm{MSE}\big[\wbh(\y_S)\big] - \mathrm{MSE}\big[\X^\dagger\y\big]
+  &\leq \epsilon\cdot 
+  \E\big[\|\xib_{\y|\X}\|^2\big]%\quad\text{and}\quad k= O(d\log n + \phi/\epsilon).
+\end{align*}
+\end{theorem}
+% \pause\vspace{4mm}
+
+% \textit{Toy example:} \quad$\Var[\xib_{\y|\X}]=\sigma^2\I$,\quad\ 
+% $\E[\xib_{\y|\X}]=\zero$
+% \pause\vspace{3mm}
+% \begin{enumerate}
+%   \item $\E\big[\|\xib_{\y|\X}\|^2\big]
+%     %\tr\big(\Var[\xib_{\y|\X}]\big) + \big\|\E[\xib_{\y|\X}]\big\|^2
+%     =\tr\big(\Var[\xib_{\y|\X}]\big)$
+%     \pause\vspace{1mm}
+%   \item $\MSE{\X^\dagger\y} %= \sigma^2\phi    %\leq \sigma^2k\epsilon\ll
+%     % \sigma^2n \epsilon
+%     = \frac\phi n\cdot \tr\big(\Var[\xib_{\y|\X}]\big)$
+%   \end{enumerate}
+  % \pause\vspace{3mm}
+  
+  % So in this case $\mathrm{MSE}\big[\wbh(\y_S)\big]\leq
+  % O(\epsilon) \cdot \tr\big(\Var[\xib_{\y|\X}]\big)$ as expected
+\end{frame}
+
+\begin{frame}
+  \frametitle{Important special instances}
+  \begin{enumerate}
+  \item    \textit{Statistical regression:}\quad
+    $\y = \X\w^*+\xib$,\quad $\E[\xib]=\zero$
+    \begin{align*}
+      \mathrm{MSE}\big[\wbh(\y_S)\big] -
+      \mathrm{MSE}\big[\X^\dagger\y\big]\leq \epsilon\cdot\tr\big(\Var[\xib]\big)
+    \end{align*}
+    \pause\vspace{-5mm}
+    \begin{itemize}
+    \item Weighted regression:\quad\ 
+      $\Var[\xib]=\mathrm{diag}\big([\sigma_1^2,\dots,\sigma_n^2]\big)$\\[2mm]
+      \pause
+      \item Generalized regression: $\Var[\xib]$ is
+        arbitrary\\[2mm]
+        \pause
+        \item Bayesian regression: \quad \,$\w^*\sim\Nc(\zero,\I)$
+        \end{itemize}
+        \pause\vspace{5mm}
+      \item \textit{Worst-case regression:}\quad $\y$ is any fixed vector in
+        $\R^n$
+        \pause
+        \begin{align*}
+      \E_{S,\wbh}\big[\|\wbh(\y_S)-\w^*\|^2\big]\leq \epsilon\cdot
+          \|\y-\X\w^*\|^2
+        \end{align*}
+where $\w^*=\X^\dagger\y$
+  \end{enumerate}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Key idea: volume-rescaled \emph{importance} sampling}
+\begin{columns}
+\begin{column}{0.57\textwidth}
+  \vspace{3mm}
+
+  Simple volume-rescaled sampling:
+  \begin{itemize}
+  \item Let $\dx$ be a uniformly random $\x_i$
+  \item $(\X_S,\y_S)\sim \vsk$ and $\wbh=\X_S^\dagger\y_S$.
+  \end{itemize}
+  \vspace{4mm}
+  
+  Then, $\E[\wbh] = \w^*_{\y|\X}$.
+\end{column}
+\begin{column}{0.4\textwidth}
+\begin{center}
+	\begin{tikzpicture}[scale=0.9]
+          \draw [fill=brown!30] (-2,0) rectangle (0,3);
+          \draw [color=black] (-2,2) -- (0,2);
+          \draw (-2.25,2) node {\mbox{\footnotesize $\x_4^\top$}}; 
+          \draw [color=black] (-2,1.5) -- (0,1.5);
+          \draw (-2.25,1.5) node {\mbox{\footnotesize $\x_6^\top$}}; 
+          \draw [color=black] (-2,0.5) -- (0,0.5);
+          \draw (-2.25,0.5) node {\mbox{\footnotesize $\x_9^\top$}}; 
+	   \draw (-2.7,3) node {\footnotesize fixed $\X$}; 
+           \draw [decorate,decoration={brace}] (-2,3.1) -- (0,3.1);
+          \draw (-1,3.4) node {\mbox{\fontsize{8}{8}\selectfont $d$}}; 
+            \draw [color=lightgray,line width =0.5mm] (1,0) -- (1,3);
+            \draw [color=lightgray] (0.75,3) node {$\y$};
+            \draw (0.75,2) node {\mbox{\footnotesize $y_4$}}; 
+            \draw (1,2) node {.}; 
+            \draw[mark=*,mark size=1.5pt] plot coordinates{(1,2)};
+            \draw (0.75,1.5) node {\mbox{\footnotesize $y_6$}}; 
+            \draw (1,1.5) node {.}; 
+            \draw[mark=*,mark size=1.5pt] plot coordinates{(1,1.5)};
+            \draw (0.75,0.5) node {\mbox{\footnotesize $y_9$}}; 
+            \draw[mark=*,mark size=1.5pt] plot coordinates{(1,.5)};
+	\end{tikzpicture}
+\end{center}
+\end{column}
+\end{columns}
+\vspace{5mm}
+\pause
+
+\textbf{Problem:} \ Not robust to worst-case noise\\
+\pause
+
+\textbf{Solution:} Volume-rescaled importance sampling\\[1mm]
+\pause
+\begin{itemize}
+\item Let $p=(p_1,\dots,p_n)$ be an importance sampling distribution,
+\item Define $\xbt\sim\dx$ as $\xbt=\frac1{\sqrt{p_i}}\x_i$ for $i\sim p$.
+\end{itemize}
+\pause
+Then, for $(\Xt_S,\ybt_S)\sim\vsk$ and $\wbh = \Xt_S^\dagger\ybt_S$,
+we have $\E[\wbh]=\w_{\y|\X}^*$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Importance sampling for experimental design}
+  \begin{enumerate}
+  \item  \textit{Leverage score sampling}: $\Pr(i)=p_i^{\mathrm{lev}}
+\defeq \frac1d \x_i^\top(\X^\top\X)^{-1}\x_i$\\
+{\footnotesize A standard sampling method for worst-case linear regression.}
+\pause
+\vspace{5mm}
+
+  \item \textit{Inverse score sampling}: $\Pr(i)= p_i^{\mathrm{inv}}\defeq
+    \frac1\phi\x_i^\top(\X^\top\X)^{-2}\x_i$.\\
+{\footnotesize  A novel sampling technique essential
+    for achieving $O(\phi/\epsilon)$ sample size.}
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Minimax A-optimality}
+  \begin{definition}
+    Minimax A-optimal value for experimental design:
+\begin{align*}
+R_k^*(\X)&\defeq 
+  \min_{(S,\wbh)\in\Wc_k(\X)}\ \max_{\y\in\Fc_n\backslash\mathrm{Sp}(\X)}\,\frac{\mathrm{MSE}\big[\wbh(\y_S)\big]-
+     \mathrm{MSE}\big[\X^\dagger\y\big]
+  }{\E\big[\|\xib_{\y|\X}\|^2\big]}
+\end{align*}
+\end{definition}
+\pause
+% \textbf{Fact.} \ $\X^\dagger\y$ is the \textit{minimum
+%   variance unbiased estimator} for $\Fc_n$:
+% \begin{align*}
+%   \text{if}\quad  \E_{\y,\wbh}\big[\wbh(\y)\big]
+%   &=\X^\dagger\E[\y]\quad\quad\,\forall_{\y\in\Fc_n}
+% \\ \text{then}\quad
+%   \Var\big[\wbh(\y)\big]&\succeq\Var\big[\X^\dagger\y\big]\quad \forall_{\y\in\Fc_n}
+% \end{align*}
+\begin{itemize}
+\item If \ $d\leq k\leq n$,\qquad\quad then \
+  $R_k^*(\X)\in[0,\infty)$
+    \pause
+\item If \ $k\geq C\cdot d\log n$,\quad \,then \ $R_k^*(\X)\leq
+  C\cdot\phi/k$\hfill for some $C$
+\pause
+\item If \ $k^2<\epsilon nd/3$,\qquad\ \,then \ $R_k^*(\X)\geq
+    (1\!-\!\epsilon)\cdot\phi/k$\hfill for some $\X$
+\end{itemize}
+\end{frame}
+
+\section{Conclusions}
+
+\begin{frame}
+  \frametitle{Conclusions}
+  \begin{itemize}
+  \item New family of unbiased estimators for least squares
+  \item New method for computing expectations of matrix inverses
+  \item Applications in experimental design
+  \end{itemize}
+  \pause\vspace{3mm}
+  
+Going beyond least squares:
+  \begin{itemize}
+  \item extensions to non-square losses,
+  \item applications in distributed optimization.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[allowframebreaks]
+  \frametitle{References}
+  \scriptsize 
+  \bibliographystyle{alpha}
+  \bibliography{../pap}
+\end{frame}
+
+
+\end{document}

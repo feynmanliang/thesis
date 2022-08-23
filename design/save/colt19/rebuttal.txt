@@ -1,0 +1,82 @@
+### Review 1 ###
+Title: Thanks for the good suggestions
+
+>> " 'minimax optimal experimental design'  is really 'minimax optimal among all unbiased estimators', right?"
+Good point! We will clarify the section and make it clear that
+we are looking for minimax optimal 'unbiased' estimators
+
++++MW: Not done
+You only changed the title of the section.
+Change title seems to be too much now?
+I stressed unbiasedness in abstract
+
+>> "...why you restrict to unbiased estimators here"
+The key advantage of using unbiased estimators for the
+minimax definition is that we can say that the least
+squares estimator w_LS is the minimum variance estimator
+among them (Proposition 7). If we include all biased
+estimators, then it is not clear what w_LS
+should be replaced with to even define the minimax value. Also, unbiased estimators 
+are closed under averaging and this immediately lets us
+reduce the variance/loss. We will add more discussion to clarify this.
+
++++MW: not done
+Added a minimal remark before Prop. 7 in Magenta
+
+>> "how does this compare to the pseudo-sequential setting"
+This setting gives more freedom to the design, so we would expect that the bounds should be at least as good. Certainly, this is a great direction for future work!
+
+>> "I found it confusing that \hat{\bf w}({\bf y}_S ) is not written conditional on {\bf X}"
+Good point! Of course the estimator function has to depend on X. Since X is fixed beforehand, and then w_hat is chosen afterwards, we treat the dependence on X as implicit in the choice of w_hat. We will clarify this point in the final version!
+
++++MW: not done
+Sometimes with condition on X and sometimes we dont
+Indeed confusing. See for example statement of Thm 4
+Would be hard to fix though
+
+hat w (y_S)   but  w_LS(y|X)
+
+### Review 2 ###
+Title: The minimax part is not a distraction
+
+Thanks for all the comments and suggestions!
+Yes - the paper is a bit overbearing and we understand that
+you want us to simplify it. However Prop. 9 is not a minor
+result. We will highlight this proposition more clearly.
+
+>> "The authors define the minimax-optimal value in Definition 8 and provide some minor results in Prop 9."
+>> "Such a ``minimax'' discussion acts as a distraction"
+>> "make the paper less daunting (in terms of the number of results/lemmas)."
+Reasons for keeping Prop. 9:
+Almost all of the claims made in the paper are needed to obtain Prop. 9
+and it provides BOTH upper and lower bounds for the minimax value Rk*. 
+The bounds are tight up to within a constant factor. 
+We will make this point clearer and the whole section more approachable in the final version.
+
++++MW: done
+
+
+### Review 3 ###
+Title: We have upper and lower bounds for the minimax value
+
+>> "My major concern is with Sec. 1.2, and the so-called “minimax optimality” "
+>> "For a typical paper, the next step would then be establishing matching upper and lower bounds of Rk*(X),"
+BOTH upper and lower bounds for Rk* are given in Prop. 9 (part 2 and 3). 
+The bounds are tight up to within a constant factor. 
+In fact, the upper bound of C \phi/k (part 2) is a consequence of our main result, Theorem 4. 
+Thus, while our main proposed estimator does not obtain exact minimax optimality 
+(this appears very hard to attain), it does lead to a very strong guarantee for Rk*.
+
+>> "The guarantees ... are additive, which are very different from the approximation
+>> guarantees from Allen-Zhu et al. (2017), Wang et al. (2017) and Nikolov et al
+>> (2018), deriving multiplicative guarantees."
+>> "I feel this difference should be highlighted and discussed."
+We completely agree. While we already point this out in the related work, we will highlight it further in the final version.
++++MW: not done
+Dont know how to do this
+
+>> "I suggest avoiding the usage of the term “minimax”, while replacing it with “minimum variance unbiased” "
+>> "I suggest deriving some example scalings of \phi assuming X is randomly generated from some underlying distribution"
+Good suggestions, thank you! We will address them in the final version.
+
+

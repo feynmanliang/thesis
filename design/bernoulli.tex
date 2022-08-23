@@ -1,0 +1,468 @@
+\documentclass[12pt]{sty/colt2019/colt2018-arxiv}
+% \else
+% \documentclass[anon,12pt]{sty/colt2019/colt2019} % Anonymized submission
+% \documentclass[12pt]{colt2019} % Include author names
+% \fi
+
+% The following packages will be automatically loaded:
+% amsmath, amssymb, natbib, graphicx, url, algorithm2e
+
+% \title[Short Title]{Full Title of Article}
+\title{Bernoulli volume sampling}
+\usepackage{times}
+ 
+
+\usepackage{color}
+\usepackage{cancel}
+\usepackage{wrapfig}
+\usepackage{caption}
+\usepackage{algorithm}
+\usepackage{xfrac}
+\usepackage{algorithmic}
+\input{shortdefs}
+
+\coltauthor{\Name{Micha{\l } Derezi\'{n}ski}
+  \Email{mderezin@berkeley.edu}\\
+  \addr Department of Statistics, UC Berkeley 
+} 
+
+\begin{document}
+
+\maketitle
+
+\section{Bayesian A-optimal experimental design}
+
+\paragraph{Problem setting} Given an $n\times d$ matrix $\X$,
+a $d\times d$ psd matrix $\A$ and $k\in[n]$,
+\begin{align*}
+  \text{efficiently minimize }\quad
+  f(S) \defeq \tr\big((\X_S^\top\X_S+\A)^{-1}\big)\quad\text{over }\ S\subseteq [n]
+  \ \text{ s.t. }\ |S|\leq k.
+\end{align*}
+We ask the following two questions:
+\paragraph{Question 1} Given $k$ and $\epsilon>0$, find an
+efficient algorithm for finding $S$ such that $|S|\leq k$ and
+\[ f(S)\leq (1+\epsilon)\min_{S:|S|\leq k}f(S).\]
+\paragraph{Question 2} Given $\X$, $\A$ and $k$, what is the best
+analytic bound on $\min_{S:|S|\leq k}f(S)$?
+\vspace{3mm}
+
+\paragraph{Related work} The prior results for these two questions are:
+\begin{enumerate}
+  \item \citep{proportional-volume-sampling} Assume $k=\Omega(\frac d\epsilon +
+    \frac{\log1/\epsilon}{\epsilon^2})$ and $\A=\zero$.
+    Then, there is a polynomial algorithm for Q1 which consists of:
+    \begin{align*}
+\text{a semi-definite program}^*\quad+\quad \text{proportional volume
+      sampling: }\ \Ot(k^6d + d^{11}).
+    \end{align*}
+    $^*$The SDP has worst-case time complexity $O(n^{3.5})$, but in
+    practice it takes closer to $\Ot(nk^2d/\epsilon^2)$.
+    \item \cite{near-optimal-design} Assume $k=\Omega(\frac
+      d{\epsilon^2}$) (worse than above) and allow any $\A$. Then,
+      there is a polynomial algorithm for Q1 which consists of: 
+    \begin{align*}
+\text{a semi-definite program}^*\quad+\quad \text{a
+      swapping algorithm: }\ \Ot(nkd^2).
+    \end{align*}
+  \item \cite{avron-boutsidis13} Assume $k\geq d$ and
+    $\A=\zero$. Then:
+    \begin{align*}
+      \min_{S:|S|\leq k}f(S)\leq  \frac{n-d+1}{k-d+1} \tr\big((\X^\top\X)^{-1}\big).
+    \end{align*}
+  \item \cite{regularized-volume-sampling} Assume $k\geq d_{\lambda}$,
+    where $d_{\lambda}=\tr\big(\X^\top\X(\X^\top\X+\lambda\I)^{-1}\big)$ and let
+    $\A=\lambda\I$. Then,
+    \begin{align*}
+      \min_{S:|S|\leq k}f(S)\leq \frac{n-d_{\lambda}+1}{k-d_{\lambda}+1}\cdot \tr\big((\X^\top\X+\lambda\I)^{-1}\big).
+    \end{align*}
+  \end{enumerate}
+\vspace{3mm}
+  
+\paragraph{Our results} We give the following answers to the two
+questions:
+\begin{enumerate}
+\item Assume $k=\Omega(\frac {d_{\A}}\epsilon +
+    \frac{\log1/\epsilon}{\epsilon^2})$ and allow any $\A$. Then,
+    there is a polynomial algorithm for Q1 which consists of:
+    \begin{align*}
+\text{a semi-definite program}^*\quad+\quad \text{bernoulli volume
+      sampling: }\ \Ot(nd^2).
+    \end{align*}
+  \item Assume $k\geq d_{\A}$ where $d_{\A}=\tr\big(\X^\top\X(\X^\top\X+\A)^{-1}\big)$ and allow any $\A$. Then,
+    \begin{align*}
+      \min_{S:|S|\leq k}f(S)\leq \frac{n-d_{\A}+1}{k-d_{\A}+1}\cdot
+      \tr\big((\X^\top\X+\frac nk \A)^{-1}\big).      
+    \end{align*}
+    
+\end{enumerate}
+
+\section{Bernoulli volume sampling}
+
+\begin{definition}\label{d:r-dpp}
+Given matrix $\X\in\R^{n\times d}$, a sequence of Bernoulli probabilities $p=(p_1,\dots,p_n)\in[0,1]^n$
+and a p.s.d.~matrix $\A\in\R^{d\times d}$, let
+$\Vol_p(\X,\A)$ be a distribution over all sets $S\subseteq [n]$ s.t.:
+  \begin{align}
+  \Pr(S) = \frac{\det(
+  \X_S^\top\X_S+\A)}{\det\!\big(
+ \sum_ip_i\x_i\x_i^\top+ \A\big)}\
+\cdot \prod_{i\in S}p_{i}\cdot\prod_{i\not\in S}(1-p_i).\label{eq:poisson-prob}
+\end{align}
+%   \Pr(\pi)\ \propto\ \det\!\big(\A +
+%   \X_{\pi}^\top\X_{\pi}\big)
+%   \Pr\!\bigg(\Big[K\!=\!|\pi|\Big]\,\wedge\,\Big[\forall_{i=1}^{|\pi|}\,\pi_i\!=\!\pi_i\Big] \bigg).
+% \end{align*}
+\end{definition}
+Whenever all $p_i=\frac sn$, we will write $\Vol^s(\X,\A)$.
+Of course, we need to establish that this is in fact a valid
+distribution, i.e.~that it sums to one. 
+\begin{lemma}\label{l:cb}
+For $\X\!\in\!\R^{n\times d}$, $\A\!\in\!\R^{d\times d}$
+and a random set $S\subseteq [n]$ drawn with independent Bernoullis,
+\begin{align*}
+  \E\Big[\det\!\big(\X_S^\top\X_S+\A\big)\Big]
+  = \det\!\Big( \E\big[\X_S^\top\X_S\big]+\A\Big).
+\end{align*}
+\end{lemma}
+The below theorem follows from Lemma \ref{l:cb}.
+\begin{theorem}\label{t:expectations}
+Given $\X\!\in\!\R^{n\times d}$, $\y\in\R^n$, full rank
+$\A\!\in\!\R^{d\times d}$ and $p$,
+if $S\sim \Vol_p(\X,\A)$, then
+\begin{align}
+  \E\Big[\big(\X_S^\top\X_S+\A\big)^{-1}\Big]
+  &= \Big(
+  \sum_ip_i\x_i\x_i^\top +\A \Big)^{-1}.\label{eq:sqinv}
+  \\
+  \E\Big[\big(\X_S^\top\X_S+\A\big)^{-1}\X_S^\top\y_S\Big]
+  &=\Big( \sum_ip_i\x_i\x_i^\top +\A\Big)^{-1}\sum_ip_iy_i\x_i.\label{eq:unbiased}
+\end{align}
+\end{theorem}
+Note that if $S\sim\Vol^s(\X,\A)$ then \eqref{eq:sqinv} becomes $\E[(\X_S^\top\X_S+\A)^{-1}] =
+\frac ns\, (\X^\top\X+\frac ns\A)^{-1}$.
+Let us compare this with the corresponding result for
+regularized volume sampling of set $S$ of size $s$
+\citep[extension of Theorem 16 in][]{unbiased-estimates-journal}:
+\begin{align*}
+  \E\Big[\big(\X_S^\top\X_S+\A\big)^{-1}\Big]\preceq
+  \frac{n-d_{\A}+1}{s-d_{\A}+1}\cdot\big(\X^\top\X+\A)^{-1},\quad
+  d_{\A}=\tr\big(\X^\top\X(\X^\top\X+\A)^{-1}\big).
+\end{align*}
+Assuming that $\frac{n-d_{\A}+1}{s-d_{\A}+1}\approx \frac ns$, we
+observe that \eqref{eq:sqinv} has the advantage that the
+regularization in the bound is much larger, $\frac ns\A$ instead of
+$\A$, which has big statistical implications.  Also, there is no
+equivalent of \eqref{eq:unbiased} for regularized volume sampling. Note, however,
+that the size of $S$ in Theorem \ref{t:expectations} is not
+exactly bounded by $s$, and can be arbitrarily large with very low
+probability (but it is $O(s)$ with high probability). 
+
+\section{Algorithms}
+\begin{definition} Given a matrix $\X$, define $S\sim \DPP(\X\X^\top)$
+  over all subsets $S\subseteq [n]$ so
+  that \[\Pr(S)=\frac{\det(\X_S\X_S^\top)}{\det(\X\X^\top+\I)}.\] Also
+  define size $d$ volume sampling from $\X$ as a distribution over
+  size $d$ subsets $S$ such that
+  \[\Pr(S)=\frac{\det(\X_S)^2}{\det(\X^\top\X)}.\]
+  \end{definition}
+Given an $n\times d$ matrix $\X$, there are $O(nd\log n+d^4\log d)$ algorithms for
+sampling from $\DPP(\X\X^\top)$ (see \cite{dpp-intermediate}) and for
+size $d$ volume sampling from $\X$ (\cite{leveraged-volume-sampling}).
+
+\begin{theorem}\label{t:reduction}
+  Given $\X,\A,p$ as before, let $\Xbb$ denote $\X$ with $i$th
+  row rescaled by $\sqrt{\!\frac{p_i}{1-p_i}}$ for all $i$. If $\A$ is
+  invertible then
+  \begin{align*}
+    \Vol_p(\X,\A)=\DPP\big(\mathrm{diag}(\tfrac{p}{1-p}) + \Xbb\A^{-1}\Xbb^\top\big).
+  \end{align*}
+\end{theorem}
+\begin{proof}
+  Let $S\sim\Vol_p(\X,\A)$. It follows that:
+  \begin{align*}
+    \Pr(S) &\propto \det(\X_S^\top\X_S+\A)\cdot
+\prod_{i\in S}\frac{p_i}{1-p_i}
+\\ &\propto \det(\A^{-1}\X_S^\top\X_S+\I) \cdot \prod_{i\in
+     S}\frac{p_i}{1-p_i}
+\\ &= \det(\X_S \A^{-1}\X_S^\top+\I) \cdot \prod_{i\in
+     S}\frac{p_i}{1-p_i}
+\\ &=\det\!\big(\Xbb_S \A^{-1}\Xbb_S^\top+\mathrm{diag}(\tfrac{p}{1-p})_S\big).
+  \end{align*}
+\end{proof}
+\begin{remark}
+  This implies that $\Vol^s(\X,\A) = \DPP\big(\frac
+  s{n-s}(\overbrace{\X\A^{-1}\X^\top+\I}^{\L})\big)$ and for $S\sim\Vol^s(\X,\A)$,
+  \begin{align*}
+    \E\big[|S|\big]
+   = \tr\big(\L(\tfrac{n-s}s \I + \L)^{-1}\big).
+  \end{align*}
+\end{remark}
+We need $O(nd^2)$ to compute $\Xt\A^{-1}$, and then
+computing one entry of this L-ensemble takes $O(d)$. 
+\begin{corollary}
+  We can sample $S\sim\Vol_p(\X,\A)$ in time $n\cdot\poly(d)$.
+\end{corollary}
+\begin{theorem}
+Let $\Xt$ here denote $\X$ with $i$th row rescaled by
+$\sqrt{p_i}$. Suppose that $\A$ is invertible. Let $T\sim\DPP(\Xt\A^{-1}\Xt^\top)$ and $R$ be Bernoulli
+sampled using $p_{[n]\backslash T}$. Then $T\cup R\sim \Vol_p(\X,\A)$.
+\end{theorem}
+\begin{proof}
+  Let $S=T\cup R$. The distribution of $S$ does not
+  distinguish which of its subsets is $T$ so:
+  \begin{align*}
+    \Pr(S) &= \sum_{T\subseteq S}\frac{\det(\Xt_T\A^{-1}\Xt_T^\top)}{\det(\Xt\A^{-1}\Xt^\top+\I))}\prod_{i\in
+    S\backslash T} p_i\ \cdot \prod_{i\in[n]\backslash S}(1-p_i)
+\\ &=\sum_{T\subseteq S}\frac{\det(\X_T\A^{-1}\X_T^\top)}{\det(\Xt\A^{-1}\Xt^\top+\I)}\prod_{i\in T}p_i\prod_{i\in
+    S\backslash T} p_i\ \cdot \prod_{i\in[n]\backslash S}(1-p_i)
+\\ &=\frac{\det(\X_S\A^{-1}\X_S^\top+\I)}{\det(\Xt\A^{-1}\Xt^\top+\I)}\ \cdot\ \prod_{i\in
+     S} p_i \prod_{i\in[n]\backslash S}(1-p_i)
+\\ &=\frac{\det(\A)\det(\A^{-1}\X_S^\top\X_S+\I)}{\det(\A)\det(\A^{-1}\Xt^\top\Xt+\I)}\ \cdot\ \prod_{i\in
+     S} p_i \prod_{i\in[n]\backslash S}(1-p_i)
+\\ &=\frac{\det(\X_S^\top\X_S+\A)}{\det(\Xt^\top\Xt+\A)}\ \cdot\ \prod_{i\in
+     S} p_i \prod_{i\in[n]\backslash S}(1-p_i)
+  \end{align*}
+\end{proof}
+\begin{remark}
+  If $S\sim \Vol_p(\X,\A)$ then the expected size of $S$ is bounded as
+  follows:
+  \begin{align*}
+    \E[|S|] -\sum_{i\in[n]}p_i  &\leq
+              \tr\big(\Xt\A^{-1}\Xt^\top(\I+\Xt\A^{-1}\Xt^\top)^{-1}\big)
+    \\[-3mm] &=\tr\big(\Xt^\top\Xt\A^{-1}(\I+\Xt^\top\Xt\A^{-1})^{-1}\big)
+    \\ &=\tr\Big(\Xt^\top\Xt\big((\I+\Xt^\top\Xt\A^{-1})\A\big)^{-1}\Big)
+\\ &=\tr\big(\Xt^\top\Xt(\A+\Xt^\top\Xt)^{-1}\big) = d_{\A}(\Xt)\leq d.
+  \end{align*}
+In particular, if $S\sim \Vol^s(\X,\A)$ then $\E[|S|] = d_{\frac ns\A} + s\cdot
+\frac{n-d_{\frac ns\A}}n = s + d_{\frac ns\A}\cdot \frac{n-s}{n}$.    
+\end{remark}
+\begin{corollary}
+For any invertible $\A$,  we can sample $S\sim\Vol_p(\X,\A)$ in time
+$O(nd\log n +d^4\log d)$.
+\end{corollary}
+\begin{theorem}\label{t:composition}
+Let $\Xt$ here denote $\X$ with $i$th row rescaled by $\sqrt{p_i}$ . Let $T$ be size $d$ volume sampling from $\Xt$ and $R$ be Bernoulli
+sampled using $p_{[n]\backslash T}$. Then $T\cup R\sim \Vol_p(\X,\zero)$.
+\end{theorem}
+\begin{proof}
+  Let $S=T\cup R$. The distribution of $S$ does not
+  distinguish which of its subsets is $T$ so:
+  \begin{align*}
+    \Pr(S) &= \sum_{T\subseteq S: |T|=d}\frac{\det(\Xt_T)^2}{\det(\Xt^\top\Xt)}\prod_{i\in
+    S\backslash T} p_i\ \cdot \prod_{i\in[n]\backslash S}(1-p_i)
+\\ &=\sum_{T\subseteq S: |T|=d}\frac{\det(\X_T)^2}{\det(\Xt^\top\Xt)}\prod_{i\in T}p_i\prod_{i\in
+    S\backslash T} p_i\ \cdot \prod_{i\in[n]\backslash S}(1-p_i)
+\\ &=\sum_{T\subseteq S: |T|=d}\frac{\det(\X_T)^2}{\det(\Xt^\top\Xt)}\ \cdot\ \prod_{i\in
+     S} p_i \prod_{i\in[n]\backslash S}(1-p_i)
+\\ &=\frac{\det(\X_S^\top\X_S)}{\det(\Xt^\top\Xt)}\ \cdot\ \prod_{i\in
+     S} p_i \prod_{i\in[n]\backslash S}(1-p_i)
+  \end{align*}
+\end{proof}
+\begin{remark}
+  If $S=T\cup R \sim \Vol_p(\X,\zero)$ then the expected size of $S$ is:
+  \begin{align*}
+    \E[|S|] = d + \E_T\Big[\sum_{i\not \in T}p_i\Big]\leq d +
+    \sum_{i\in[n]}p_i.
+  \end{align*}
+In particular, if $S\sim \Vol^s(\X,\zero)$ then $\E[|S|] = d + s\cdot
+\frac{n-d}n = s + d\cdot \frac{n-s}{n}$.  
+\end{remark}
+\begin{corollary}
+  We can sample $S\sim \Vol_p(\X,\zero)$ in time $O(nd\log n + d^4\log d)$.
+\end{corollary}
+\vspace{5mm}
+
+% \paragraph{Questions:}
+% \begin{enumerate}
+%   \item Is there a version of Theorem \ref{t:reduction} when $\A$ is
+%     not invertible?
+%     \item Is there a version of Theorem \ref{t:composition} when
+%       $\A$ is not invertible and not $\zero$?
+%     \item How do we extend the A-optimal design results of
+%       \cite{proportional-volume-sampling}?
+% \end{enumerate}
+
+\section{Error bounds for regularized least squares}
+Consider design matrix $\X\in\R^{n\times d}$ and suppose the response
+model is $y(\x)=\x^\top\w^* + \xi$, where $\E[\xi]=0$ and $\Var[\xi]=\sigma^2$. We assume that experiments can be chosen
+with replacement (then the experiment is evaluated multiple times,
+independently). We need this assumption because the R-DPP samples
+with-replacement. If that's not acceptable, there is a variant that is
+without-replacement (work-in-progress).  For a sequence of experiments
+$\pi\in[n]^k$, a psd matrix $\A$ and a parameter $\lambda$, we consider the regularized
+least squares estimator:
+\begin{align*}
+\wbh_\pi = \argmin_\w\|\X_\pi\w-\y_\pi\|^2 + \lambda\|\w\|_\A^2,\quad
+  \text{where }\|\w\|_\A=\sqrt{\w^\top\A\w}.
+\end{align*}
+Note that $\wbh_\pi = (\X_\pi^\top\X_\pi +
+\lambda\A)^{-1}\X_\pi^\top\y_\pi$. The full regularized estimator $\wbh_{[n]}$ satisfies:
+\begin{align*}
+\max_{\w^*:\,\|\w^*\|_\A^2\leq \frac{\sigma^2}{\lambda}}
+  \E\Big[\frac1n\|\X(\wbh_{[n]}-\w^*)\|^2\Big]
+  &=\frac{\sigma^2d_\A(\lambda)}{n},
+\\ \max_{\w^*:\,\|\w^*\|_\A^2\leq \frac{\sigma^2}{\lambda}}
+  \E\Big[\|\wbh_{[n]}-\w^*\|^2\Big]
+&=\sigma^2\phi_\A(\lambda),
+\end{align*}
+where $d_\A(\lambda) =
+  \tr\big(\X(\X^\top\X+\lambda\A)^{-1}\X^\top\big)\leq d$ and $\phi_\A(\lambda)=\tr\big((\X^\top\X+\lambda\A)^{-1}\big)$.
+\begin{theorem}
+  If $\pi\sim\Vol^s(\X,\A)$, then
+  \begin{align*}
+    \max_{\w^*:\,\|\w^*\|_\A^2\leq \frac{\sigma^2}{\lambda}}
+    \E\Big[\frac1n\|\X(\wbh_\pi-\w^*)\|^2\Big]
+    &=
+      \frac{\sigma^2d_\A(\frac ns\lambda)}{s},
+    \\
+\max_{\w^*:\,\|\w^*\|_\A^2\leq \frac{\sigma^2}{\lambda}}\E\big[\|\wbh_\pi-\w^*\|^2\big]
+    &=\sigma^2\frac ns\,\phi_\A(\tfrac ns\lambda).
+  \end{align*}
+\end{theorem}
+Note that $\frac ns\phi_\A(\frac ns\lambda) =\tr\big((\frac
+sn\X^\top\X+\lambda\A)^{-1}\big)\geq \phi_\A(\lambda)$ and similarly
+$\frac ns d_\A(\frac ns\lambda)\geq d_\A(\lambda)$.
+
+\paragraph{Example} Suppose that the eigenvalues of $\X^\top\X$ are
+$\lambda_1\geq\lambda_2\geq\cdots\geq\lambda_d$
+and set $\A=\I$. Then,
+we have $d_\I(\lambda) = \sum_i\frac{\lambda_i}{\lambda_i+\lambda}$, and 
+\begin{align*}
+  \frac ns \,d_\I(\tfrac ns\lambda) = \sum_i\frac{\frac
+  ns\,\lambda_i}{\lambda_i+\frac ns \lambda} = \sum_i \frac
+  {\lambda_i}{\lambda_i+\lambda}\cdot \frac {\lambda_i+\lambda}{\frac
+  sn\lambda_i+\lambda}\leq \bigg(1+\frac1{\frac
+  \lambda{\lambda_1}+\frac sn}\bigg)\cdot d_\I(\lambda).
+\end{align*}
+So in this case, we conclude that for any $s$,
+\begin{align*}
+\max_{\w^*:\,\|\w^*\|_\A^2\leq \frac{\sigma^2}{\lambda}}
+  \E\Big[\frac1n\|\X(\wbh_\pi-\w^*)\|^2\Big]
+  \leq \Big(1+\frac1{\frac\lambda{\lambda_1}+\frac sn}\Big)\ \cdot\!\!
+  \max_{\w^*:\,\|\w^*\|_\A^2\leq \frac{\sigma^2}{\lambda}}
+  \E\Big[\frac1n\|\X(\wbh_{[n]}-\w^*)\|^2\Big].
+\end{align*}
+
+\section{New expectation formulas for DPPs}
+We will use the following limit argument.
+\begin{lemma}
+For any $p\in[0,1]^n$, let $\Xt$ denote $\X$ with $i$th
+  row rescaled by $\sqrt{p_i}$ for all $i$. We have
+  \[\lim_{\epsilon\rightarrow 0}\Vol_{\epsilon
+    p}(\tfrac1{\sqrt\epsilon}\,\X,\I) =\DPP(\Xt\Xt^\top).\]
+\end{lemma}
+\begin{proof}
+  Denoting $p=\frac sn$ we have
+  \begin{align*}
+    \Pr(S)
+&= \frac{\det(\frac1p\X_S^\top\X_S+\I)}{\det(\X^\top\X+\I)}\cdot
+    p^{|S|}\cdot (1-p)^{n-|S|}\\
+&=    \frac{\det(\X_S\X_S^\top+p\I)}{\det(\X\X^\top+\I)}\cdot
+                                   (1-p)^{n-|S|}\\
+&\rightarrow \frac{\det(\X_S\X_S^\top)}{\det(\I+\X\X^\top)}.
+  \end{align*}
+\end{proof}
+
+\begin{theorem}
+  For any $\X\in\R^{n\times d}$ and $p\in[0,1]^n$, if $S\sim\DPP(\Xt\Xt^\top)$, then
+  \begin{align*}
+    \E\big[\X_S^\top(\X_S\X_S^\top)^{-1}\X_S\big] &=
+    \Xt^\top(\I+\Xt\Xt^\top)^{-1}\Xt,\\
+    \E\big[\I-\X_S^\top(\X_S\X_S^\top)^{-1}\X_S\big] &= (\I +
+    \Xt^\top\Xt)^{-1} = \Big(\I + \sum_ip_i\x_i\x_i^\top\Big)^{-1},
+  \end{align*}
+  where $\Xt$ here denotes $\X$ with $i$th row rescaled by $\sqrt{p_i}$.
+\end{theorem}
+\begin{proof}
+  If $S \sim \Vol^s(\sqrt{\frac ns}\,\X,\I)$ then
+  \begin{align*}
+    \E\big[(\I + \tfrac ns\X_S^\top\X_S)^{-1}\big] =
+    (\I+\X^\top\X)^{-1} = \I - \X^\top(\I+\X\X^\top)^{-1}\X.
+  \end{align*}
+  On the other hand, we have
+  \begin{align*}
+    (\I + \tfrac ns\X_S^\top\X_S)^{-1} = \I - \tfrac
+    ns\X_S^\top(\I+\tfrac ns\X_S\X_S^\top)^{-1}\X_S = \I -
+    \X_S^\top(\tfrac sn\I+\X_S\X_S^\top)^{-1}\X_S.
+  \end{align*}
+  Taking the limit $s\rightarrow 0$ we get the result.
+\end{proof}
+Let $\P_S = \X_S^\top(\X_S\X_S^\top)^{-1}\X_S$ denote the projection
+matrix and let $S\sim\DPP(\alpha\X\X^\top)$.
+\begin{align*}
+\|\X(\I-\P_S)\|_F^2 &= \tr((\I - \P_S)\X^\top\X(\I-\P_S))=
+  \tr(\X^\top\X(\I-\P_S)),\\
+  \E\big[\|\X(\I-\P_S)\|_F^2\big] &= \tr(\X^\top\X(\I-\E[\P_S])) = \tr\big(\X^\top\X(\I+\alpha\X^\top\X)^{-1}\big)
+\end{align*}
+This leads to guarantees for row-based low-rank matrix
+reconstruction. Idea: try to combine this with some convex relaxation
+to solve for a $(1+\epsilon)$-approximation:
+\[\text{find $S$ of size $k$ such that:} \quad
+  \|\X(\I-\P_S)\|_F^2\leq (1+\epsilon)\min_{S':|S'|=k} \|\X(\I-\P_{S'})\|_F^2\] 
+
+\begin{theorem}
+  For any $n\times d$ matrix $\X$, if $S\sim \DPP(\X\X^\top)$, then
+  \begin{align*}
+    \E\big[(\I_S\X\X^\top\I_S)^\dagger\big] = (\I+\X\X^\top)^{-1},\qquad\text{where}\quad\I_S=\sum_{i\in S}\e_i\e_i^\top.
+  \end{align*}
+\end{theorem}
+\begin{proof}
+  \begin{align*}
+\det(\I+\X\X^\top)\, \E\big[(\I_S\X\X^\top\I_S)^\dagger\big]_{ij}
+     &= \sum_{S}\big[\II_S\adj(\X_S\X_S^\top)\II_S^\top\big]_{ij}\\
+    % &=\sum_S\Big[\II_S\adj\big([\I_{-j}\X\X^\top\I_{-i}]_S\big)\II_S\Big]_{ij}\\
+    % &=\sum_{S}(-1)^{i+j}\det\!\Big([\I_{-j}\X\X^\top\I_{-i}]_{S-j,S-i}\Big)\\
+    %     &=(-1)^{i+j}\sum_{S:}\det\!\big([\X_{-j}\X_{-i}^\top]_S\big)\\
+    % &=(-1)^{i+j}\sum_{S}\det\!\big([\X_{-j}\X_{-i}^\top]_S\big)\\
+    % &= (-1)^{i+j}\det(\I + \X_{-j}\X_{-i}^\top)\\[10mm]
+    % &=(-1)^{i+j}\sum_{S\subseteq[n]_{-ij}}\det\!\big([\X_{-j}\X_{-i}^\top]_S\big)\\
+    &=(-1)^{i+j}\sum_{S\subseteq[n]_{-ij}}\det(\X_{S+i}\X_{S+j}^\top)\\
+    &=(-1)^{i+j}\sum_{S\subseteq[n]_{-ij}}\x_i^\top\x_j\det(\X_S\X_S^\top)
+      - \x_i^\top\X_S^\top\adj(\X_S\X_S^\top)\X_S\x_j\\
+    &=(-1)^{i+j}\sum_{S\subseteq[n]_{-ij}}\det(\X_S\X_S^\top)\x_i^\top\big(\I-\X_S^\top(\X_S\X_S^\top)^{-1}\X_S\big)\x_j\\
+    &=(-1)^{i+j}\Big(\x_i^\top\x_j\,\det(\I+\X_{-ij}\X_{-ij}^\top) -
+      \x_i^\top\X_{-ij}^\top\adj(\I+\X_{-ij}\X_{-ij}^\top)\X_{-ij}\x_j\Big)\\ 
+                     % &=(-1)^{i+j}\x_i^\top\adj(\I+\X_{-ij}^\top\X_{-ij})\x_j\\
+    &= (-1)^{i+j}\det\!\big([\I + \X\X^\top]_{-j,-i}\big)\\
+  &=\big[\!\adj(\I+\X\X^\top)\big]_{ij}.
+%    &\Red{=(-1)^{i+j}\Big(\det(\I+\X_{-ij}^\top\X_{-ij}+\x_j\x_i^\top) -
+%       \det(\I+\X_{-ij}^\top\X_{-ij})\Big)}\\
+% &=(-1)^{i+j}\det(\I+\X^\top\X)\,\big(1-\x_j^\top(\I+\X^\top\X)^{-1}\x_i\big)\cdot
+%                                               \x_i^\top(\I+\X_{-i}^\top\X_{-j})^{-1}\x_j\\
+% &=(-1)^{i+j}\det(\Z)(1-\x_j^\top\Z^{-1}\x_i)\x_i^\top\Big(\Z^{-1}+
+%                       \frac{\Z^{-1}\x_i\x_j^\top\Z^{-1}}{1-\x_j^\top\Z^{-1}\x_i}\Big)\x_j\\
+% &=(-1)^{i+j}\det(\Z)\Big((1-\x_j^\top\Z^{-1}\x_i)\,\x_i^\top\Z^{-1}\x_j
+% + \x_i^\top\Z^{-1}\x_i\cdot\x_j^\top\Z^{-1}\x_j\Big)
+  \end{align*}
+%   Now suppose that $i=j$ Then:
+  \begin{align*}
+\det(\I+\X\X^\top)\,& \E\big[(\I_S\X\X^\top\I_S)^\dagger\big]_{ii}
+    = \sum_{S:i\in
+    S}\det(\X_S\X_S^\top)
+      \big[(\I_S\X\X^\top\I_S)^\dagger\big]_{ii}\\
+                    &=\sum_{S:i\in
+                      S}\det(\X_{S_{-i}}\X_{S_{-i}}^\top)\\
+                    &=\sum_{S\subseteq[n]_{-i}}\det(\X_S\X_S^\top)\\
+    &= \det(\I + \X_{-i}\X_{-i}^\top) \\
+    &= \big[\adj(\I+\X\X^\top)\big]_{ii}.
+\end{align*}    
+  % Note that if we introduce regularization to the determinant then
+  % \begin{align*}
+  % \hspace{-2cm}  \epsilon^{d-1}\!\!\!\!\sum_{S\subseteq[n]_{-ij}}\!\!\det(\epsilon\I+\X_{S+i}\X_{S+j}^\top)
+  %   &=
+  %     \sum_{S\subseteq[n]_{-ij}}\epsilon^{|S|}\det\big(\epsilon\I+\X_{S}^\top\X_{S}+\x_i\x_j^\top)\\
+  %   &=\sum_{S\subseteq[n]_{-ij}}\epsilon^{|S|}\det(\epsilon\I+\X_{S}^\top\X_{S}) +
+  %     \sum_{S\subseteq[n]_{-ij}}\epsilon^{|S|}\,\x_j^\top\adj(\epsilon\I+\X_{S}^\top\X_{S})\x_i\\
+  %   &=(1+\epsilon)^{n-2}\det(\epsilon\I+\tfrac\epsilon{1+\epsilon}\X_{-ij}^\top\X_{-ij}) +
+  %     (1+\epsilon)^{n-2}\x_j^\top\adj(\epsilon\I+\tfrac \epsilon{1+\epsilon}\X_{-ij}^\top\X_{-ij})\x_i\\
+  %   &=(1+\epsilon)^{n-2}\Big(\det(\epsilon\I+\tfrac\epsilon{1+\epsilon}\X_{-j}^\top\X_{-i})+\frac1{1+\epsilon}\x_j^\top\adj(\epsilon\I+\tfrac \epsilon{1+\epsilon}\X_{-ij}^\top\X_{-ij})\x_i\Big)\\
+  %   &=\epsilon^{d-1}\frac{\epsilon}{1+\epsilon}\det((1+\epsilon)\I+\X_{-i}\X_{-j}^\top)
+  %     + 
+  % \end{align*}
+\end{proof}
+
+\bibliography{pap}
+
+\end{document}
+

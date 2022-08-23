@@ -1,0 +1,1951 @@
+\documentclass[11pt]{article}
+\usepackage{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathabx}
+\usepackage{color}
+\usepackage{cancel}
+\usepackage{wrapfig}
+\usepackage{subcaption}
+\usepackage{caption}
+\usepackage{xfrac}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{mdframed}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\hypersetup{
+  colorlinks,
+  linkcolor={red!40!gray},
+  citecolor={blue!40!gray},
+  urlcolor={blue!70!gray}
+}
+\usepackage{cleveref}
+\input{shortdefs}
+
+
+\title{Exact expressions for random projections:
+low-rank approximation, randomized second-order methods and implicit regularization}
+
+% \setlength{\parindent}{0cm}
+% \setlength{\parskip}{0mm}
+
+\begin{document}
+\maketitle
+
+\section{Main result}
+\paragraph{Main Theorem.}
+Let $\X = \Z\Sigmab^{\frac12}$, where $\Z$ is an $n\times d$ random matrix with
+entries jointly
+$K$-sub-Gaussian (sub-Gaussian Orlicz norm
+$\|\z^\top \a \|_{\psi_2} \leq K$ for all $\|\a\| \leq 1$),
+and $\Sigmab$ is a $d\times d$
+positive definite matrix. Assume that $n<d$ and define:
+\begin{align*}
+\bar\P_{\Sigmab,n} = (\bar\gamma\Sigmab +
+  \I)^{-1}\bar\gamma\Sigmab,\quad\text{so that}\quad\tr\,\bar\P=n. 
+\end{align*}
+Let $r=\frac{\tr(\Sigmab)}{\|\Sigmab\|}$ be the nuclear rank of
+$\Sigmab$ and fix $\rho=\frac rn > 1$. There is $C_{\rho}$ such that if $r\geq C_\rho$, then
+\begin{align}
+\Big(1-\frac {C_\rho K^2}{\sqrt
+  r}\Big)\cdot\bar\P_{\Sigmab,n}\ \preceq\ \E[\X^\dagger\X]\ \preceq\ 
+  \Big(1+\frac {C_\rho K^2}{\sqrt r}\Big)\cdot\bar\P_{\Sigmab,n}.
+\end{align}
+
+\begin{corollary}[Low-rank approximation]
+  Let $\A$ be an $m\times n$ matrix with stable rank
+  $r=\frac{\|\A\|_F^2}{\|\A\|^2}$ and define
+  $\Er_\A(\tilde\A)=\|\A-\P_{\!\tilde\A}\A\|_F^2$, where $\P_{\!\tilde\A}$
+  is the projection onto the column-span of $\tilde\A$. If $\S$ is an
+  $n\times k$ matrix with i.i.d.~Gaussian entries and $k<r$, then we have
+  \begin{align*}
+    \E\big[\Er_\A(\A\S)\big]  \overset{\epsilon}{\simeq}
+    \tr\,\A\A^\top\big(\I-\bar\P_{\A\A^\top\!,k}\big).
+  \end{align*}
+\end{corollary}
+\begin{corollary}[Iterative optimization]
+  Given $m\times n$ matrix $\A$ with stable rank $r$ and vector
+  $\b\in\R^m$, let $\x^*$ be the solution of $\A\x^*=b$ and consider
+  the iterative algorithm:
+  \begin{align*}
+    \x^{t+1} = \argmin_\x\|\x-\x^t\|^2\quad\text{subject to}\quad\S\A=\S\b,
+  \end{align*}
+  where $\S$ is a $k\times m$ sub-Gaussian sketching matrix with
+  $k<r$. Then we have:
+  \begin{align*}
+    \E\big[\x^{t+1}-\x^*\big] &\overset{\epsilon}{=}
+    \big(\I - \bar\P_{\A^\top\!\A,k}\big)\cdot\E\big[\x^t-\x^*\big],\\
+    \E\big[\|\x^{t+1}-\x^*\|^2\big]&\leq
+\Big(1-\lambda_{\min}\big((1-\epsilon)\bar\P_{\A^\top\!\A,k}\big)\Big)\cdot
+    \E\big[\|\x^t-\x^*\|^2\big].
+  \end{align*}
+\end{corollary}
+\begin{corollary}[Implicit regularization]
+Let $f_\w(\x)=\x^\top\w$ and $(\x,y)\sim\mu$
+  be s.t.~$\x\sim\Nc(0,\Sigmab)$ and $y=\x^\top \bar \w+\xi$,
+  with $\E[\xi]=0$. Assume that $\Sigmab$ has nuclear rank
+  $r>n$. Then,
+  \begin{align*}
+    \E_{\Dc\sim\mu^n} \Big[\argmin_{\w}\|\w\|^2\text{ s.t. }f_\w(\x)=y\,\forall_{(\x,y)\in \Dc}\Big]
+   \ \overset{\epsilon}{\simeq}\
+    \argmin_{\w}\Big\{\E_{(\x,y)\sim\mu}\big(f_\w(\x)-y\big)^2 + \lambda\|\w\|^2\Big\},
+  \end{align*}
+  where $\lambda$ is chosen so that $n=\tr\,\Sigmab(\Sigmab+\lambda\I)^{-1}$.
+\end{corollary}
+
+\noindent
+% Note that this expression for the low-rank approximation error of a
+% Gaussian sketch is identical to the expected error of DPP sampling in the Column
+% Subset Selection Problem (CSSP) given in
+% \cite{nystrom-multiple-descent}, where several bounds are given for
+% the expression in terms of the best rank $k$ approximation.
+Further research questions associated with the corollaries:
+\begin{enumerate}
+\item Analyze which sketches are sub-Gaussian and with what constant?
+  \begin{enumerate}
+    \item $z_{ij} = N(0,1)$, then $K = \|z_{ij}\|_{\psi_2} = \sqrt{8/3} < 1.64$
+      (\cite{van1996weak} exercise 2.2.1).
+  \item Simple Rademacher sketch (i.i.d.~$\pm1$ entries)
+    \begin{align*}
+      \|z_{ij}\|_{\psi_2} = 
+      \inf \left\{ c > 0 : \E e^{x^2 / c^2} \leq 2\right\}
+      = \log(2)^{-1/2} < 1.21
+    \end{align*}
+  \item Sparsified Rademacher sketch (randomly zeroed out i.i.d.~$\pm1$ entries),
+  \item Column/row sampling (uniform, leverage score, etc). For uniform sampling
+    with replacement, $\S^\top \in \R^{k \times n}$ has rows which
+    are uniformly distributed over 
+    $\sqrt{\frac{n}{k}} e_i$ where $e_i \in \R^n$ is the $i$th standard
+    basis vector. Therefore,
+    for $\|\a\| \leq 1$
+    \begin{align*}
+      \E e^{\a^\top \z}
+      = \sum_{i=1}^n \frac{1}{n} e^{a_i \sqrt{\frac{n}{k}}}
+      \leq e^{\frac{1}{\sqrt{k}}}
+    \end{align*}
+    with equality attained when $\a$ has entries identically 
+    $\frac{1}{\sqrt{n}}$. As a consequence, the sub-Gaussian
+    Orlicz norm $K^2 \leq C \frac{2}{\sqrt{k}}$
+    for some universal constant $C$.
+
+    Similar analysis can be extended to non-uniform discrete distributions
+    over $[n]$ (like leverage scores) by suitably replacing $\frac{1}{n}$, but 
+    the results may have additional dependence on $\Sigmab$.
+  \item Subsampled Randomized Hadamard Transform (probably harder
+    since it is non-i.i.d.).
+  \end{enumerate}
+  \item Can we show this for the spectral norm error, i.e.,
+    $\|\A-\P_{\!\A\S}\A\|$,  instead of the Frobenius norm? Presumably this
+    requires directly analyzing $\I-\X^\dagger\X$ instead of $\E[\I-\X^\dagger\X]$.
+  \item Extend the result to $k>r$, possibly under the assumption of slow eigenvalue decay.
+  \end{enumerate}
+
+\begin{theorem}\label{t:main}
+% Let $\X = \Z\Sigmab^{\frac12}$, where $\Z$ is an $n\times d$ random
+% matrix with entries jointly $K$-sub-Gaussian (sub-Gaussian Orlicz norm
+% $\|\z^\top \a \|_{\psi_2} \leq K$ for all $\|\a\| \leq 1$), and $\Sigmab$ is a $d\times d$ positive definite matrix. Assume that $n<d$ and define:
+% \begin{align*}
+% \bar\P=\bar\P(\Sigmab,n) = (\bar\gamma\Sigmab + \I)^{-1},\quad\text{such that}\quad\tr\,\bar\P=d-n.
+% \end{align*}
+% Let $r=\frac{\tr(\Sigmab)}{\|\Sigmab\|}$ be the nuclear rank of
+% $\Sigmab$ and fix $\rho=\frac rn > 1$. There is $C_{\rho}$ such that if $r\geq C_\rho$, then
+% \begin{align}
+% \Big(1-\frac {C_\rho K^2}{\sqrt
+%   r}\Big)\cdot\bar\P\preceq\E[\I-\X^\dagger\X]\preceq
+%   \Big(1+\frac {C_\rho K^2}{\sqrt r}\Big)\cdot\bar\P.
+% \end{align}
+Let $\X = \Z\Sigmab^{\frac12}$, where $\Z \in \mathbb R^{n\times d}$ having i.i.d.~rows that are $K$-sub-Gaussian random vectors (with sub-Gaussian Orlicz norm $\|\z^\top \a \|_{\psi_2} \leq K$ for all $\|\a\| \leq 1$), and $\Sigmab$ is a $d\times d$ positive definite matrix. Assume that $n<d$ and define:
+\begin{align*}
+\bar\P=\bar\P(\Sigmab,n) = (\bar\gamma\Sigmab + \I)^{-1},\quad\text{such that}\quad\tr\,\bar\P=d-n.
+\end{align*}
+Let $r=\frac{\tr(\Sigmab)}{\|\Sigmab\|}$ be the nuclear rank of
+$\Sigmab$ and fix $\rho=\frac rn > 1$. There is $C_{\rho}$ such that if $r\geq C_\rho$, then
+\begin{align}
+\Big(1-\frac {C_\rho K^2}{\sqrt
+  r}\Big)\cdot\bar\P\preceq\E[\I-\X^\dagger\X]\preceq
+  \Big(1+\frac {C_\rho K^2}{\sqrt r}\Big)\cdot\bar\P.
+\end{align}
+\end{theorem}
+\begin{proof}
+  Note that $\X^\dag \X \overset{d}{=} (\alpha \X)^\dag (\alpha \X)$
+  for any $\alpha \in \R \setminus \{0\}$, so
+  assume without loss of generality (after rescaling $\bar{\P}$ correspondingly)
+  that $\|\Sigmab\| = 1$.
+
+  Let $\P=\I-\X^\dagger\X$ and define $\P_{-n}=\I-\X_{-n}^\dagger\X_{-n}$,
+  where $\X_{-n}$ denotes the matrix $\X$ without $n$th row. We will use the
+  following.
+
+\begin{lemma}\label{l:rank-one-update}
+    For any $n<d$, we have, conditioned on the event $E_n: \left\{ \left| \frac{\tr \P_{-n} \Sigmab}{\x_n^\top \P_{-n} \x_n} - 1 \right| \le \frac12 \right\}$ that
+    \begin{align*}
+       \P_{-n} - \P = \frac{\P_{-n} \x_n \x_n^\top \P_{-n}}{\x_n^\top \P_{-n} \x_n}, \quad (\X^\top\X)^\dagger\x_n =
+      \frac{\P_{-n}\x_n}{\x_n^\top\P_{-n}\x_n}.
+    \end{align*}
+\end{lemma}
+
+% \begin{lemma}[Concentration of quadratic forms of sub-Gaussian random vectors, {\cite[Corollary 2.6]{zajkowski2018bounds}}] \label{l:concentration-sub-gaussian}
+% For a $K$-sub-Gaussian random vector $\x \in \mathbb R^d$ (i.e., $\| \x \|_{\psi_2} \leq K$) and $\A \in \mathbb R^{d \times d}$, we have
+% \begin{align*}
+%   \Pr\left[
+%     \lvert \x^\top \A \x - \E[\x^\top \A \x] \rvert
+%     \geq t
+%     \right] \leq 2 \exp\left(
+%     -\min\left\{
+%       \frac{t^2}{16 C^2  K^4 (\tr \A)^2},
+%       \frac{t}{4 C K^2 (\tr \A)},
+%     \right\}
+%   \right)
+% \end{align*}
+% and 
+% \begin{align*}
+%   \E\left[ \left( \x^\top \A \x - \E[\x^\top \A \x] \right)^2 \right]
+%   &\leq C~K^4~\tr(\A)^2
+% \end{align*}
+% for some universal constant $C$.
+% \end{lemma}
+
+\begin{lemma}[Concentration of quadratic forms of sub-Gaussian random vectors, {\cite[Theorem~2.1]{hsu2012tail}}] \label{l:concentration-sub-gaussian}
+For a $K$-sub-Gaussian random vector $\x \in \mathbb R^d$ (i.e., $\| \x \|_{\psi_2} \leq K$) with $\E[\x] = 0$, $\E[\x \x^\top] = \I_d$ and symmetric and p.s.d.~$\A \in \mathbb R^{d \times d}$, we have
+\begin{align*}
+  \Pr\left[
+    \lvert \x^\top \A \x - \tr \A \rvert
+    \geq \frac12 \tr \A
+    \right] \leq 2 \exp\left( - \left(  \frac{ \sqrt{  \tr \A^2 + \| \A \| \tr \A } - \sqrt{\tr \A^2} }{2 \| \A \|} \right)^2 \right) 
+\end{align*}
+and 
+\begin{align*}
+  \E\left[ \left( \x^\top \A \x - \tr \A \right)^2 \right]
+  &\leq C~K^4~\tr(\A)^2
+\end{align*}
+for some universal constant $C>0$. In particular, if we have $\| \A \| \le 1$ and $\tr \A^2 \le \tr \A \le r$, then
+\[
+  \frac{ \sqrt{  \tr \A^2 + \| \A \| \tr \A } - \sqrt{\tr \A^2} }{2 \| \A \|} = \frac12 \frac{ \tr \A }{\sqrt{  \tr \A^2 + \| \A \| \tr \A } + \sqrt{\tr \A^2} } \ge \frac{\tr \A}{C \sqrt r}
+\]
+so that
+\[
+  \Pr\left[
+    \lvert \x^\top \A \x - \tr \A \rvert
+    \geq \frac12 \tr \A
+    \right] \leq 2 \exp\left( - \frac{(\tr \A)^2}{C r} \right)
+\]
+for some $C > 0$.
+\end{lemma}
+
+\textbf{**In fact \cite[Theorem~2.1]{hsu2012tail} can not be applied directly, due to the mismatch in definition of sub-Gaussian and the form of \cite[Theorem~2.1]{hsu2012tail}**: we cannot really assume $\sigma = 1$ there, because that imposes constraints on the sub-Gaussian norm.}
+
+% \begin{lemma}\label{l:rank-one-projection}
+%   For any $d\times d$ p.s.d.~matrix $\A$ and
+%   any random vector $\z$ with jointly
+%   $K$-sub-Gaussian (sub-Gaussian Orlicz norm
+%   $\|\z^\top \a \|_{\psi_2} \leq K$ for all $\|\a\| \leq 1$),
+%   \begin{align*}
+%     \Bigg\|\E\bigg[\frac{\A^{\sfrac12}\z\z^\top\A^{\sfrac12}}{\z^\top\A\z}\bigg]\Bigg\|
+% \leq
+%     \sup_{\v:\|\v\|=1}\sqrt{\E\bigg[\Big(\v^\top\frac{\A^{\sfrac12}\z\z^\top\A^{\sfrac12}}{\z^\top\A\z}\v\Big)^2\bigg]}
+%     \leq C\cdot K^2 \cdot \frac{\|\A\|}{\tr\,\A}.
+%   \end{align*}
+%   for some universal constant $C$.
+% \end{lemma}
+%\textbf{** Lemma 3 seems no longer necessary?**}
+
+\begin{lemma}\label{l:trace}
+For $X=\tr\,\Sigmab(\P_{-n}-\E[\P_{-n}])$
+and $\|\Sigmab\| = 1$, we have
+\begin{align*}
+  \E[X^2]\leq
+  cn\quad\text{and}\quad\Pr\{|X|\geq t\}\leq 2 \ee^{-\frac{t^2}{cn}}.
+  \end{align*}
+  for some universal constant $C$.
+\end{lemma}
+
+\noindent
+Defining $\hat s = \x_n^\top\P_{-n}\x_n$ and $\bar s=\tr\bar\P\Sigmab=n/\bar\gamma$,
+using the lemmas and the fact that $\I-\P=(\X^\top\X)^\dagger\X^\top\X$, we obtain:
+\begin{align*}
+  \I - \E[\P]\bar\P^{-1}
+  &= \E[\I -\P] - \E[\P\bar\gamma\Sigmab]\\
+  &=\sum_{i=1}^n\E\big[(\X^\top\X)^\dagger\x_i\x_i^\top\big] -
+    \E[\P]\bar\gamma\Sigmab\\
+  &=n\,\E\bigg[\frac{\P_{-n}\x_n\x_n^\top}{\x_n^\top\P_{-n}\x_n}\bigg] -
+    \E[\P]\bar\gamma\Sigmab\\
+  &=\bar\gamma\,
+    \E\bigg[\bar s\cdot\frac{\P_{-n}\x_n\x_n^\top} {\x_n^\top\P_{-n}\x_n}\bigg]
+    -\bar\gamma\,\E\bigg[\hat s
+    \cdot\frac{\P_{-n}\x_n\x_n^\top}{\x_n^\top\P_{-n}\x_n}\bigg] +
+    \bar\gamma\,\E[\P_{-n}\Sigmab]
+    -\E[\P]\bar\gamma\Sigmab\\
+  &=\underbrace{\bar\gamma\,\E\bigg[(\bar s - \hat s)
+    \cdot\frac{\P_{-n}\x_n\x_n^\top}{\x_n^\top\P_{-n}\x_n}\bigg]}_{\T_1}
++    \underbrace{\E[\P_{-n}-\P]\bar\gamma\Sigmab}_{\T_2}.
+\end{align*}
+We bound $\T_1$ as follows:
+\begin{align*}
+  \bar\gamma^{-1}\|\T_1\|
+  &\leq \E\Bigg[\bigg\|\E\Big[(\bar s-\hat
+  s)\cdot\frac{\P_{-n}\x_n\x_n^\top\P_{-n}}{\x_n^\top\P_{-n}\x_n}\mid
+  \P_{-n}\Big]\bigg\|\Bigg]\\
+  &\leq \E\Bigg[\sqrt{\E\big[(\bar s - \hat
+  s)^2\mid
+    \P_{-n}\big]}\
+    \cdot\sup_{\v:\|\v\|=1}\sqrt{\E\bigg[\Big(\v^\top\frac{\P_{-n}\x_n\x_n\P_{-n}}{\x_n^\top\P_{-n}\x_n}\v\Big)^2\mid\P_{-n}\bigg]}\,\Bigg]\\
+  &\leq  C\,K^2\,\E\Bigg[\sqrt{\E\big[(\bar s - \hat
+  s)^2\mid
+    \P_{-n}\big]}\,
+    \cdot \frac{\|\P_{-n}\Sigmab\|}{\tr\,\P_{-n}\Sigmab}\Bigg]
+% \ \leq\ C\,\sqrt{\E\big[(\bar s - \hat s)^2\big]}\,\cdot
+% \underbrace{\sqrt{\E\bigg[\frac{\|\P_{-n}\Sigmab\|^2}{(\tr\,\P_{-n}\Sigmab)^2}\bigg]}}_{\Delta}\\[-4mm]
+    \  \leq\ C\sqrt{(\bar s - s)^2 + \E\big[(s - \hat s)^2\big]}\cdot \frac{K^2}{r-n},
+\end{align*}
+where we let $s=\E[\hat s]=\tr\,\E[\P_{-n}]\Sigmab$ and the last
+inequality follows because:
+\begin{align*}
+    \frac{\tr\,\P_{-n}\Sigmab} {\|\P_{-n}\Sigmab\|}\geq
+    \tr\,\P_{-n}\Sigmab =
+    \|\Sigmab^{\frac12}-\Sigmab^{\frac12}\X_{-n}^\dagger\X_{-n}\|_F^2\geq
+\sum_{i\geq n}\lambda_i\geq r-n,
+\end{align*}
+with $1=\lambda_1\geq\lambda_2\geq...$ denoting the eigenvalues of $\Sigmab$.
+Furthermore, we have:
+\begin{align*}
+  \E\big[(s - \hat s)^2\big] &=
+\E\big[\big(\tr\,\Sigmab(\E[\P_{-n}]-\P_{-n})\big)^2\big] +
+  \E\big[(\tr\,\P_{-n}\Sigmab-\x_n^\top\P_{-n}\x_n)^2\big]\\
+  &\leq C\Big(n + \E\big[\tr\,(\P_{-n}\Sigmab)^2\big]\Big)\leq
+    C\big(n + \tr\,\E[\P_{-n}]\Sigmab\big)\\
+  &=C(n+s)\leq C\big(n+\bar s + |s- \bar s|\big).
+\end{align*}
+Moreover, using the fact that
+$\bar\P\Sigmab\preceq\frac1{\bar\gamma+1}\I$, we obtain that:
+\begin{align*}
+  |\bar s - s|
+  &= \big|\tr\,(\I-\E[\P]\bar\P^{-1})\bar\P\Sigmab\big|
+    =\big|\tr\,(\T_1+\T_2)\bar\P\Sigmab\big|\\
+  &\leq \bar\gamma\,\E\bigg[|\bar s-\hat s|\cdot
+    \frac{\tr\,\P_{-n}\x_n\x_n^\top\bar\P\Sigmab}{\tr\,\P_{-n}\x_n\x_n^\top}\bigg]
+    + \bar\gamma\,
+    \E\bigg[\frac{\tr\,\P_{-n}\x_n\x_n^\top\P_{-n}\Sigmab\bar\P\Sigmab}
+    {\tr\,\P_{-n}\x_n\x_n^\top\P_{-n}}\bigg]\\
+  &\leq \frac{\bar\gamma}{\bar\gamma+1}\Big(\E\big[|\bar s-\hat
+    s|\big] + 1\Big)\leq \frac{\bar\gamma}{\bar\gamma+1}\Big(|\bar
+    s-s| + \E\big[|s-\hat
+    s|\big] + 1\Big)\\
+  &\leq \frac{\bar\gamma}{\bar\gamma+1}\Big(|\bar s- s| +
+     c\sqrt{|\bar s- s|} + c\sqrt{n+\bar s} + 1\Big).
+\end{align*}
+Solving for $|\bar s-s|$, we conclude that
+\begin{align*}
+  |\bar s-s|\leq
+  \bar\gamma(c\sqrt{n+\bar s}+1) + c^2\bar\gamma^2\leq \bar\gamma
+  (c+1)\sqrt{n+\bar s} + c^2\bar\gamma^2.
+\end{align*}
+We next bound $\T_2$. Note that $\E[\P_{-n}-\P] =
+\E\big[\frac{\P_{-n}\x_n\x_n^\top\P_{-n}}{\x_n^\top\P_{-n}\x_n}\big]$, so
+using Lemma \ref{l:rank-one-projection}, we have:
+\begin{align*}
+\bar\gamma^{-1}\|\T_2\|\leq  \bigg\|
+  \E\bigg[\E\Big[\frac{\P_{-n}\x_n\x_n^\top\P_{-n}}{\x_n^\top\P_{-n}\x_n}
+  \mid \P_{-n}\Big]\bigg]\bigg\|  \leq
+C\,K^2\,\E\Big[\frac{\|\P_{-n}\Sigmab\|}{\tr\,\P_{-n}\Sigmab}\Big]   
+\leq C\cdot \frac{K^2}{r-n}.
+\end{align*}
+% Finally, we bound $\Delta$ by using the concentration of
+% $\tr\,\P_{-n}\Sigmab$ around its mean $s$, combined with 
+% the fact that  $\|\P_{-n} \Sigmab\| \leq \min\{1,\tr\,\P_{-n}\Sigmab\}$:
+% \begin{align}
+% \Delta
+%   \leq    \sqrt{\E\bigg[\frac{\|\P_{-n}\Sigmab\|^2}{(\tr\,\P_{-n}\Sigmab)^2}
+%     \mid \tr\,\P_{-n}\Sigmab\geq s/2\bigg] +
+% \Pr\big\{\tr\,\P_{-n}\Sigmab\leq s/2\big\}}
+%   \leq \sqrt{\tfrac 4{s^2} + 2 \ee^{-\frac{s^2}{cn}}}.\label{eq:projected-rank}
+% \end{align}
+% The high probability bound used above is derived from Lemma \ref{l:trace}:
+% \begin{align*}
+%   \Pr\big\{\tr\,\P_{-n}\Sigmab\leq s/2\big\}
+%   &= \Pr\big\{\tr\,(\P_{-n} - \E[\P_{-n}])\Sigmab\leq - s/2 \big\}
+%   \leq 2 \ee^{-\frac{s^2}{c n}}
+% \end{align*}
+% To complete the proof, we must show that $s$ is large enough for the
+% bound in \eqref{eq:projected-rank} to be meaningful.
+Using the fact that $\bar\P\succeq \frac1{\bar\gamma+1}\I$,
+we have:
+\begin{align*}
+n = d - \tr\,\bar\P = \tr\,\bar\P (\bar\gamma\Sigmab + \I) - \tr\,\bar\P
+  = \tr\,\bar\P \bar\gamma\Sigmab\geq \frac{\bar\gamma}{\bar\gamma+1}\tr\,\Sigmab,
+\end{align*}
+so $r=\tr\,\Sigmab\leq \frac{\bar\gamma+1}{\bar\gamma}n=n + \frac
+n{\bar\gamma}=n+\tr\,\bar\P\Sigmab$. Thus, $r\geq\bar s \geq r-n$ and also $\bar\gamma\leq
+\frac{n}{r-n}=\frac1{\rho-1}$.
+% Assume that $r\geq \frac{4(c+1)^2\rho^2}{(\rho-1)^4}$. Then, we have:
+% \begin{align*}
+% \bar s-n\geq r-2n=r\,\frac{\rho-2}\rho\ \geq
+%   \frac c{\sqrt{\rho/2}}\sqrt{r/\rho}\geq \frac{c}{\rho-1}\sqrt n\geq \bar\gamma c\sqrt{n}.
+% \end{align*}
+% \begin{align*}
+%   n+s
+%   &\geq  n+ \bar s - \bar\gamma(c+1)\sqrt{n+\bar s} -c^2\bar\gamma^2
+%   =
+%   (n+\bar s)\cdot \Big(1 - \frac{\bar\gamma (c+1)}{\sqrt{n+\bar s}} -
+%     \frac{c^2\bar\gamma^2}{n+\bar s}\Big)\\
+%   &\geq r\cdot\Big(1-\frac{\bar\gamma (c+1)}{\sqrt r} -
+% \frac{c^2\bar\gamma^2}{r}\Big)
+%   \geq \rho n\cdot \Big(1 - \frac{\rho-1}{2\rho} -
+%   \frac{(\rho-1)^2}{4\rho^2} \Big)\\
+%   &\geq \rho n\cdot\Big(1 - \frac34\,\frac{\rho-1}{\rho}\Big) = n +
+%     n\cdot \frac34(\rho-1),
+% \end{align*}
+% so we conclude that $s\geq n\cdot \frac
+% 34(\rho-1)=r\cdot\frac34\frac{\rho-1}{\rho}$. Using the fact that,
+% for any $\alpha>0$, function 
+% $f(x)=x^2\ee^{-\alpha x}$ is bounded over $x>0$, we have
+% \begin{align*}
+% r^2\Big(\frac4{s^2}+2 \ee^{-\frac{s^2}{cn}}\Big) \leq \frac 43\frac\rho{\rho-1} + 2 r^2
+%   \ee^{-r\cdot\frac34\frac{\rho-1}{c}}\leq c_\rho,
+% \end{align*}
+% thus concluding that $\Delta^2\leq \frac{c_\rho}{r^2}$.
+Observing that $\frac1{r-n} = \frac1r\cdot \frac{\rho}{\rho-1}$, we
+put everything together:
+\begin{align*}
+  \|\I-\E[\P]\bar\P^{-1}\|\leq \frac{C\,K^2\,\bar\gamma}{r-n}\cdot
+  \big(1 + \bar\gamma\sqrt{r} + \bar\gamma^2 + \sqrt r\big)
+  \leq \frac{C_\rho K^2}{\sqrt r}.
+\end{align*}
+% \begin{align*}
+%   \|\I-\E[\P]\bar\P^{-1}\|\leq \bar\gamma C_1\Delta\sqrt r \Big(1 +
+%   \bar\gamma+\bar\gamma^2\Big)
+%   +\bar\gamma C_2\Delta\leq \frac{C_\rho}{\sqrt r},
+% \end{align*}
+It remains to observe that since $\I\succeq\bar\P\succeq
+\frac1{\bar\gamma+1}\I\succeq \frac{\rho-1}{\rho}\I$, we have
+\begin{align*}
+  \|\I-\bar\P^{-\frac12}\E[\P]\bar\P^{-\frac12}\| =
+  \|\bar\P^{-\frac12}(\I-\E[\P]\bar\P^{-1})\bar\P^{\frac12}\|\leq
+\|\bar\P^{-\frac12}\|\cdot\frac{C_\rho K^2}{\sqrt r}\cdot \|\bar\P^{\frac12}\|\leq
+\frac{C_\rho K^2}{\sqrt r} \sqrt{\frac{\rho}{\rho-1}}.
+\end{align*}
+Defining $\epsilon =\frac{C_\rho K^2}{\sqrt r}
+\sqrt{\frac{\rho}{\rho-1}}$, this means that all eigenvalues 
+of the p.s.d.~matrix $\bar\P^{-\frac12}\E[\P]\bar\P^{-\frac12}$ lie
+in the interval $[1-\epsilon,1+\epsilon]$, so:
+\begin{align*}
+  (1-\epsilon)\I\preceq
+  \bar\P^{-\frac12}\E[\P]\bar\P^{-\frac12}\preceq (1+\epsilon)\I.
+\end{align*}
+Note that for any p.s.d.~matrices $\A,\B,\Z$, if $\A\preceq \B$ then
+$\Z\A\Z\preceq \Z\B\Z$, so letting $\Z=\bar\P^{\frac12}$ in the above,
+we get:
+\begin{align*}
+  (1-\epsilon)\bar\P\preceq
+  \E[\P]\preceq (1+\epsilon)\bar\P,
+\end{align*}
+which completes the proof.
+\end{proof}
+
+
+\begin{proof}[Proof of Theorem~\ref{t:main}]
+
+Before getting into the details of the proof of Theorem~\ref{t:main}, we first provide the following intuitive derivation of Theorem~\ref{t:main}, 
+\[
+  \E[\X^\dagger \X] \simeq \I - \bar \P  = \I -  (\bar \gamma \Sigmab + \I)^{-1} = \bar \gamma \bar \P \Sigmab
+\]
+with $\bar \gamma = \frac{n}{\tr \Sigmab \bar \P}$ such that $\tr \bar \P = d - n$. Note that for $\X^\dagger \X = (\X^\top \X)^\dagger \X^\top \X$ we have, with Lemma~\ref{l:rank-one-update} that
+\[
+  \E[\I - \P] = \E[\X^\dagger \X] = \sum_{i=1}^n \E[(\X^\top \X)^\dagger \x_i \x_i^\top]  = n \E \left[\frac{ \P_{-n} \x_n \x_n^\top }{ \x_n^\top \P_{-n} \x_n } \right]
+\]
+where we denote $\x_i \in \mathbb R^d$ the $i$-th row of $\X$, $\P_{-i} = \I - \X_{-i}^\dagger \X_{-n}$, with $\X_{-i} \in \mathbb R^{(n-1) \times d}$ the matrix $\X$ without its $i$-th row. Due to the sub-Gaussianity of $\x_n$, the quadratic form $\x_n^\top \P_{-n} \x_n$ in the denominator is expected to concentrate around its expectation (with respect to $\x_n$, with $\E[\x_n \x_n^\top] = \Sigmab$) and thus
+\[
+  \E[\X^\dagger \X] \simeq n \E \left[\frac{ \P_{-n} \x_n \x_n^\top }{ \tr \Sigmab \P_{-n} } \right] = n\E \left[\frac{ \P_{-n} \Sigmab }{ \tr \Sigmab \P_{-n} } \right].
+\]
+Further note that, with $\E[\P_{-n}] \simeq \E[\P]$ for $n$ large and $\frac1n \tr \Sigmab \P_{-n} \simeq \frac1n \tr \Sigmab \E[\P]$ similarly with a concentration argument, we shall have
+\[
+  \E[\X^\dagger \X] = \I - \E[\P] \simeq \frac{ \E[\P] \Sigmab }{ \frac1n \tr \Sigmab \E[\P] }
+\]
+so that
+\[
+  \left( \I +  \frac{\Sigmab}{ \frac1n \tr \Sigmab \E[\P] } \right) \E[\P] \simeq \I \Rightarrow \E[\P] \simeq \left( \left( \frac1n \tr \Sigmab \E[\P] \right)^{-1} \Sigmab + \I \right)^{-1}
+\]
+and thus $\E[\P] \simeq \bar \P$ for $\bar \P = (\bar \gamma \Sigmab + \I)^{-1}$ and $\bar \gamma^{-1} = \frac1n \tr \Sigmab \bar \P$. This leads to the (implicit) expression of $\bar \P $ and $ \bar \gamma$.
+
+\bigskip
+
+To make the above intuition rigorous, we present now the proof of Theorem~\ref{t:main}. First note that:
+\begin{enumerate}
+  \item  $\X^\dag \X \overset{d}{=} (\alpha \X)^\dag (\alpha \X)$ for any $\alpha \in \R \setminus \{0\}$, so we can assume without loss of generality (after rescaling $\bar{\P}$ correspondingly) that $\|\Sigmab\| = 1$.
+  \item according to the definition of $\bar \P$ and $\bar \gamma$, the following bounds hold
+  \begin{equation}\label{eq:bound-bar-gamma-P}
+    \frac1{\bar \gamma + 1} \I \preceq \bar \P \preceq \I, \quad \bar \gamma \le \frac{n}{r-n} = \frac1{\rho - 1}
+  \end{equation}
+  for $r \equiv \frac{\tr \Sigmab}{ \| \Sigmab \| } = \tr \Sigmab$ and $\rho \equiv \frac{r}{n} > 1$, where we used the fact that
+  \[
+    n = d - \tr\,\bar\P = \tr\,\bar\P (\bar\gamma\Sigmab + \I) - \tr\,\bar\P
+  = \tr\,\bar\P \bar\gamma\Sigmab\geq \frac{\bar\gamma}{\bar\gamma+1}\tr\,\Sigmab,
+  \]
+  so that $r = \tr \Sigmab \le n\frac{\bar \gamma + 1}{\bar \gamma} = n + \tr \bar \P \Sigmab$;
+  \item to obtain the lower and upper bound for $\E[\I - \X^\dagger \X]$ in the sense of symmetric matrix as in Theorem~\ref{t:main}, it suffices to bound the following spectral norm
+  \begin{equation}\label{eq:proof-1}
+    \| \I - \E[\I - \X^\dagger \X] \bar \P^{-1} \| \le \frac{C_\rho K^2}{\sqrt r}
+  \end{equation}
+  so that, with $\I\succeq\bar\P\succeq \frac{\rho-1}{\rho}\I$ from \eqref{eq:bound-bar-gamma-P}, we have
+  \begin{align*}
+    \|\I-\bar\P^{-\frac12}\E[\P]\bar\P^{-\frac12}\| =
+    \|\bar\P^{-\frac12}(\I-\E[\P]\bar\P^{-1})\bar\P^{\frac12}\|\leq
+  \|\bar\P^{-\frac12}\|\cdot\frac{C_\rho K^2}{\sqrt r}\cdot \|\bar\P^{\frac12}\|\leq
+  \frac{C_\rho K^2}{\sqrt r} \sqrt{\frac{\rho}{\rho-1}}.
+  \end{align*}
+  Defining $\epsilon =\frac{C_\rho K^2}{\sqrt r}
+  \sqrt{\frac{\rho}{\rho-1}}$, this means that all eigenvalues 
+  of the p.s.d.~matrix $\bar\P^{-\frac12}\E[\P]\bar\P^{-\frac12}$ lie
+  in the interval $[1-\epsilon,1+\epsilon]$, so:
+  \begin{align*}
+    (1-\epsilon)\I\preceq
+    \bar\P^{-\frac12}\E[\P]\bar\P^{-\frac12}\preceq (1+\epsilon)\I.
+  \end{align*}
+  Note that for p.s.d.~matrices $\A,\B,\Z$, if $\A\preceq \B$ then
+  $\Z\A\Z\preceq \Z\B\Z$, so letting $\Z=\bar\P^{\frac12}$ in the above,
+  we get:
+  \begin{align*}
+    (1-\epsilon)\bar\P\preceq
+    \E[\P]\preceq (1+\epsilon)\bar\P
+  \end{align*}
+  as desired.
+\end{enumerate}
+
+\bigskip
+
+As a consequence of the above observations, we only need to prove \eqref{eq:proof-1} under the setting $\| \Sigmab \| = 1$. The proof comes in the following two steps:
+
+\begin{enumerate}
+  \item Recall $\P_{-i} = \I - \X_{-i}^\dagger \X_{-n}$, with $\X_{-i} \in \mathbb R^{(n-1) \times d}$ the matrix $\X$ without its $i$-th row, we define, for all $i \in \{ 1, \ldots,n \}$, the following events
+  \begin{equation}\label{eq:def-events-E-F}
+    E_i: \left\{ \left| \frac{\tr \P_{-i} \Sigmab}{\x_i^\top \P_{-i} \x_i} - 1 \right| \le \frac12 \right\}, \quad F_i : \left\{ \left|\frac{\tr \Sigmab}{\x_i^\top \x_i} - 1 \right| \le \frac12  \right\} %F_i : \left\{ \frac{\tr \Sigmab}{\x_i^\top \x_i} \le 2 \right\}
+  \end{equation}
+  for which we can bound, with Lemma~\ref{l:concentration-sub-gaussian}, the probability of both $\neg E_i$ and $\neg F_i$, and consequently $\neg E$ for $E = \bigwedge_{i=1}^n(E_i \wedge F_i)$;
+  \item We then bound, conditioned on $E$ and $\neg E$ respectively, the spectral norm $\| \I - \E[\P] \bar \P^{-1} \|$. Since 
+  \begin{align*}
+  \I&-\E[\P]\bar\P^{-1}
+  = \E[\X^\dagger\X] - \bar\gamma\E[\P]\Sigmab\\
+  &= \E[\X^\dagger\X\one_E] +
+    \E[\X^\dagger\X \one_{\neg E}]
+    -\bar\gamma\E[\P]\Sigmab\\
+  &=n\,\E\bigg[\frac{\P_{-n}\x_n\x_n^\top}{\x_n^\top\P_{-n}\x_n}\one_E\bigg]
+    -\bar\gamma\E[\P]\Sigmab \ +\     \E[\X^\dagger\X\one_{\neg E}]\\
+  &=\bar\gamma\,\underbrace{\E\bigg[(\bar s-\hat
+    s)\cdot\frac{\P_{-n}\x_n\x_n^\top}{\x_n^\top\P_{-n}\x_n}\one_E\bigg]}_{\T_1}
+    + \bar\gamma \underbrace{\E[\P_{-n}\x_n\x_n^\top\one_E] - \E[\P_{-n}]\Sigmab}_{\T_2} + \bar\gamma \underbrace{\E[\P_{-n}-\P]\Sigmab}_{\T_3} + \underbrace{\E[\X^\dagger\X\one_{\neg E}]}_{\T_4}
+\end{align*}
+where we used Lemma~\ref{l:rank-one-update} for the third equality and denote $\hat s = \x_n^\top\P_{-n}\x_n$, $\bar s=n/\bar\gamma$. It then remains to bound the spectral norms of $ \T_1, \T_2, \T_3 ,\T_4$ respectively to reach the conclusion.
+\end{enumerate}
+
+Another important relation that will be constantly used throughout the proof is
+\begin{equation}\label{eq:bound-trace-P-Sigma}
+    \tr\,\P_{-n}\Sigmab = \tr \Sigmab^{\frac12} \P_{-n} \P_{-n} \Sigmab^{\frac12} =
+    \|\Sigmab^{\frac12}-\Sigmab^{\frac12}\X_{-n}^\dagger\X_{-n}\|_F^2\geq
+\sum_{i\geq n}\lambda_i (\Sigmab)\geq r-n.
+\end{equation}
+where we have, under Assumption~(general position?) that $\rank(\X_{-n}) = n-1$ and arrange the eigenvalues $ 1 = \lambda_1(\Sigmab) \ge \ldots \ge \lambda_d(\Sigmab)$ in a non-increasing order.
+
+\bigskip
+
+For the first step, we have, with Lemma~\ref{l:concentration-sub-gaussian} and \eqref{eq:bound-trace-P-Sigma} that
+\[
+  \Pr (\neg E_i) \le 2 \ee^{ - \frac{ (\tr \P_{-n} \Sigmab)^2 }{c r} } \le 2 \ee^{ - \frac{ r -n }{c r} (r-n) } = 2 \ee^{c_\rho (r - n)}
+\]
+for some constant $c_\rho$ depending on fixed $\rho \equiv \frac{r}n > 1$. Similarly we have
+\[
+  \Pr (\neg F_i) \le \ee^{-c_\rho r} \le \ee^{-c_\rho (r-n)}
+\]
+and with the union bound we obtain
+\begin{equation}\label{eq:proba-E}
+  \Pr (\neg E) \le 2 n \ee^{-c_\rho (r-n)} \le \frac{n}{(r-n)^2} \cdot 2 (r-n)^2 \ee^{-c_\rho (r-n)} \le \frac{C_\rho}{r - n} \le \frac{C_\rho}{r}
+\end{equation}
+where we used the fact that, for $\alpha >0$, $x^2 \ee^{-\alpha x} \le \frac{4 \ee^{-2}}{\alpha^2}$ on $x > 0$.
+
+
+\medskip
+
+Note in particular that
+\begin{enumerate}
+  \item conditioned on the event $E$, we have for $i \in \{1, \ldots, n \}$
+  \begin{equation}
+    \frac12 \frac1{\tr \P_{-i} \Sigmab} \le \frac1{\x_i^\top \P_{-i} \x_i} \le \frac32 \frac1{\tr \P_{-i} \Sigmab}, \quad  \frac1{2r} = \frac12 \frac1{\tr \Sigmab} \le \frac1{\x_i^\top \x_i} \le \frac32 \frac1{\tr \Sigmab} = \frac3{2r} %\frac1{\x_i^\top \x_i} \le \frac2{\tr \Sigmab} = \frac2{r}
+  \end{equation}
+  \item with \eqref{eq:proba-E}, we have $\|\E[\X^\dagger\X\one_{\neg E}]\|\leq \frac{C_\rho}{r}$ and $\|\E[\x_n\x_n^\top\one_E\mid\P_{-n}]-\Sigmab\|\leq
+  \frac{C_\rho}{r}$ and thus
+  \begin{align*}
+  \| \T_2 \| = \big\|\E[\P_{-n}]\Sigmab -
+  \E[\P_{-n}\x_n\x_n^\top\one_E]\big\|
+    =\Big\|\E\Big[\P_{-n}\big(\Sigmab-\E[\x_n\x_n^\top\one_E\mid\P_{-n}]\big)\Big]\Big\|\leq \frac{C_\rho}{\sqrt{r}}.
+  \end{align*}
+\end{enumerate}
+
+As a consequence, we have $\| \T_2 \| + \| \T_4 \| \le \frac{C_\rho}{r}$. And it thus remains to handle the terms $\T_1$ and $\T_3$ to prove the second step. 
+
+To bound $\T_3$, note that  $\P_{-n} - \P = \frac{\P_{-n}\x_n\x_n^\top\P_{-n}}{\x_n^\top\P_{-n}\x_n}$, we have
+\begin{align*}
+\|\T_3\|\leq  \bigg\|
+  \E\bigg[\E\Big[\frac{\P_{-n}\x_n\x_n^\top\P_{-n}}{\x_n^\top\P_{-n}\x_n}
+  \mid \P_{-n}\Big]\bigg]\bigg\|  \leq
+C\,K^2\,\E\Big[\frac{\|\P_{-n}\Sigmab\|}{\tr\,\P_{-n}\Sigmab}\Big]   
+\leq C\cdot \frac{K^2}{r-n} =  C K^2 \frac{r}{r-n} \frac1r =  K^2 \frac{C_\rho}{r}
+\end{align*}
+where we used the fact that $\frac{\tr\,\P_{-n}\Sigmab} {\|\P_{-n}\Sigmab\|}\ge \tr\,\P_{-n}\Sigmab $, $\tr\,\P_{-n}\Sigmab \ge r -n $ from \eqref{eq:bound-trace-P-Sigma} and recall $\rho \equiv \frac{r}n > 1$.
+
+
+For $\T_1$ we write
+\begin{align*}
+  \|\T_1\|    &\leq\E\bigg[\|\P_{-n}\|\cdot \Big\|\E\Big[|\bar s-\hat s|\cdot
+    \frac{\x_n\x_n^\top}{\x_n^\top\P_{-n}\x_n}\one_E\mid\P_{-n}\Big]
+    \Big\|\bigg]
+  \\
+          &\leq \frac32 \frac1{r-n} \cdot \E\bigg[\sup_{\| \v \| = 1}\E\Big[
+            |\bar s-\hat s|\cdot \v^\top\x_n\x_n^\top\v\cdot\one_E\mid
+            \P_{-n}\Big]\bigg]
+  \\
+  &\leq \frac{C_\rho}{r}\cdot \E\bigg[\underbrace{\sqrt{\E\big[(\bar s-\hat
+    s)^2\cdot \one_E \mid\P_{-n}\big]}}_{ T_{1,1} }\cdot
+    \underbrace{\sup_{ \| \v \| = 1 }\sqrt{\E\big[(\v^\top\x_n)^4\big]}}_{ T_{1,2} }\bigg]
+\end{align*}
+where we used Jensen's inequality for the first inequality, the relation in \eqref{eq:bound-trace-P-Sigma} and $\| \P_{-n} \| \le 1$ for the second inequality, and Cauchy–Schwarz for the third inequality.
+
+To bound $T_{1,2}$, by definition of sub-Gaussian random vectors, we have for $\x_n$ a $K$-sub-Gaussian and $\| \v \| = 1$ that, $\v^\top \x_n$ is a sub-Gaussian random variable with $\|\v^\top \a \|_{\psi_2} \leq K$. As such, $T_{1,2} \le C K^2$ for some absolute constant $C > 0$, see for example \cite[Section~2.5.2]{vershynin2018high}.
+
+For $T_{1,1}$ we have
+\[
+  \sqrt{ \E [(\bar s-\hat s)^2 \cdot\one_E \mid\P_{-n}] } = \sqrt{ (\bar s - s)^2 + \E[(s - \hat s)^2 \cdot\one_E] }
+\]
+where we denote $s=\E[\hat s]=\tr\,\E[\P_{-n}]\Sigmab$. Note that
+\begin{align*}
+  \E\big[(s - \hat s)^2 \cdot\one_E \mid \P_{-n}\big] &=
+\E\big[\big(\tr\,\Sigmab(\E[\P_{-n}]-\P_{-n})\big)^2 \cdot\one_E \big] +
+  \E\big[(\tr\,\P_{-n}\Sigmab-\x_n^\top\P_{-n}\x_n)^2 \cdot\one_E \big]\\
+  &\leq C\Big(n + \E\big[\tr\,(\P_{-n}\Sigmab)^2 \cdot\one_E \big]\Big)\leq
+    C\big(n + \tr\,\E[\P_{-n}]\Sigmab \cdot\one_E\big)\\
+  &=C(n+s \cdot\one_E)\leq C\big(n+\bar s + |s- \bar s| \cdot\one_E\big)
+\end{align*}
+where we used Lemma~\ref{l:trace} and Lemma~\ref{l:concentration-sub-gaussian}.
+
+% Moreover, using the fact that
+% $\bar\P\Sigmab\preceq\frac1{\bar\gamma+1}\I$, we obtain that:
+% \begin{align*}
+%   |\bar s - s| \cdot\one_E &= |\tr (\bar \P - \E[\P_{-n}] )\Sigmab| \cdot\one_E \le |\tr (\bar \P - \E[\P] )\Sigmab| \cdot\one_E + |\tr \E[\P - \P_{-n}] \Sigmab| \\
+%   &= \big|\tr\,(\I-\E[\P]\bar\P^{-1})\bar\P\Sigmab\big| \cdot\one_E + \tr\,\E \left[ \frac{\P_{-n}\x_n\x_n^\top\P_{-n}}{\x_n^\top \P_{-n} \x_n} \right] \Sigmab \\
+%   %&= \bar \gamma \big|\tr\,( \T_1 + \T_2 + \T_3 )\bar\P\Sigmab\big| \cdot\one_E + 1 \\
+%   &\leq \bar\gamma\,\E\bigg[|\bar s-\hat s|\cdot
+%     \frac{\tr\,\P_{-n}\x_n\x_n^\top\bar\P\Sigmab}{\tr\,\P_{-n}\x_n\x_n^\top} \cdot\one_E\bigg]
+%     + \bar\gamma\,
+%     \E\bigg[\frac{\tr\,\P_{-n}\x_n\x_n^\top\P_{-n}\Sigmab\bar\P\Sigmab}
+%     {\tr\,\P_{-n}\x_n\x_n^\top}\bigg] + 1\\
+%   &\leq \frac{\bar\gamma}{\bar\gamma+1}\Big(\E\left[|\bar s-\hat
+%     s| \cdot \frac{\x_n^\top \x_n}{\x_n^\top \P_{-n} \x_n} \cdot\one_E \right] + 1\Big)\leq \frac{\bar\gamma}{\bar\gamma+1}\Big(|\bar
+%     s-s| \frac{3\rho}{\rho - 1}  + \E\big[|s-\hat
+%     s|\big] + 1\Big)\\
+%   &\leq \frac{\bar\gamma}{\bar\gamma+1}\Big(|\bar s- s| +
+%      c\sqrt{|\bar s- s|} + c\sqrt{n+\bar s} + 1\Big).
+% \end{align*}
+
+Note that $\I - \P$ is symmetric and $\I-\P=(\X^\top\X)^\dagger\X^\top\X = \X^\top\X (\X^\top\X)^\dagger$, we obtain
+\begin{align*}
+  &\I - \E[\P]\bar\P^{-1} + \I - \bar\P^{-1} \E[\P]
+  = 2\E[\I -\P] - \E[\bar\gamma\P\Sigmab] - \E[\bar\gamma\Sigmab\P]\\
+  &= \sum_{i=1}^n\E\big[(\X^\top\X)^\dagger\x_i\x_i^\top + \x_i\x_i^\top (\X^\top\X)^\dagger \big] - \bar\gamma (\E[\P]\Sigmab + \Sigmab \E[\P])\\
+  &=n\,\E\bigg[\frac{\P_{-n}\x_n\x_n^\top + \x_n\x_n^\top \P_{-n}}{\x_n^\top\P_{-n}\x_n}\bigg] - \bar\gamma (\E[\P]\Sigmab + \Sigmab \E[\P])\\
+  &=\bar\gamma\,
+    \E\bigg[\bar s\cdot\frac{\P_{-n}\x_n\x_n^\top + \x_n\x_n^\top \P_{-n}} {\x_n^\top\P_{-n}\x_n}\bigg]
+    -\bar\gamma\,\E\bigg[\hat s
+    \cdot\frac{\P_{-n}\x_n\x_n^\top + \x_n\x_n^\top \P_{-n}}{\x_n^\top\P_{-n}\x_n}\bigg] +
+    \bar\gamma\,(\E[\P_{-n}\Sigmab] + \E[\Sigmab\P_{-n}]) \\ 
+  &- \bar\gamma (\E[\P]\Sigmab + \Sigmab \E[\P]) \\
+  &=\bar\gamma\,\E\bigg[(\bar s - \hat s)
+    \cdot\frac{\P_{-n}\x_n\x_n^\top + \x_n\x_n^\top \P_{-n}}{\x_n^\top\P_{-n}\x_n}\bigg]
++    \bar\gamma (\E[\P_{-n}-\P]\Sigmab + \Sigmab \E[\P_{-n}-\P])
+\end{align*}
+%where we used the fact that for $\mathbf{a}, \mathbf{b} \in \mathbb R^d$, we have $\mathbf{a} \mathbf{b}^\top + \mathbf{b} \mathbf{a}^\top \preceq \mathbf{a} \mathbf{a}^\top + \mathbf{b} \mathbf{b}^\top$ (which unfolds from $(\mathbf{a} - \mathbf{b}) (\mathbf{a} - \mathbf{b})^\top \succeq 0$).
+Moreover, using the fact that $\bar\P\Sigmab\preceq\frac1{\bar\gamma+1}\I$ and $\bar \P \Sigmab = \Sigmab \bar \P$, we obtain that:
+\begin{align*}
+  |\bar s - s|   &= |\tr (\bar \P - \E[\P_{-n}] )\Sigmab|   \le |\tr (\bar \P - \E[\P] )\Sigmab|   + |\tr \E[\P - \P_{-n}] \Sigmab| \\
+  &= \frac12 \big|\tr\,(\I-\E[\P]\bar\P^{-1})\bar\P\Sigmab + \tr\,\bar\P (\I - \bar \P^{-1} \E[\P]) \Sigmab \big|   + \tr\,\E \left[ \frac{\P_{-n}\x_n\x_n^\top\P_{-n}}{\x_n^\top \P_{-n} \x_n} \right] \Sigmab \\
+  &= \frac12 \big|\tr\,(\I-\E[\P]\bar\P^{-1} + \I - \bar \P^{-1} \E[\P])\bar\P\Sigmab \big|   + 1 \\
+  &\leq \frac{\bar\gamma}2 \,\E\bigg[|\bar s-\hat s|\cdot
+    \frac{\tr\,(\P_{-n}\x_n\x_n^\top + \x_n\x_n^\top \P_{-n}) \bar\P\Sigmab}{\tr\,\P_{-n}\x_n\x_n^\top}  \bigg]
+    + \bar\gamma\,
+    \E\bigg[\frac{\tr\,\P_{-n}\x_n\x_n^\top\P_{-n}\Sigmab\bar\P\Sigmab}
+    {\tr\,\P_{-n}\x_n\x_n^\top}\bigg] + 1\\
+  &\leq \frac{\bar\gamma}{\bar\gamma+1}\Big(\E\left[|\bar s-\hat
+    s| \cdot \frac{\x_n^\top \P_{-n} \x_n}{\x_n^\top \P_{-n} \x_n}  \right] + 1\Big) + 1\leq \frac{\bar\gamma}{\bar\gamma+1}\Big(|\bar
+    s-s| + \E\big[|s-\hat s|\big] + 1\Big) + 1 \\
+  &\leq \frac{\bar\gamma}{\bar\gamma+1}\Big(|\bar s- s| +
+     c\sqrt{|\bar s- s|} + c\sqrt{n+\bar s} + 2\Big).
+\end{align*}
+
+
+
+% $\bar\P\Sigmab\preceq\frac1{\bar\gamma+1}\I$, we obtain that:
+% \begin{align*}
+%   |\bar s - s| \cdot\one_E &= |\tr (\bar \P - \E[\P_{-n}] )\Sigmab| \le |\tr (\bar \P - \E[\P] )\Sigmab| \cdot\one_E + |\tr \E[\P - \P_{-n}] \Sigmab| \\
+%   &= \big|\tr\,(\I-\E[\P]\bar\P^{-1})\bar\P\Sigmab\big| \cdot\one_E + \tr\,\E \left[ \frac{\P_{-n}\x_n\x_n^\top\P_{-n}}{\x_n^\top \P_{-n} \x_n} \right] \Sigmab \\
+%   &\leq \bar\gamma\,\E\bigg[|\bar s-\hat s|\cdot
+%     \frac{\tr\,\P_{-n}\x_n\x_n^\top\bar\P\Sigmab}{\tr\,\P_{-n}\x_n\x_n^\top} \cdot\one_E\bigg]
+%     + \bar\gamma\,
+%     \E\bigg[\frac{\tr\,\P_{-n}\x_n\x_n^\top\P_{-n}\Sigmab\bar\P\Sigmab}
+%     {\tr\,\P_{-n}\x_n\x_n^\top}\bigg] + 1\\
+%   &\leq \frac{\bar\gamma}{\bar\gamma+1}\Big(\E\left[|\bar s-\hat
+%     s| \cdot \frac{\x_n^\top \x_n}{\x_n^\top \P_{-n} \x_n} \cdot\one_E \right] + 1\Big)\leq \frac{\bar\gamma}{\bar\gamma+1}\Big(|\bar
+%     s-s| \frac{3\rho}{\rho - 1}  + \E\big[|s-\hat
+%     s|\big] + 1\Big)\\
+%   &\leq \frac{\bar\gamma}{\bar\gamma+1}\Big(|\bar s- s| +
+%      c\sqrt{|\bar s- s|} + c\sqrt{n+\bar s} + 1\Big).
+% \end{align*}
+
+
+
+% Moreover, since
+% \begin{align*}
+%   |\bar s - s| \cdot\one_E
+%   &= \big|\tr\,(\bar \P - \E[\P])\Sigmab \big| \cdot\one_E \\
+%     %=\big|\tr\,(\T_1+\T_2)\bar\P\Sigmab\big|\\
+%   &\leq \bar\gamma\,\E\bigg[|\bar s-\hat s|\cdot
+%     \frac{\tr\,\P_{-n}\x_n\x_n^\top\bar\P\Sigmab}{\x_n^\top \P_{-n} \x_n} \cdot\one_E\bigg]
+%     + \bar\gamma\,
+%     \E\bigg[\frac{\tr\,\P_{-n}\x_n\x_n^\top\P_{-n}\Sigmab\bar\P\Sigmab}
+%     {\x_n^\top \P_{-n} \x_n }\bigg]\\
+%   &\leq \frac{\bar\gamma}{\bar\gamma+1}\,\E\bigg[|\bar s-\hat s|\cdot
+%     \frac{ \x_n^\top \x_n }{\x_n^\top \P_{-n} \x_n} \cdot\one_E\bigg]
+%     + \frac{\bar\gamma}{\bar\gamma+1}\,
+%     \E\bigg[\frac{\tr \P_{-n} \x_n \x_n^\top \P_{-n}}
+%     {\x_n^\top \P_{-n} \x_n }\bigg]\\
+%   &\leq \frac{\bar\gamma}{\bar\gamma+1}\Big(\E\big[|\bar s-\hat
+%     s|\big] + 1\Big)\leq \frac{\bar\gamma}{\bar\gamma+1}\Big(|\bar
+%     s-s| + \E\big[|s-\hat
+%     s|\big] + 1\Big)\\
+%   &\leq \frac{\bar\gamma}{\bar\gamma+1}\Big(|\bar s- s| +
+%      c\sqrt{|\bar s- s|} + c\sqrt{n+\bar s} + 1\Big).
+% \end{align*}
+% where we used, for the first inequality, the fact that
+% \[
+%   \E[\P \cdot\one_E] - \bar \P = \I - \bar \P - \E[\X^\dagger \X \cdot\one_E] = \bar \gamma \Sigmab \bar \P - \frac{n}2 \E \left[ \frac{ \P_{-n}\x_n\x_n^\top + \x_n\x_n^\top \P_{-n}}{\x_n^\top \P_{-n} \x_n } \cdot\one_E \right]
+% \]
+% so that
+% \[
+%   \bar \gamma \Sigmab \bar \P - \frac{3n}4 \E \left[ \frac{ \P_{-n}\x_n\x_n^\top + \x_n\x_n^\top \P_{-n}}{ \tr \P_{-n} \Sigmab } \right] \preceq \E[\P \cdot\one_E] - \bar \P \preceq \bar \gamma \Sigmab \bar \P - \frac{n}4 \E \left[ \frac{ \P_{-n}\x_n\x_n^\top + \x_n\x_n^\top \P_{-n}}{ \tr \P_{-n} \Sigmab } \right]
+% \]
+% or equivalently
+% \[
+%   \bar \gamma \Sigmab \bar \P - \frac{3n}4 \E \left[ \frac{ \P_{-n}\Sigmab + \Sigmab \P_{-n}}{ \tr \P_{-n} \Sigmab } \right] \preceq \E[\P \cdot\one_E] - \bar \P \preceq \bar \gamma \Sigmab \bar \P - \frac{n}4 \E \left[ \frac{ \P_{-n}\Sigmab + \Sigmab \P_{-n}}{ \tr \P_{-n} \Sigmab } \right]
+% \]
+% \begin{align*}
+%    \\
+%   &\bar \gamma \E \left[ (\bar s-\hat s)\cdot \frac{ \P_{-n}\x_n\x_n^\top}{\x_n^\top \P_{-n} \x_n } \right] + \bar \gamma \E[\P_{-n} - \P] \Sigmab \\ 
+%   &= \bar \gamma \E \left[ (\bar s-\hat s)\cdot \frac{ \P_{-n}\x_n\x_n^\top}{\x_n^\top \P_{-n} \x_n} \right] + \bar \gamma \E \left[ \frac{\P_{-n}\x_n\x_n^\top\P_{-n}}{\x_n^\top \P_{-n} \x_n} \right] \Sigmab.
+% \end{align*}
+
+% For the second inequality, we use the fact that $\max\{ \| \Sigmab \bar \P \Sigmab \|, \| \bar\P\Sigmab \P_{-n} \} \| \le \| \bar\P\Sigmab \| \le \frac1{\bar\gamma+1}$ and for symmetric and p.s.d.~matrix $\A$ and arbitrary $\B$ of appropriate dimension we have $| \tr \A \B| \le \| \B \| \cdot \tr \A$. We proceed similarly to the bound of $\T_1$ to obtain the third inequality.
+
+% Note that $\I - \P$ is symmetric and $\I-\P=(\X^\top\X)^\dagger\X^\top\X = \X^\top\X (\X^\top\X)^\dagger$, we obtain
+% \begin{align*}
+%   &\I - \E[\P]\bar\P^{-1} + \I - \bar\P^{-1} \E[\P]
+%   = 2\E[\I -\P] - \E[\bar\gamma\P\Sigmab] - \E[\bar\gamma\Sigmab\P]\\
+%   &= \sum_{i=1}^n\E\big[(\X^\top\X)^\dagger\x_i\x_i^\top + \x_i\x_i^\top (\X^\top\X)^\dagger \big] - \bar\gamma (\E[\P]\Sigmab + \Sigmab \E[\P])\\
+%   &=n\,\E\bigg[\frac{\P_{-n}\x_n\x_n^\top + \x_n\x_n^\top \P_{-n}}{\x_n^\top\P_{-n}\x_n}\bigg] - \bar\gamma (\E[\P]\Sigmab + \Sigmab \E[\P])\\
+%   &=\bar\gamma\,
+%     \E\bigg[\bar s\cdot\frac{\P_{-n}\x_n\x_n^\top + \x_n\x_n^\top \P_{-n}} {\x_n^\top\P_{-n}\x_n}\bigg]
+%     -\bar\gamma\,\E\bigg[\hat s
+%     \cdot\frac{\P_{-n}\x_n\x_n^\top + \x_n\x_n^\top \P_{-n}}{\x_n^\top\P_{-n}\x_n}\bigg] +
+%     \bar\gamma\,(\E[\P_{-n}\Sigmab] + \E[\Sigmab\P_{-n}]) \\ 
+%   &- \bar\gamma (\E[\P]\Sigmab + \Sigmab \E[\P]) \\
+%   &=\bar\gamma\,\E\bigg[(\bar s - \hat s)
+%     \cdot\frac{\P_{-n}\x_n\x_n^\top + \x_n\x_n^\top \P_{-n}}{\x_n^\top\P_{-n}\x_n}\bigg]
+% +    \bar\gamma (\E[\P_{-n}-\P]\Sigmab + \Sigmab \E[\P_{-n}-\P]) 
+% \end{align*}
+
+% As a consequence
+% \begin{align*}
+%   |\bar s - s| &=  \big|\tr\,(\bar \P - \E[\P])\Sigmab \big| = \frac12 \big|\tr\,(\I-\E[\P]\bar\P^{-1})\bar\P\Sigmab + \tr\,(\I-\bar\P^{-1}\E[\P])\Sigmab \bar\P \big| \\
+%     %=\big|\tr\,(\T_1+\T_2)\bar\P\Sigmab\big|\\
+%   &\leq \frac{\bar\gamma}2\,\E\bigg[|\bar s-\hat s|\cdot
+%     \frac{\tr\,(\P_{-n}\x_n\x_n^\top\bar\P + \bar \P \x_n\x_n^\top \P_{-n})\Sigmab}{\x_n^\top \P_{-n} \x_n} \bigg]
+%     + \bar\gamma\,
+%     \E\bigg[\frac{\tr\,\P_{-n}\x_n\x_n^\top\P_{-n}\Sigmab\bar\P\Sigmab}
+%     {\x_n^\top \P_{-n} \x_n }\bigg]\\
+%   &\leq \frac{\bar\gamma}2\,\E\bigg[|\bar s-\hat s|\cdot
+%     \frac{\tr\,(\P_{-n}\x_n\x_n^\top\P_{-n} + \bar \P \x_n\x_n^\top \bar \P)\Sigmab}{\x_n^\top \P_{-n} \x_n} \bigg]
+%     + \bar\gamma\,
+%     \E\bigg[\frac{\tr\,\P_{-n}\x_n\x_n^\top\P_{-n}\Sigmab\bar\P\Sigmab}
+%     {\x_n^\top \P_{-n} \x_n }\bigg]\\
+%   &\leq \frac{\bar\gamma}2\,\E\bigg[|\bar s-\hat s|\cdot \left(
+%     1 +  \right)\bigg]
+%     + \frac{\bar\gamma}{\bar\gamma+1}\,
+%     \E\bigg[\frac{\tr \P_{-n} \x_n \x_n^\top \P_{-n}}
+%     {\x_n^\top \P_{-n} \x_n }\bigg]\\
+%   &\leq \frac{\bar\gamma}{\bar\gamma+1}\Big(\E\big[|\bar s-\hat
+%     s|\big] + 1\Big)\leq \frac{\bar\gamma}{\bar\gamma+1}\Big(|\bar
+%     s-s| + \E\big[|s-\hat
+%     s|\big] + 1\Big)\\
+%   &\leq \frac{\bar\gamma}{\bar\gamma+1}\Big(|\bar s- s| +
+%      c\sqrt{|\bar s- s|} + c\sqrt{n+\bar s} + 1\Big).
+% \end{align*}
+% where we used the fact that for $\mathbf{a}, \mathbf{b} \in \mathbb R^d$, we have $\mathbf{a} \mathbf{b}^\top + \mathbf{b} \mathbf{a}^\top \preceq \mathbf{a} \mathbf{a}^\top + \mathbf{b} \mathbf{b}^\top$ (which unfolds from $(\mathbf{a} - \mathbf{b}) (\mathbf{a} - \mathbf{b})^\top \succeq 0$).
+
+% where we used, for the first inequality, the fact that
+% \begin{align*}
+%   \I - \E[\P] \bar \P^{-1} &= \E[\X^\dagger \X] - \bar \gamma \E[\P] \Sigmab  = \bar \gamma \E \left[ (\bar s-\hat s)\cdot \frac{ \P_{-n}\x_n\x_n^\top}{\x_n^\top \P_{-n} \x_n } \right] + \bar \gamma \E[\P_{-n} - \P] \Sigmab \\ 
+%   &= \bar \gamma \E \left[ (\bar s-\hat s)\cdot \frac{ \P_{-n}\x_n\x_n^\top}{\x_n^\top \P_{-n} \x_n} \right] + \bar \gamma \E \left[ \frac{\P_{-n}\x_n\x_n^\top\P_{-n}}{\x_n^\top \P_{-n} \x_n} \right] \Sigmab.
+% \end{align*}
+% For the second inequality, we use the fact that $\max\{ \| \Sigmab \bar \P \Sigmab \|, \| \bar\P\Sigmab \P_{-n} \} \| \le \| \bar\P\Sigmab \| \le \frac1{\bar\gamma+1}$. For the third inequality we used \eqref{eq:bound-trace-P-Sigma} and recall $\rho = \frac{r}n$.
+%and for symmetric and p.s.d.~matrix $\A$ and arbitrary $\B$ of appropriate dimension we have $| \tr \A \B| \le \| \B \| \cdot \tr \A$. We proceed similarly to the bound of $\T_1$ to obtain the third inequality.
+
+
+Solving for $|\bar s-s|$, we conclude that
+\begin{align*}
+  |\bar s-s|\leq
+  \bar\gamma(c\sqrt{n+\bar s}+2) + c^2\bar\gamma^2\leq \bar\gamma
+  (c+1)\sqrt{n+\bar s} + c^2\bar\gamma^2.
+\end{align*}
+Since $\bar s = \tr \bar \P \Sigmab \le \tr \Sigmab =  r $, this allows us to conclude that $T_{1,1} \le \frac{C_\rho}{\sqrt r} $ and thus the conclusion.
+\end{proof}
+
+
+\subsection{Proof of Lemma \ref{l:rank-one-update}}
+Recall $\P = \I - \X^\dagger \X = \I - (\X^\top \X)^\dagger \X^\top \X = \I - (\X^\top \X)^\dagger (\A + \x_n \x_n^\top)$ and $\P_{-n} = \I - \X_{-n}^\dagger \X_{-n} = \I - \A^\dagger \A$ for $\A = \X_{-n}^\top \X_{-n}$. We have, from \cite[Theorem 1]{10.2307/2099767} that
+\begin{align*}
+  (\X^\top \X)^\dag
+  &= (\A + \x_n \x_n^\top)^\dag
+  = \A^\dag - k u^\dag - v^\dag h + \beta v^\dag u^\dag
+\end{align*}
+where $k = \A^\dag \x_n$,
+$h = \x_n^\top \A^\dag$,
+$u = \P_{-n} \x_n$,
+$v = \x_n^\top \P_{-n}$,
+and $\beta = 1 + \x_n^\top \A^\dag \x_n$.
+Noting that column vectors $u$ have
+pseudo-inverse $u^\dag = \frac{u^\top}{\|u\|^2}$,
+we have
+\begin{align*}
+  (\X^\top \X)^\dag
+  &= \A^\dag
+  - \frac{\A^\dag \x_n \x_n^\top \P_{-n}}{\x_n^\top \P_{-n} \x_n}
+  - \frac{\P_{-n} \x_n \x_n^\top \A^\dag}{\x_n^\top \P_{-n} \x_n}
+  + (1 + \x_n^\top \A^\dag \x_n) \frac{\P_{-n} \x_n \x_n \P_{-n}}{(\x_n^\top \P_{-n} \x_n)^2}
+\end{align*}
+where we have used
+$\|\P_{-n} \x_n\|^2 = \x_n^\top \P_{-n}^\top \P_{-n} \x_n = \x_n^\top \P_{-n} \x_n$
+because $\P_{-n}$ is a projection matrix hence idempotent.
+As a consequence, we have 
+\[
+  \P_{-n} - \P = \X^\dagger \X - \X_{-n}^\dagger \X_{-n} = \frac{\P_{-n} \x_n \x_n^\top \P_{-n}}{\x_n^\top \P_{-n} \x_n}
+\]
+and by left multiplying by $\x_n$ and simplifying we get
+\begin{align*}
+  (\X^\top \X)^\dag \x_n
+  &= - \frac{\P_{-n} \x_n \x_n^\top \A^\dag \x_n}{\x_n^\top \P_{-n} \x_n}
+  + (1 + \x_n^\top \A^\dag \x_n) \frac{\P_{-n} \x_n}{\x_n^\top \P_{-n} \x_n}
+  = \frac{\P_{-n} \x_n}{\x_n^\top \P_{-n} \x_n}.
+\end{align*}
+
+
+\subsection{Proof of Lemma~\ref{l:concentration-sub-gaussian}}
+
+% Let $\x=\A^{\frac12}\z$. For the first inequality
+% \begin{align*}
+%   \left\|\E\left[
+%     \frac{\x \x^\top}{\x^\top \x}
+%   \right]\right\|
+%   &= \sup_{\v : \|\v\| = 1} \E\left[
+%     \frac{\v \x \x^\top \v}{\x^\top \x}
+%   \right]
+%   \leq \sup_{\v : \|\v\| = 1} \sqrt{
+%     \E\left[
+%       \left(\frac{\v \x \x^\top \v}{\x^\top \x}\right)^2
+%     \right]
+%   }
+% \end{align*}
+
+% Next, fix any $\v$ and let $E$ be the event that
+% $\x^\top\x\geq \frac12\tr\,\A$.
+% $E$ has small probability because $\z$ is $K$-sub-gaussian, so
+% \begin{align*}
+%   \hspace{-3mm}\E\bigg[\Big(\v^\top\frac{\x\x^\top}
+%   {\x^\top\x}\v\Big)^2\bigg]
+%       &\leq
+%       \Big(\frac2{\tr\,\A}\Big)^2\E\big[(\v^\top\x)^4\mid
+%       E\big]\Pr(E) +
+%       \E\bigg[\Big(\v^\top\frac{\x\x^\top}
+%         {\x^\top\x}\v\Big)^2 \mid
+%       E\bigg]\Pr(\neg E)\\
+%       &\leq
+%       \Big(\frac2{\tr\,\A}\Big)^2\E\big[(\z^\top\A^{\frac12}\v\v^\top\A^{\frac12}\z)^2\big]
+%       + 2\ee^{-c  r / K^4} \|\v\|^4\\
+%       &\overset{(*)}{\leq}
+%       \Big(\frac{2}{\tr\,\A}\Big)^2 \left(
+%         C K^4 \tr\,(\A^{\frac12}\v\v^\top\A^{\frac12})^2
+%         + (\tr \A^{\frac12}\v\v^\top\A^{\frac12} \E[\z \z^\top])^2
+%       \right)
+%       + 2\ee^{-c  r / K^4} \|\v\|^4 \\
+%       &\leq
+%       C \Big(\frac{\|\A\|}{\tr\,\A}\Big)^2 \left(
+%         K^4 \tr (\v \v^\top)^2
+%         + K^4 \tr (\v\v)^2
+%       \right)
+%       + 2\ee^{-c  r / K^4} \|\v\|^4 \\
+%       &
+%       = O(K^4/r^2)\cdot \|\v\|^4,
+% \end{align*}
+% where $(*)$ uses \Cref{l:concentration-sub-gaussian},
+% the next line bounds 
+% $\E[\z \z^\top] \preceq C K^2 \I$ for some universal constant $C$
+% (\cite{pollard2015few} Theorem 16)
+% \feynman{Here is where we could assume $\E[\z \z^\top] = \I$, but I think
+% sub-Gaussian lets you bound the diagonal by $K^2 \I$}.
+
+
+%\begin{proof}
+  From \cite{zajkowski2018bounds} Corollary 2.6, we have the tail bound
+  \begin{align*}
+    \Pr\left[
+      \lvert \x^\top \A \x - \E[\x^\top \A \x] \rvert
+      \geq t
+      \right] \leq 2 \exp\left(
+      -\min\left\{
+        \frac{t^2}{16 C^2  K^4 (\tr \A)^2},
+        \frac{t}{4 C K^2 (\tr \A)},
+      \right\}
+    \right)
+  \end{align*}
+  Integrating this bound yields
+  \begin{align*}
+      \E\left[ \lvert \x^\top \A \x - \E[\x^\top \A \x] \rvert^2 \right]
+      &= \int_0^\infty \Pr\left[
+        \lvert \x^\top \A \x - \E[\x^\top \A \x] \rvert
+        \geq \sqrt{t}
+      \right]dt \\
+      &\leq 2 \int_0^\infty \exp\left(
+        -\min\left\{
+          \frac{t}{C^2  (\tr \A)^2 K^4},
+          \frac{\sqrt{t}}{C  (\tr \A) K^2},
+        \right\}
+      \right)dt \\
+      &\leq 2 \int_0^\infty \left(\exp\left(
+        - \frac{t}{C^2  (\tr \A)^2 K^4},
+        \right) + \exp\left(
+        \frac{\sqrt{t}}{C  (\tr \A) K^2},
+      \right)\right)dt \\
+      &\leq C~K^4~\tr(\A)^2.
+  \end{align*}
+%\end{proof}
+
+\subsection{Proof of Lemma \ref{l:trace}}
+
+\begin{proof}
+To simplify notations, we work on $\P$ instead of $\P_{-n}$, the same line of argument applies to $\P_{-n}$ by changing the sample size $n$ to $n-1$.
+
+First note that
+\begin{align*}
+  X
+  &= \tr \Sigmab (\P - \E \P)
+  = \E_n [\tr \Sigmab \P]  - \E_0[ \tr \Sigmab \P ]\\
+  %%%
+  &= \sum_{i=1}^n \left( \E_i[\tr \Sigmab \P] - \E_{i-1}[\tr \Sigmab \P]\right)
+  = \sum_{i=1}^n (\E_i - \E_{i-1}) \tr \Sigmab (\P - \P_{-i})
+\end{align*}
+where we used the fact that $\E_i [\tr \Sigmab \P_{-i}] = \E_{i-1} [\tr \Sigmab \P_{-i}]$, for $\E_i[\cdot]$ the conditional expectation with respect to $\mathcal F_i$ the $\sigma$-field generating the rows $\x_1 \ldots, \x_i$ of $\X$
+This forms a martingale difference sequence (it is a difference sequence of
+the Doob martingale for $\tr \Sigmab (\P - \P_{-i})$ with respect to filtration $\mathcal{F}_i$)
+hence it falls within the scope of the Burkholder inequality \cite{burkholder1973distribution}, recalled as follows.
+
+\begin{lemma}\label{l:burkholder}
+For $\{ x_i \}_{i=1}^n$ a real martingale difference sequence with respect to the increasing $\sigma$ field $\mathcal F_i$, we have, for $k > 1$, there exists $C_k > 0$ such that
+\[
+  \E \left[
+    \left| \sum_{i=1}^n x_i \right|^k
+  \right]
+  \le C_k \E \left[
+    \left( \sum_{i=1}^n |x_i|^2 \right)^{k/2}
+  \right]
+\]
+\end{lemma}
+
+Since $\P_{-i} - \P = \frac{\P_{-i} \x_i \x_i^\top \P_{-i} }{ \x_i \P_{-i} \x_i}$ that is positive semi-definite, we have $|\tr \Sigmab (\P_{-i} - \P)| \le \| \Sigmab \| = 1$ so that with Lemma~\ref{l:burkholder} we obtain with $x_i = (\E_i - \E_{i-1}) \tr \Sigmab (\P_{-i} - \P)$ that, for $k > 1$
+\[
+  \E |X|^k \le C_k n^{k/2}.
+\]
+In particular, for $k=2$, we have $\E |X|^2 \le c n$ for $c = (36 \sqrt{2})^2$
+(details in proof of Theorem~3.2 in \cite{burkholder1973distribution}).
+
+For the second result, since we have almost surely bounded martingale differences
+($\lvert x_i \rvert \leq 2$), by the Azuma-Hoeffding inequality
+\begin{align*}
+  \Pr\{
+    \lvert X \rvert
+    \geq t
+  \}
+  \leq 2 \ee^{\frac{-t^2}{8 n}}
+\end{align*}
+as desired.
+
+\end{proof}
+
+
+
+\section{Technical results}
+
+\subsection{Limiting behavior}
+
+\subsubsection{Proof of Conjecture~1}
+
+We consider the limiting behavior of $\tr (\X^\top \X)^\dagger = \tr (\X \X^\top)^\dagger$ as $n,d \to \infty$ with $d/n \to c \in (1,\infty)$, for $\X = \Z \Sigmab^{\frac12}$ with $\Z \in \mathbb R^{n \times d}$ having i.i.d.~zero mean, unit variance sub-Gaussian entries, i.e., the behavior of
+\begin{equation}\label{eq:limit1}
+  \lim_{n,d \to \infty} \lim_{z \to 0^+} \frac1n \tr \left( \frac1n \X \X^\top + z \I_n \right)^{-1}
+\end{equation}
+by definition of the pseudoinverse.
+
+The proof comes in three steps: 1) for fixed $z > 0$, consider the limiting behavior of $ \delta(z) \equiv \tr (\X \X^\top/n + z \I_n)^{-1}/n$ as $n,d \to \infty$ and state
+\begin{equation}\label{eq:limit2}
+  \lim_{n,d \to \infty} \delta(z)  \to m(z)
+\end{equation}
+almost surely; 2) show that both $\delta(z)$ and its derivate $\delta'(z)$ are uniformly bounded (by some quantity independent of $z>0$) so that by Arzela-Ascoli theorem, $\delta(z)$ converges uniformly to its limit and we are allowed to take the $z \to 0^+$ limit in \eqref{eq:limit2} and state
+\begin{equation}\label{eq:limit3}
+  \lim_{z \to 0^+} \lim_{n,d \to \infty} \delta(z)  \to \lim_{z \to 0^+} m(z)
+\end{equation}
+almost surely, given that the limit $\lim_{z \to 0^+} m(z) \equiv m(0)$ exists and eventually 3) exchange the two limits in \eqref{eq:limit3} with Moore-Osgood theorem, to reach
+\[
+  \lim_{n,d \to \infty} \lim_{z \to 0^+} \frac1n \tr \left(\frac1n \X \X^\top + z \I_n \right)^{-1} \to m(0).
+\]
+
+Step 1) follows from \cite{silverstein1995empirical} that, we have, for $z > 0$ that
+\[
+  \delta(z) \equiv \frac1n \tr \left( \frac1n \X \X^\top  + z \I_n \right)^{-1}  \to m(z)
+\]
+almost surely as $n,d \to \infty$, for $m(z)$ the positive unique solution to 
+\begin{equation}\label{eq:def-m}
+  m(z) = \left( z + \frac1n \tr \Sigmab (\I_d + m(z) \Sigmab)^{-1} \right)^{-1}
+\end{equation}
+that admits a limit as $n,d \to \infty$ if we assume the weak convergence of the spectral measure of $\Sigmab$ as $d \to \infty$.
+
+For the above step 2), \textbf{we assume that, there exists $\epsilon > 0$ such that $\lambda_{\min}( \Sigmab) > \epsilon$ for all $d,n$ large, i.e., as $d,n \to \infty$ the matrix $\Sigmab$ is not ``becoming'' more and more singular to avoid the invertibility issue.}
+
+Since $\X = \Z \Sigmab^{\frac12}$, we have as $n, d \to \infty$
+\[
+  \lambda_{\min} (\X \X^\top/n) \ge \lambda_{\min} (\Z \Z^\top/n) \lambda_{\min} (\Sigmab) \ge \frac{\epsilon}2 (\sqrt c - 1 )^2
+\]
+almost surely, where we used and Bai-Yin theorem \cite{bai1993limit}, which states that the minimum eigenvalue of $\Z \Z^\top/n$ is almost surely larger that $( \sqrt c - 1 )^2/2$ for $n,d$ sufficiently large.
+
+** This assumption seems necessary and is also demanded in (Hestie) **.
+
+** We should compare the above assumption to the (General position) Assumption.**
+
+Observe that
+\[
+  |\delta(z)| = \left| \frac1n \tr \left( \frac1n \X \X^\top  + z \I_n \right)^{-1} \right| \le \frac1{ \lambda_{\min} (\X \X^\top/n) }
+\]
+and similarly for its derivative, so that we are allowed to take the $z \to 0^+$ limit. Note that the existence of the $\lim_{z \to 0^+} m(z)$ for $m(z)$ defined in \eqref{eq:def-m} is well known, see for example \cite{ledoit2011eigenvectors}. Then, by Moore-Osgood theorem we finish step 3) and conclude that
+\[
+  \tr (\X^\top \X)^\dagger \to m(0)
+\]
+for $m(0)$ the unique positive solution to
+\[
+  m(0) = \left( \frac1n \tr \Sigmab (\I_d + m(0) \Sigmab)^{-1} \right)^{-1}.
+\]
+
+\subsubsection{Proof of Conjecture~2}
+
+Since $\X^\dagger \X = \X^\top (\X \X^\top)^\dagger \X$, to prove Conjecture~2, we are interested in the limiting behavior of the following quadratic form 
+\[
+  \lim_{n,d \to \infty} \lim_{z \to 0^+} \frac1n \w^\top \X^\top \left( \frac1n \X \X^\top + z \I_n \right)^{-1} \X \w
+\]
+for deterministic $\w \in \mathbb R^{d}$ of bounded Euclidean norm (i.e., $\| \w \| \le C$ as $n,d \to \infty$), as $n,d \to \infty$ with $d/n \to c \in (1,\infty)$. The limiting behavior of the above quadratic form, or more generally, bilinear form of the type $\frac1n \w_1^\top \X^\top \left( \frac1n \X \X^\top + z \I_n \right)^{-1} \X \w_2$ for $\w_1, \w_2 \in \mathbb R^{d}$ of bounded Euclidean norm are widely studied in random matrix literature, see for example \cite{hachem2013bilinear}.
+
+For the proof of Conjecture~2 we follow the same protocol as that of Conjecture~1, namely: 1) we consider, for fixed $z > 0$, the limiting behavior of $\frac1n \w^\top \X^\top \left( \frac1n \X \X^\top + z \I_n \right)^{-1} \X \w$. Note that
+\begin{align*}
+  \delta(z) &\equiv \frac1n \w^\top \X^\top \left( \frac1n \X \X^\top + z \I_n \right)^{-1} \X \w = \w^\top \left( \frac1n \X^\top \X + z \I_d \right)^{-1} \frac1n \X^\top \X \w \\ 
+  &= \| \w \|^2 - z \w^\top \left( \frac1n \X^\top \X + z \I_d \right)^{-1} \w
+\end{align*}
+and it remains to work on the second $z \w^\top \left( \frac1n \X^\top \X + z \I_d \right)^{-1} \w$ term.
+It follows from \cite{hachem2013bilinear} that 
+\[
+   \delta(z) = \| \w \|^2 - z \w^\top \left( \frac1n \X^\top \X + z \I_d \right)^{-1} \w  \to \| \w \|^2 - \w^\top (\I_d + m(z) \Sigmab)^{-1} \w^\top 
+\]
+almost surely as $n,d \to \infty$, where we recall $m(z)$ is the unique solution to \eqref{eq:def-m} and implicitly assume that the right-hand side admits a limit as $n,d \to \infty$.
+
+We move on to step 2), under the assumption that $C_{\min} \le \lambda_{\min} (\Sigmab) \le C_{\max}$ and $\| \w \| \le C$, we have
+\[
+  \lambda_{\max} \left( \frac1n \X^\top \left( \frac1n \X \X^\top + z \I_n \right)^{-1} \X \right) \le \frac{ \lambda_{\max} (\X \X^\top/n) }{ \lambda_{\min} (\X \X^\top/n) + z } \le \frac{ \lambda_{\max} (\Z \Z^\top) \lambda_{\max} (\Sigmab) }{ \lambda_{\min} (\Z \Z^\top) \lambda_{\min} (\Sigmab) } \le 4 \frac{ (\sqrt c + 1)^2 C_{\max} }{ (\sqrt c -1)^2 C_{\min} }
+\]
+so that $\delta(z)$ remains bounded and similarly for its derivative $\delta'(z)$, which, by Arzela-Ascoli theorem, yields uniform convergence and we are allowed to take the $z \to 0^+$ limit. Ultimately, in step 3) we exchange the two limits with Moore-Osgood theorem, and thus the conclusion.
+
+
+\begin{corollary}\label{coro:projection}
+Let $\X = \Z\Sigmab^{\frac12}$, where $\Z$ is an $n\times d$ random
+matrix with
+i.i.d.~sub-Gaussian entries and $\Sigmab$ is a $d\times d$
+positive definite matrix. Assume that $n<d$ and define:
+\begin{align*}
+\bar\P = (\bar\gamma\Sigmab + \I)^{-1},\quad\text{such that}\quad\tr\,\bar\P=d-n.
+\end{align*}
+Let $r=\frac{\tr(\Sigmab)}{\|\Sigmab\|}$ be the nuclear rank of
+$\Sigmab$ and fix $\rho=\frac rn > 1$. There is $C_{\rho}$ such that if $r\geq C_\rho$, then
+\begin{align}
+  \| \E[\X^\dagger\X] (\I - \bar \P)^{-1} - \I \| \le \frac {C_\rho}{\sqrt r}.
+  % \big\|\I - \E[\I-\X^\dagger\X]\bar\P^{-1} \big\| \leq C\cdot
+  % \frac{\sqrt n}r.
+\end{align}
+\end{corollary}
+
+\begin{proof}[Proof of Corollary~\ref{coro:projection}]
+The proof of Corollary~\ref{coro:projection} follows the same line of arguments as that of Theorem~\ref{t:main}, with some tiny modifications. It is recorded here mainly for self-consistency.
+
+First note that
+\[
+  \E[\X^\dagger\X] (\I - \bar \P)^{-1} - \I = (\I - \E[\P] \bar \P^{-1}) \bar \gamma^{-1} \Sigmab^{-1}
+\]
+\[
+  (\I - \bar \P)^{-\frac12} = \bar \gamma^{-\frac12} \bar \P^{-\frac12} \Sigmab^{-\frac12} = \bar \gamma^{-\frac12} \Sigmab^{-\frac12} \bar \P^{-\frac12}.
+\]
+so that
+\[
+  (\I - \bar \P)^{-\frac12} \E[\X^\dagger\X] (\I - \bar \P)^{-\frac12} - \I = \bar \gamma^{-1} \Sigmab^{-\frac12} (\I - \P) 
+\]
+so that a naive application of Theorem~\ref{t:main} leads to an error bound that involves the minimum eigenvalue of $\Sigmab$. To avoid this issue, we define, similar to the proof of Theorem~\ref{t:main}, $\hat s = \x_n^\top\P_{-n}\x_n$ and $\bar s=\tr\bar\P\Sigmab=n/\bar\gamma$, and use Lemma~\ref{l:rank-one-update} and the fact that $\I-\P=(\X^\top\X)^\dagger\X^\top\X$ to obtain
+%%% original
+\begin{align*}
+  &(\I - \E[\P] \bar \P^{-1}) \bar \gamma^{-1} \Sigmab^{-1} = \E[\I -\P] \bar \gamma^{-1} \Sigmab^{-1} - \E[\P]\\
+  &= \sum_{i=1}^n\E\big[(\X^\top\X)^\dagger\x_i\x_i^\top\big] \bar \gamma^{-1} \Sigmab^{-1} -
+    \E[\P]\\
+  &=n\,\E\bigg[\frac{\P_{-n}\x_n\x_n^\top}{\x_n^\top\P_{-n}\x_n}\bigg] \bar \gamma^{-1} \Sigmab^{-1} -
+    \E[\P]\\
+  &=
+    \E\bigg[\bar s\cdot\frac{\P_{-n}\x_n\x_n^\top }{\x_n^\top\P_{-n}\x_n}\bigg]\Sigmab^{-1} 
+    - \E\bigg[\hat s
+    \cdot\frac{ \P_{-n}\x_n\x_n^\top }{\x_n^\top\P_{-n}\x_n}\bigg] \Sigmab^{-1}  +
+    \E[\P_{-n}]
+    -\E[\P]\\
+  &=\underbrace{ \E\bigg[(\bar s - \hat s)
+    \cdot\frac{ \P_{-n}\x_n\x_n^\top }{\x_n^\top\P_{-n}\x_n}\bigg] \Sigmab^{-1}}_{\T_1}
++    \underbrace{\E[\P_{-n}-\P]}_{\T_2}.
+\end{align*}
+%%%
+% where we used the fact that for $\mathbf{a}, \mathbf{b} \in \mathbb R^d$, we have $\mathbf{a} \mathbf{b}^\top + \mathbf{b} \mathbf{a}^\top \preceq \mathbf{a} \mathbf{a}^\top + \mathbf{b} \mathbf{b}^\top$ (which follows from $(\mathbf{a} - \mathbf{b}) (\mathbf{a} - \mathbf{b})^\top \succeq 0$).
+
+
+% We bound $\T_1$ as follows:
+% \begin{align*}
+%   \|\T_1\|
+%   &\leq \E\Bigg[\bigg\|\E\Big[(\bar s-\hat
+%   s)\cdot\frac{ \Sigmab^{-\frac12} \P_{-n}\x_n\x_n^\top \Sigmab^{-\frac12} }{\x_n^\top\P_{-n}\x_n}\mid
+%   \P_{-n}\Big]\bigg\|\Bigg]\\
+%   &\leq \E\Bigg[\bigg\|\E\Big[(\bar s-\hat
+%   s)\cdot\frac{ \Sigmab^{-\frac12} \P_{-n}\x_n\x_n^\top \P_{-n} \Sigmab^{-\frac12} }{\x_n^\top\P_{-n}\x_n}\mid
+%   \P_{-n}\Big] \bigg\| + \bigg\|\E\Big[(\bar s-\hat
+%   s)\cdot\frac{ \Sigmab^{-\frac12} \x_n \x_n^\top  \Sigmab^{-\frac12} }{\x_n^\top\P_{-n}\x_n}\mid
+%   \P_{-n}\Big] \bigg\| \Bigg]\\
+%   &\leq \E\Bigg[\sqrt{\E\big[(\bar s - \hat
+%   s)^2\mid
+%     \P_{-n}\big]}\
+%     \cdot \sup_{\v:\|\v\|=1}\sqrt{\E\bigg[\Big(\v^\top\frac{\Sigmab^{-\frac12} \P_{-n}\x_n\x_n^\top\P_{-n}\Sigmab^{-\frac12} }{\x_n^\top\P_{-n}\x_n}\v\Big)^2\mid\P_{-n}\bigg]}\,\Bigg]\\
+%   &+\E\Bigg[\sqrt{\E\big[(\bar s - \hat
+%   s)^2\mid
+%     \P_{-n}\big]}\
+%     \cdot \sup_{\v:\|\v\|=1}\sqrt{\E\bigg[\Big(\v^\top\frac{\Sigmab^{-\frac12}\x_n\x_n^\top\Sigmab^{-\frac12}}{\x_n^\top\P_{-n}\x_n}\v\Big)^2\mid\P_{-n}\bigg]}\,\Bigg]\\
+%   &\leq  C\,\E\Bigg[\sqrt{\E\big[(\bar s - \hat
+%   s)^2\mid
+%     \P_{-n}\big]}\,
+%     \cdot \frac{ 2 }{\tr\,\P_{-n}\Sigmab - 1}\Bigg]
+% % \ \leq\ C\,\sqrt{\E\big[(\bar s - \hat s)^2\big]}\,\cdot
+% % \underbrace{\sqrt{\E\bigg[\frac{\|\P_{-n}\Sigmab\|^2}{(\tr\,\P_{-n}\Sigmab)^2}\bigg]}}_{\Delta}\\[-4mm]
+% \  \leq\ C\sqrt{(\bar s - s)^2 + \E\big[(s - \hat s)^2\big]}\cdot \frac2{r-n},
+% \end{align*}
+
+We bound $\T_1$ as follows:
+\begin{align*}
+  \|\T_1\|
+  &\leq \E\Bigg[\E\bigg\|(\bar s-\hat
+  s)\cdot\frac{\P_{-n}\x_n\x_n^\top \Sigmab^{-1} }{\x_n^\top\P_{-n}\x_n}\mid
+  \P_{-n}\bigg\|\Bigg]\\
+  &\leq \E\Bigg[\sqrt{\E\big[(\bar s - \hat
+  s)^2\mid
+    \P_{-n}\big]}\
+    \cdot \sqrt{\E \left[\frac{\| \Sigmab^{-\frac12} \x_n \x_n^\top \Sigmab^{-\frac12} \|^2}{ (\x_n^\top \P_{-n} \x_n)^2 }\mid \P_{-n}\right]} \Bigg]\\
+  &\leq  C\,K^2\,\E\Bigg[\sqrt{\E\big[(\bar s - \hat
+  s)^2\mid
+    \P_{-n}\big]}\,
+    \cdot \frac1{\tr \Sigmab \P_{-n} } \Bigg] %\frac{\|\P_{-n}\Sigmab\|}{\tr\,\P_{-n}\Sigmab}
+% \ \leq\ C\,\sqrt{\E\big[(\bar s - \hat s)^2\big]}\,\cdot
+% \underbrace{\sqrt{\E\bigg[\frac{\|\P_{-n}\Sigmab\|^2}{(\tr\,\P_{-n}\Sigmab)^2}\bigg]}}_{\Delta}\\[-4mm]
+    \  \leq\ C\sqrt{(\bar s - s)^2 + \E\big[(s - \hat s)^2\big]}\cdot \frac{K^2}{r-n},
+\end{align*}
+where we used the fact that $\| \P_{-n} \| \le 1$ (\textbf{here we need a bound of the type $\E \frac{\z \z^\top}{\z^\top \A \z} \preceq \frac{\I}{\tr \A}$}, which is so far only good for Gaussian) and let $s=\E[\hat s]=\tr\,\E[\P_{-n}]\Sigmab$ and the last
+inequality follows because:
+\begin{align*}
+    \tr\,\P_{-n}\Sigmab =
+    \|\Sigmab^{\frac12}-\Sigmab^{\frac12}\X_{-n}^\dagger\X_{-n}\|_F^2\geq
+\sum_{i\geq n}\lambda_i\geq r-n,
+\end{align*}
+with $1=\lambda_1\geq\lambda_2\geq...$ denoting the eigenvalues of $\Sigmab$. It follows from the proof of Theorem~\ref{t:main} that
+\begin{align*}
+  \E\big[(s - \hat s)^2\big] &\le C(n+s)\leq C\big(n+\bar s + |s- \bar s|\big) \\
+  |\bar s - s|&\leq \frac{\bar\gamma}{\bar\gamma+1}\Big(|\bar s- s| + c\sqrt{|\bar s- s|} + c\sqrt{n+\bar s} + 1\Big)
+\end{align*}
+and thus again
+\begin{align*}
+  |\bar s-s|\leq
+  \bar\gamma(c\sqrt{n+\bar s}+1) + c^2\bar\gamma^2\leq \bar\gamma
+  (c+1)\sqrt{n+\bar s} + c^2\bar\gamma^2
+\end{align*}
+always hold.
+
+We next treat $\T_2$, the bound for which remains the same as
+\begin{align*}
+\|\T_2\|\leq  \bigg\|
+  \E\bigg[\E\Big[\frac{\P_{-n}\x_n\x_n^\top\P_{-n}}{\x_n^\top\P_{-n}\x_n}
+  \mid \P_{-n}\Big]\bigg]\bigg\|  \leq C\,\E\Big[\frac{\|\P_{-n}\Sigmab\|}{\tr\,\P_{-n}\Sigmab}\Big]   
+\leq C\cdot \frac1{r-n}.
+\end{align*}
+where we used $\E[\P_{-n}-\P] = \E\big[\frac{\P_{-n}\x_n\x_n^\top\P_{-n}}{\x_n^\top\P_{-n}\x_n}\big]$.
+
+Recall from the proof of Theorem~\ref{t:main} that $r \le n + \frac{n}{\bar \gamma}$, $r\geq\bar s \geq r-n$ and $\bar\gamma\leq
+\frac{n}{r-n}=\frac1{\rho-1}$. This allows us to conclude that
+\[
+  \| \E[\X^\dagger\X] (\I - \bar \P)^{-1} - \I \| \le \frac{C_\rho}{\sqrt r}.
+\]
+\end{proof}
+
+\section{Euclidean norm case}
+
+For given hypothesis class $f_\w$ of functions parameterized by $\w$ and training set $\{ \x_i, y_i \}_{i=1}^n$, consider the set of $\w$ that interpolates the training set, i.e., $f(\x_i) = y_i$ for $i \in \{0, \ldots, n\}$ and choose the following particular $\w_*$ from the set such that some capacity metric $g(\w)$ is minimized as
+\[
+  \w_* \equiv \argmin_\w g(\w), \quad \textmd{such that $f(\x_i) = y_i$ for all $i$}.
+\]
+
+Consider also the following (population level, for $(\x, y) \sim \mu$) minimizer
+\[
+  \w_\mu \equiv \argmin_\w \left\{ \E_{(\x,y) \sim \mu} \ell(f_\w(\x), y) + \lambda g(\w) \right\}
+\]
+we have the following theorem.
+
+\begin{theorem}\label{t:main-Eulidean}
+Let $f_\w(\x)=\x^\top\w$ and $(\x,y)\sim\mu$
+  be s.t.~$\x\sim\Nc(0,\Sigmab)$ and $y=\x^\top \bar \w+\xi$,
+  with $\E[\xi]=0$. Assume that $\Sigmab$ has nuclear rank
+  $r>2n$. Then, for $g(\w)=\|\w\|_2^2$
+  and $\ell(\hat y, y)=(\hat y-y)^2$, we have:
+  \begin{align*}
+    \E [\w_*]
+   \ \overset{\epsilon}{\simeq}\ \w_\mu
+\quad    \text{with}\quad\epsilon = O\big(\tfrac{\sqrt n}r\big),
+  \end{align*}
+  where $\w'\overset\epsilon\simeq\w$ iff
+  $\|\w'-\w\|_2\leq \epsilon\,\|\w\|_2$, and we define $\lambda$ so that $n=\tr\,\Sigmab(\Sigmab+\lambda\I)^{-1}$.
+\end{theorem}
+\begin{proof}
+In this case, we have $\w_*$ the minimum norm solution explicitly given by $\w_* = \X^\dagger \y$ so that
+\[
+  \E [\w_*]= \E[\X^\dagger \y] = \E[\X^\dagger \X] \bar \w
+\]
+as well as
+\[
+  \w_\mu = \argmin_\w \left\{ \E_{(\x,y) \sim \mu} (y - \w^\top \x)^2 + \lambda \| \w \|^2 \right\} = (\Sigmab + \lambda \I)^{-1} \Sigmab \bar \w.
+\]
+It then follows from Theorem~\ref{t:projection} that, for $\lambda$ the solution to $n = \tr \Sigmab (\Sigmab + \lambda \I)^{-1}$ we have $ (\Sigmab + \lambda \I)^{-1} \Sigmab = \I - \bar \P $ with
+\[
+  \bar \P = (\bar \gamma \Sigmab + \I)^{-1}, \quad \lambda = \bar \gamma^{-1}
+\]
+so that
+\begin{align*}
+  \E[\X^\dagger \X] \bar \w - (\Sigmab + \lambda \I)^{-1} \Sigmab \bar \w &= \left( \E[\X^\dagger \X] (\I - \bar \P)^{-1} - \I  \right)  \cdot (\Sigmab + \lambda \I)^{-1} \Sigmab \bar \w \\
+  %%%
+  &= \left( \E[\X^\dagger \X] (\I - \bar \P)^{-1} - \I  \right) \cdot \w_\mu.
+\end{align*}
+\end{proof}
+
+\section{General Euclidean norm case}
+
+We consider now the $\w$ that minimizes the following general Euclidean norm metric
+\[
+  g(\w) = \w^\top \A \w
+\]
+for a given positive definite $\A \in \mathbb R^{d \times d}$. For $f_\w(\x) = \w^\top \x$, this is equivalent to find $\tilde \w \equiv \A^{\frac12} \w$ such that $f_{\tilde \w} (\x) = \tilde \w^\top \A^{-\frac12} \x$ with $g(\tilde \w) = \| \tilde \w \|^2$ minimized, or, to find $\tilde \w$ such that $f_{\tilde \w} (\tilde \x) = \tilde \w^\top \tilde \x$ for $\tilde \x \equiv \A^{-\frac12} \x \sim \Nc (\zero, \A^{-\frac12} \Sigmab \A^{-\frac12} )$ with minimal Euclidean norm $\| \tilde \w \|^2$. The desired solution can then be retrieved as $\w = \A^{-\frac12} \tilde \w$. This is given in the following theorem.
+
+\begin{theorem}\label{t:main-Mahalanobis}
+Let $f_\w(\x)=\x^\top\w$ and $(\x,y)\sim\mu$
+  be s.t.~$\x\sim\Nc(0,\Sigmab)$ and $y=\x^\top \bar \w+\xi$,
+  with $\E[\xi]=0$. Then, for $g(\w)=\|\w^\top \A \w \|_2^2$
+  and $\ell(\hat y, y)=(\hat y-y)^2$, assume $\Sigmab \A^{-1}$ has nuclear rank
+  $r>2n$, we have:
+  \begin{align*}
+    \E [\w_*]
+   \ \overset{\epsilon}{\simeq}\ \w_\mu
+\quad    \text{with}\quad\epsilon = O\big(\tfrac{\sqrt n}r\big),
+  \end{align*}
+  where $\w'\overset\epsilon\simeq\w$ iff
+  $\|\w'-\w\|_\A \leq \epsilon\,\|\w\|_\A$ for $\| \w \|_\A = \| \A^{\frac12} \w \| $ and we define $\lambda$ so that $n=\tr\,\Sigmab(\Sigmab+\lambda\A)^{-1}$.
+\end{theorem}
+\begin{proof}
+Let us first focus on $f_{\tilde \w} (\tilde \x) = \tilde \w^\top \tilde \x$ for $\tilde \x \equiv \A^{-\frac12} \x \sim \Nc (\zero, \A^{-\frac12} \Sigmab \A^{-\frac12} )$ with minimal Euclidean norm $\| \tilde \w \|^2$. In this case, we have $\tilde \w_*$ the minimum norm solution explicitly given by $\tilde \w_* = \tilde \X^\dagger \y$ with $y = \tilde \x^\top \A^{\frac12} \bar \w + \xi$, so that
+\[
+  \E [\tilde \w_*]= \E[\tilde \X^\dagger \y] = \E[\tilde \X^\dagger \tilde \X] \A^{\frac12} \bar \w
+\]
+as well as
+\[
+  \tilde \w_\mu = \argmin_{\tilde \w} \left\{ \E_{(\x,y) \sim \mu} (y - \tilde \w^\top \A^{-\frac12} \x)^2 + \lambda \| \tilde \w \|^2 \right\} = (\A^{-\frac12} \Sigmab \A^{-\frac12} + \lambda \I)^{-1} \A^{-\frac12} \Sigmab \A^{-\frac12} \cdot \A^{\frac12} \bar \w.
+\]
+
+Denote the shortcut $\tilde \Sigmab \equiv \A^{-\frac12} \Sigmab \A^{-\frac12}$, it then follows from Theorem~\ref{t:projection} that, for $\lambda$ the solution to $n = \tr \tilde \Sigmab (\tilde \Sigmab + \lambda \I)^{-1}$ we have $ (\tilde \Sigmab + \lambda \I)^{-1} \tilde \Sigmab = \I - \bar \P $ with
+\[
+  \bar \P = (\bar \gamma \tilde \Sigmab + \I)^{-1}, \quad \lambda = \bar \gamma^{-1}
+\]
+so that
+\begin{align*}
+  \E[\tilde \X^\dagger \tilde \X] \A^{\frac12} \bar \w - (\tilde \Sigmab + \lambda \I)^{-1} \tilde \Sigmab \bar \A^{\frac12} \w &= \left( \E[\tilde \X^\dagger \tilde \X] - (\I - \bar \P) \right) (\I - \bar \P)^{-1} \cdot (\tilde \Sigmab + \lambda \I)^{-1} \tilde \Sigmab \A^{\frac12} \bar \w \\
+  %%%
+  &= \left( \E[\tilde \X^\dagger \tilde \X] (\I - \bar \P)^{-1} - \I  \right) \cdot \tilde \w_\mu.
+\end{align*}
+Since $\w = \A^{-\frac12} \tilde \w$, we have
+\begin{align*}
+  \A^{\frac12} ( \E[\w_*] - \w_\mu ) = \E[\tilde \w_*] - \tilde \w_\mu = \left( \E[\tilde \X^\dagger \tilde \X] (\I - \bar \P)^{-1} - \I  \right) \cdot \A^{\frac12} \w_\mu
+\end{align*}
+and thus
+\[
+  \| \E[\w_*] - \w_\mu \|_\A \le \left\| \left( \E[\tilde \X^\dagger \tilde \X] (\I - \bar \P)^{-1} - \I  \right) \right\| \cdot \| \w_\mu \|_\A.
+\]
+\end{proof}
+
+\section{Generic output}
+
+The idea is to evaluate the implicit ``regularization'' effect. For the minimum norm solution, it thus remains to assess
+\begin{equation}\label{eq:implicit-regularization}
+  \E[ \X^\dagger \y] = \begin{cases} (\Sigmab + \lambda \I_d)^{-1} \E[y(\x) \x], \quad n < d \\ \Sigmab^{-1} \E[y(\x) \x], \quad n \ge d \end{cases}
+\end{equation}
+with $\lambda$ the unique solution to $n = \tr \Sigmab (\Sigmab+ \lambda \I_d)^{-1}$.
+
+
+%\section{Proof of \texorpdfstring{\eqref{eq:implicit-regularization}}{something} }
+
+\begin{proof}[Proof of \eqref{eq:implicit-regularization}]
+The idea is to show the following approximation in the $n < d$ case
+\[
+  %\| \E[\X^\dagger \y] - (\Sigmab + \lambda \I_d)^{-1} \E[y(\x) \x] \| \le C \frac{\sqrt n}{r} \cdot \left( \| \E[y(\x) \x] \| + \left( \E \| \x y(\x) \|^4 \right)^{\frac14} \right)
+  \| \E[\X^\dagger \y] - (\Sigmab + \lambda \I_d)^{-1} \E[y(\x) \x] \| \le C \frac{\sqrt n}{r} \cdot \| \E[y(\x) \x] \| + \left( \E[y^4(\x)] \right)^{\frac14}
+\]
+where we recall $\X \in \mathbb R^{n \times d}$ having i.i.d.~rows of $\mathcal N(0, \Sigmab)$.
+
+Since $\X^\dagger = (\X^\top \X)^\dagger \X^\top$, we have
+\begin{align*}
+  \E[ \X^\dagger \y] & = \E[ (\X^\top \X)^\dagger \X^\top \y] =  \E \left[ (\X^\top \X)^\dagger \left( \sum_{i=1}^n y(\x_i) \x_i \right) \right] \\
+  %%%
+  & = \sum_{i=1}^n \E [(\X^\top \X)^\dagger \x_i y(\x_i)] = n \cdot \E \frac{\P_{-n} \x_n y(\x_n)}{ \x_n^\top \P_{-n} \x_n }
+\end{align*}
+where we used Lemma~1 for the last equality. Since $\P_{-n}$ is independent of $\x_i$, we can write
+\[
+  n \cdot \E \frac{\P_{-n} \x_n y(\x_n)}{ \x_n^\top \P_{-n} \x_n } = n \cdot \E \frac{\P_{-n} \E [\x_n y(\x_n)] }{ \tr \Sigmab \P_{-n} } + n \cdot \E \frac{\P_{-n} \x_n y(\x_n) \left( \tr \Sigmab \P_{-n} - \x_n^\top \P_{-n} \x_n \right) }{ \x_n^\top \P_{-n} \x_n \cdot \tr \Sigmab \P_{-n} }
+\]
+with the second RHS term bounded (in a Frobenius norm sense) as
+% \begin{align}
+%    & \left\|\E \frac{\P_{-n} \x_n y(\x_n) \left( \tr \Sigmab \P_{-n} - \x_n^\top \P_{-n} \x_n \right) }{ \x_n^\top \P_{-n} \x_n \cdot \tr \Sigmab \P_{-n} } \right\| = \left\| \E \left[ (\X^\top \X)^\dagger \x_n y(\x_n) \cdot \frac{ \tr \Sigmab \P_{-n} - \x_n^\top \P_{-n} \x_n }{ \tr \Sigmab \P_{-n} } \right] \right\| \nonumber \\
+%    %%%
+%    &\le \sqrt{ \E \| (\X^\top \X)^\dagger \x_n y(\x_n) \|^2} \cdot \sqrt{\E_{\P_{-n}} \E_{\x_n} \left[ \frac{ \tr \Sigmab \P_{-n} - \x_n^\top \P_{-n} \x_n }{ \tr \Sigmab \P_{-n} } \right]^2 }. \label{eq:bound-dif-1}
+% \end{align}
+%%%
+\begin{align}
+   & n \cdot \left\|\E \frac{\P_{-n} \x_n y(\x_n) \left( \tr \Sigmab \P_{-n} - \x_n^\top \P_{-n} \x_n \right) }{ \x_n^\top \P_{-n} \x_n \cdot \tr \Sigmab \P_{-n} } \right\| = n \cdot \left\| \E \left[ \frac{ \P_{-n} \x_n y(\x_n) }{\x_n^\top \P_{-n} \x_n } \cdot \frac{ \tr \Sigmab \P_{-n} - \x_n^\top \P_{-n} \x_n }{ \tr \Sigmab \P_{-n} } \right] \right\| \nonumber \\
+   %%%
+   &\le n \sqrt{ \E \left\| \frac{ \P_{-n} \x_n y(\x_n) }{\x_n^\top \P_{-n} \x_n } \right\|^2 } \cdot \sqrt{\E_{\P_{-n}} \E_{\x_n} \left[ \frac{ \tr \Sigmab \P_{-n} - \x_n^\top \P_{-n} \x_n }{ \tr \Sigmab \P_{-n} } \right]^2 }. \label{eq:bound-dif-1}
+\end{align}
+%%%
+% \begin{align}
+%    & \left\|\E \frac{\P_{-n} \x_n y(\x_n) \left( \tr \Sigmab \P_{-n} - \x_n^\top \P_{-n} \x_n \right) }{ \x_n^\top \P_{-n} \x_n \cdot \tr \Sigmab \P_{-n} } \right\| = \left\| \E \left[ \frac{ \P_{-n} \x_n y(\x_n) }{ \tr \Sigmab \P_{-n} } \cdot \frac{ \tr \Sigmab \P_{-n} - \x_n^\top \P_{-n} \x_n }{ \x_n^\top \P_{-n} \x_n } \right] \right\| \nonumber \\
+%    %%%
+%    &\le \sqrt{ \E \left\| \frac{ \P_{-n} \x_n y(\x_n) }{\tr \Sigmab \P_{-n}} \right\|^2 } \cdot \sqrt{\E \left[ \frac{ \tr \Sigmab \P_{-n} - \x_n^\top \P_{-n} \x_n }{ \x_n^\top \P_{-n} \x_n } \right]^2 } \nonumber \\
+%    %%%
+%    & \le \sqrt{ \E \frac1{ (\tr \Sigmab \P_{-n})^2 } \cdot \E \| \x_n y(\x) \|^2 } \cdot \sqrt{\E \left[ \frac{ \tr \Sigmab \P_{-n} - \x_n^\top \P_{-n} \x_n }{ \x_n^\top \P_{-n} \x_n } \right]^2 } \nonumber \\
+%    %%%
+%    & \le \frac{C}{ \sqrt{r-n} } \sqrt{ \E \| \x_n y(\x) \|^2 } \cdot \sqrt{\E \left[ \frac{ \tr \Sigmab \P_{-n} - \x_n^\top \P_{-n} \x_n }{ \x_n^\top \P_{-n} \x_n } \right]^2 } \nonumber \\
+%    %%%
+%    &\le \frac{C}{ \sqrt{r-n} } \sqrt{ \E \| \x_n y(\x) \|^2 } \cdot \left(\E (\tr \Sigmab \P_{-n} - \x_n^\top \P_{-n} \x_n)^4 \cdot \E \left[ \frac1{ \x_n^\top \P_{-n} \x_n } \right]^4 \right)^{\frac14} \label{eq:bound-dif-1}
+% \end{align}
+% with Cauchy–Schwarz inequality, $\| \P_{-n} \| \le 1$ and the fact that $\E \frac1{ (\tr \Sigmab \P_{-n}^2 } \le \frac{C}{s}$ for $s= \tr \Sigmab \E[\P_{-n}] \ge r - n$ from previous proof.
+
+For the first RHS term, note that
+\[
+  \E \left\| \frac{ \P_{-n} \x_n y(\x_n) }{\x_n^\top \P_{-n} \x_n } \right\|^2 = \E \frac{ y^2(\x) \x_n^\top \P_{-n} \x_n }{ (\x_n^\top \P_{-n} \x_n )^2} = \E \frac{y^2(\x)}{ \x_n^\top \P_{-n} \x_n } \le \sqrt{ \E[y^4(\x)] \cdot \E \frac1{ (\x_n^\top \P_{-n} \x_n)^2 } }
+\]
+with Cauchy–Schwarz inequality, where we need the following lemmas.
+
+\begin{lemma}\label{lem:inverse-moment-bound}
+  Fix $k \geq 2$. There exists constants $c, C > 0$ (depending on $k$)
+  such that for any $d \geq 1$,
+  $\z\sim\Nc(\zero,\I_d)$,
+  and any $d\times d$ symmetric positive semidefinite matrix
+  $\A \in \mathbb R^{d \times d}$ satisfying $\tr \A \ge c \cdot \ln d$,
+  we have
+  \[
+    %\left( \E \left[ \frac1{ (\z^\top \A \z)^k } \right] \right)^{1/k} \le C \cdot \frac1{\tr \A} 
+    \E \left[ \frac1{ (\z^\top \A \z)^k } \right] \le C \cdot \frac1{ (\tr \A)^k} 
+  \]
+\end{lemma}
+
+\begin{proof}
+  Fix $a = 2 k + 1$.
+  Let $Z = \z^\top \A \z 
+  = \sum_{i=1}^d \lambda_i z_i^2 
+  = Z_{\leq a} + Z_{> a}$
+  where $Z_{\leq a} = \sum_{i \leq a} \lambda_i z_i^2$
+  and $Z_{\geq a} = \sum_{i > a} \lambda_i z_i^2$.
+  Splitting on the event $B = \{ Z_{> a} \geq \frac{1}{2} \E Z_{> a} \}$
+  \begin{align*}
+    \E\left[ Z^{-k} \right]
+    &= \Pr[B] \E\left[ Z^{-k} \mid B\right] 
+    + \Pr[B^c] \E\left[ Z^{-k} \mid B^c\right] \\
+    &\leq \Pr[B] \E\left[ Z_{> a}^{-k} \mid B\right] 
+    + \Pr[B^c] \E\left[ Z_{\leq a}^{-k} \mid B^c\right]
+    = \Pr[B] \E\left[ Z_{> a}^{-k} \mid B\right] 
+    + \Pr[B^c] \E\left[ Z_{\leq a}^{-k} \right] \\
+    &\leq 1 \cdot \left(\frac{1}{2} \E Z_{>a} \right)^{-k}
+    + \Pr[B^c] \E\left[ Z_{\leq a}^{-k}\right] \\
+    &\leq \left(\frac{2}{r - a} \right)^{k}
+    + \Pr[B^c] \lambda_a^{-k} \E\left[ (\sum_{i=1}^a z_i^2)^{-k} \right]
+  \end{align*}
+  where we have used independence of $Z_{> a}$ and $Z_{\leq a}$ to remove
+  the conditioning on $B^c$,
+  and $\|\A\| = 1 \implies \E Z_{> a} \geq r - a$.
+  Recognizing the last expectation as
+  the $k$th moment of an inverse Chi-square with $a$ degrees of freedom,
+  we have
+  \begin{align*}
+    \E\left[ Z^{-k} \right]
+    &\leq \left(\frac{2}{r - a} \right)^{k}
+    + \Pr[B^c] \lambda_a^{-k} \frac{1}{(a - 2)!!}
+    \leq \left(\frac{2}{r - a} \right)^{k}
+    + \Pr[B^c] \left(\frac{d-a}{r-a}\right)^k \frac{1}{(a - 2)!!}
+  \end{align*}
+  where we have used $r - a \leq (d - a) \lambda_a$.
+  To bound $\Pr[B^c]$, note that $Z$ is $(4 \tr (\A^2), 4 \|\A\|)$ sub-exponential,
+  so
+  \begin{align*}
+    \label{eq:sub-exp-quad-form}
+    \Pr[Z - \E z \leq -t] \leq \begin{cases}
+      \exp\left(-\frac{t^2}{8 (\tr \A)^2}\right),
+      &\text{ if } 0 \leq t \leq \frac{\tr( \A^2 )}{\|\A\|_2} \\
+      \exp\left(-\frac{t}{8 \|\A\|_2}\right), &\text{ if }t > \frac{\tr \A}{\|\A\|_2}
+    \end{cases}
+  \end{align*}
+  \feynman{Any significance that the Gaussian to exponential tail transition
+  occurs when the deviation $t$ exceeds the soft rank of $\A$?}
+  Hence, using $\|\A\| = 1$ to bound $\E Z_{> a} \geq r - a$, we have
+  \begin{align*}
+    \Pr[B^c]
+    &= \Pr[Z_{> a} < \frac{1}{2} \E Z_{> a}]
+    \leq \Pr[Z_{> a} - \E Z_{> a} < -\frac{1}{2} (r - a)]
+    \leq \exp\left( - \frac{r - a}{16 \cancelto{1}{\|\A\|_2}} \right)
+  \end{align*}
+  Taking $c_0 = \frac{1}{16}$, we have altogether
+  \begin{align*}
+    \E\left[ Z^{-k} \right]
+    &\leq \left(\frac{2}{r - a} \right)^{k}
+    + e^{-c_0 (r - a)} \left(\frac{d-a}{r-a}\right)^k \frac{1}{(a - 2)!!}
+  \end{align*}
+  When $r - a \geq c_0^{-1} k \log(d)$ or
+  equivalently $r \geq C \log(d)$ for some constant $C$ depending on $k$,
+  \begin{align*}
+    \E\left[ Z^{-k} \right]
+    &\leq \left(\frac{2}{r - a} \right)^{k}
+    + \left(\frac{1}{r-a}\right)^k \frac{1}{(a - 2)!!} \\
+    &\leq \left(
+        \frac{2}{r - a} + \frac{1}{r-a} ((a - 2)!!)^{-k}
+    \right)^k\\
+    &\leq \left(C \frac{1}{r}\right)^k
+  \end{align*}
+  for some constant $C$ independent of $r$ and $d$.
+\end{proof}
+
+Since
+\[
+  \E \frac1{ (\x_n^\top \P_{-n} \x_n)^2} = \E \left[ \E \frac1{ (\x_n^\top \P_{-n} \x_n)^2}~|~\P_{-n} \right] 
+\]
+so that by taking $\A = \Sigmab^{\frac12} \P_{-n} \Sigmab^{\frac12}$ and $k=2$ in Lemma~\ref{lem:inverse-moment-bound}, we have
+\[
+  \E \frac1{ (\x_n^\top \P_{-n} \x_n)^2} \le C \E \frac1{ (\tr \Sigmab \P_{-n})^2}
+\]
+and thus
+\[
+  \sqrt{\E \left\| \frac{ \P_{-n} \x_n y(\x_n) }{\x_n^\top \P_{-n} \x_n } \right\|^2} \le C \cdot \left( \E[y^4(\x)] \right)^{\frac14} \cdot \left( \E \frac1{ \tr (\Sigmab \P_{-n})^2 } \right)^{\frac14 } \le C \cdot \left( \E[y^4(\x)] \right)^{\frac14} \cdot \frac1{\sqrt{r - n}}
+\]
+where we used the fact that $\E \frac1{ (\tr \Sigmab \P_{-n})^2 } \le \frac{C}{s^2}$ for $s= \tr \Sigmab \E[\P_{-n}] \ge r - n$ from previous proof.
+
+\begin{lemma}[Lemma B.26 in \cite{bai2010spectral}]
+    \label{lem:bai-b26}
+    Let $\x \in \mathbb R^d$ have i.i.d.~zero mean, unit variance entries and $\E[\lvert x_0 \rvert^L] \leq \nu_L$ for some $L \geq 4$. Then for $\A \in \mathbb R^{d \times d}$ of bounded norm and independent of $\x$ and $1 \leq \ell \leq L/2$
+    \begin{align*}
+        \E \left[\left| \x^\top \A \x - \tr \A \right|^\ell\right] \leq C_\ell \left[ \left( \nu_4 \tr(\A \A^\top)\right)^{\ell/2} + \nu_{2\ell} \tr(\A \A^\top)^{\ell/2} \right]
+    \end{align*}
+    for some $C_\ell > 0$.
+\end{lemma}
+
+
+To bound the second RHS in \eqref{eq:bound-dif-1}, we take then $\ell = 2$ in Lemma~\ref{lem:bai-b26}, we have
+\begin{align*}
+  &\E_{\x_n} \left[ \frac{ \x_n^\top \P_{-n} \x_n - \tr \Sigmab \P_{-n} }{ \tr \Sigmab \P_{-n} } \right]^2 = \frac{ \E_{\x_n} (\tr \Sigmab \P_{-n} - \x_n^\top \P_{-n} \x_n)^2 }{ (\tr \Sigmab \P_{-n})^2 } \\
+  %%%
+  &\le C \frac{ \tr \Sigmab \P_{-n} \Sigmab }{ (\tr \Sigmab \P_{-n})^2 } \le \frac{C}{ \tr \Sigmab \P_{-n} }.
+\end{align*}
+
+As a consequence, we obtain
+\[
+   \sqrt{\E \left[ \frac{ \tr \Sigmab \P_{-n} - \x_n^\top \P_{-n} \x_n }{ \tr \Sigmab \P_{-n} } \right]^2 } \le C \cdot \frac1{\sqrt{r - n}}
+\]
+so that
+\[
+  n \cdot \left\|\E \frac{\P_{-n} \x_n y(\x_n) \left( \tr \Sigmab \P_{-n} - \x_n^\top \P_{-n} \x_n \right) }{ \x_n^\top \P_{-n} \x_n \cdot \tr \Sigmab \P_{-n} } \right\| \le C \cdot \left( \E[y^4(\x)] \right)^{\frac14} \cdot \frac{n}{r - n}.
+\]
+% Taking $\ell = 4$ in Lemma~\ref{lem:bai-b26}, we have
+% \begin{align*}
+%   &\E_{\x_n} (\x_n^\top \P_{-n} \x_n - \tr \Sigmab \P_{-n})^4 \le C (\tr(\Sigmab \P_{-n} \Sigmab) )^2
+% \end{align*}
+% for some constant $C > 0$. For the term $\E (\x_n^\top \P_{-n} \x_n)^{-4}$, note that
+% \begin{align*}
+%   \frac1{\x_n^\top \P_{-n} \x_n} =
+% \end{align*}
+% so that with $\E \X^\dagger \y = n \E (\X^\top \X)^\dagger \x_n y(\x_n)$, we can conclude from \eqref{eq:bound-dif-1} that
+% \begin{align}
+%    & n\left|\E \frac{\P_{-n} \x_n y(\x_n) \left( \tr \Sigmab \P_{-n} - \x_n^\top \P_{-n} \x_n \right) }{ \x_n^\top \P_{-n} \x_n \cdot \tr \Sigmab \P_{-n} } \right| \le n\sqrt{ \E \| (\X^\top \X)^\dagger \x_n y(\x_n) \|^2 \cdot C \E \left[ \frac1{ \tr \Sigmab \P_{-n} } \right] } \nonumber \\
+%    %%%
+%    &\le \frac{C}{\sqrt s} \sqrt{ \E \| (\X)^\dagger \y \|^2 } \le \frac{C}{\sqrt{r-n} } \sqrt{ \E \| (\X)^\dagger \y \|^2 } \label{eq:bound-dif-3}
+% \end{align}
+
+
+As a consequence,
+\begin{align*}
+  \left\| \E[\X^\dagger \y] - n \E \frac{\P_{-n} \E [\x_n y(\x_n)] }{ \tr \Sigmab \P_{-n} } \right\| \le n \left\| \E \frac{\P_{-n} \x_n y(\x_n) \left( \tr \Sigmab \P_{-n} - \x_n^\top \P_{-n} \x_n \right) }{ \x_n^\top \P_{-n} \x_n \cdot \tr \Sigmab \P_{-n} } \right\| \le C \cdot \left( \E[y^4(\x)] \right)^{\frac14} %\left( \E \| \x_n y(\x_n) \|^4 \right)^{\frac14} \cdot \frac{C}{\sqrt{r - n}}.
+\end{align*}
+
+Let us move on and focus on the expectation $\E \frac{\P_{-n} }{ \tr \Sigmab \P_{-n} }$, we have from previous proof that
+\[
+  n\E \frac{\P_{-n} }{ \tr \Sigmab \P_{-n} } = \E[ \tilde \gamma \P_{-n} ] =  \bar \gamma \E[\P_{-n}] + \E [(\tilde \gamma - \bar \gamma) \P_{-n}] = \bar \gamma \bar \P + \underbrace{\bar \gamma ( \E[\P_{-n}] - \bar \P)}_{T_3} + \underbrace{\E [(\tilde \gamma - \bar \gamma) \P_{-n}]}_{T_4}
+\]
+where we recall the definition $\tilde \gamma = n/\tr \P_{-n} \Sigmab$ and it thus remains to bound $T_3$ and $T_4$ respectively to reach
+\begin{align*}
+  \left\| n \E \frac{\P_{-n} }{ \tr \Sigmab \P_{-n} } - \gamma \bar \P \right\| \le \| T_3 \| + \| T_4 \|
+\end{align*}
+and thus the conclusion.
+
+To this end, we write, similar to the bound of $T_1$ in previous proof that
+\[
+  \| T_4 \| \le \bar \gamma C \frac1s ( (\bar \gamma + 1) \sqrt{cn} + 2 ) \le \frac{ \bar \gamma C ( (\bar \gamma + 1) \sqrt{cn} + 2 ) }n
+\]
+as well as
+\[
+  \| T_3 \| \le \bar \gamma \| \E[\P_{-n} - \P] \| + \bar \gamma \| \E[\P] - \bar \P \| \le \bar \gamma C \frac1n + \bar \gamma C' \frac{\sqrt n}{r}
+\]
+and ultimately
+\[
+  \| \E[\X^\dagger \y] - (\Sigmab + \lambda \I_d)^{-1} \E[y(\x) \x] \| \le (\| T_3 \| + \| T_4 \|) \| \E [\x y(\x) ] \| + C \left( \E[y^4(\x)] \right)^{\frac14} %+ \left( \E \| \x y(\x) \|^4 \right)^{\frac14} \cdot c \cdot \frac{\sqrt n}{r}
+\]
+which concludes the proof.
+\end{proof}
+
+
+\subsection{New strategy}
+
+Let $\xbt=(\Sigmab+\lambda\I)^{-1}\x$ and use $y$ as a shorthand for
+$y(\x)$. This way, we have $\E[\xbt y ]=(\Sigmab+\lambda\I)^{-1}\E[\x y]$.
+Note that $(\Sigmab+\lambda\I)^{-1} = \bar\gamma\bar\P$. Letting
+$\gamma_n=n/(\x_n^\top\P_{-n}\x_n)$ and $y_n=y(\x_n)$, we have
+\begin{align*}
+  \E[\X^\dagger\y]
+  & = \E[\gamma_n\P_{-n}\x_ny_n]\\
+  &= \E[\gamma_n\P_{-n}\bar\gamma^{-1}\bar\P^{-1}\xbt_ny_n]\\
+  &=\E[\bar\gamma\P_{-n}\bar\gamma^{-1}\bar\P^{-1}\xbt_n y_n] +
+    \E\big[\P_{-n}\bar\P^{-1}\xbt_ny_n(\gamma_n-\bar\gamma)\bar\gamma^{-1}\big] \\
+  &=\E[\P_{-n}]\bar\P^{-1}\E[\xbt_ny_n]
+    + \E\bigg[\frac{\P_{-n}\bar\P^{-1}\xbt_ny_n}{\x_n^\top\P_{-n}\x_n}(\bar\alpha-\alpha_n)\bigg],
+\end{align*}
+where $\bar\alpha=n/\bar\gamma$ and
+$\alpha_n=\x_n^\top\P_{-n}\x_n$. So we have
+\begin{align*}
+  \big\|\E[\X^\dagger\y]-\E[\xbt y]\big\|
+  &\leq \|\E[\P_{-n}]\bar\P^{-1}-\I\|\cdot\|\E[\xbt_ny_n]\| +
+    \bigg\|\E\bigg[\frac{\P_{-n}\bar\P^{-1}\xbt_ny_n}{\x_n^\top\P_{-n}\x_n}
+    (\bar\alpha-\alpha_n)\bigg]\bigg\|.
+\end{align*}
+
+
+With Theorem~\ref{t:main}, the first term is bounded by $O(\frac{\sqrt n}{r})\cdot \|\E[\xbt_ny_n]\|$ and it remains to treat the second term.
+
+Note that
+\[
+  \E\bigg[\frac{\P_{-n}\bar\P^{-1}\xbt_ny_n}{\x_n^\top\P_{-n}\x_n} (\bar\alpha-\alpha_n)\bigg] = \E\bigg[ n \frac{\P_{-n} \x_n y_n}{\x_n^\top\P_{-n}\x_n} \cdot \frac{\bar\alpha-\alpha_n}{\bar \alpha} \bigg]
+\]
+so that with Cauchy–Schwarz inequality
+\begin{align*}
+  &\bigg\|\E\bigg[\frac{\P_{-n}\bar\P^{-1}\xbt_ny_n}{\x_n^\top\P_{-n}\x_n} (\bar\alpha-\alpha_n)\bigg]\bigg\| \le \sqrt{ \frac{ \E (\bar \alpha - \alpha_n)^2 }{\bar \alpha^2 } \cdot \E \left[ \left\|  n \frac{\P_{-n} \x_n y_n}{\x_n^\top\P_{-n}\x_n} \right\|^2 \right]  } \\ 
+  &= \frac{ \sqrt{ \E (\bar \alpha - \alpha_n)^2 } }{\bar \alpha }  \cdot \sqrt{ \E \| (\X)^\dagger \y \|^2 }.
+\end{align*}
+
+Recall $\bar s = \tr \bar \P \Sigmab = \bar \alpha$ and $s = \tr \E[\P_{-n}] \Sigmab$, we have
+\begin{align*}
+  &\E (\bar \alpha - \alpha_n)^2 = \E (\alpha_n - \tr \P_{-n} \Sigmab + \tr \P_{-n} \Sigmab - s + s - \bar s)^2 \\ 
+  %%%
+  &= \E (\alpha_n - \tr \P_{-n} \Sigmab)^2 + \E (\tr \P_{-n} \Sigmab - s)^2 + (s - \bar s)^2  
+  %%%
+  %+ + 2 \E (\alpha_n - \tr \P_{-n} \Sigmab) (\tr \P_{-n} \Sigmab - s) + 2 \E (\alpha_n - \tr \P_{-n} \Sigmab) (s - \bar s) + 2 \E (\tr \P_{-n} \Sigmab - s) (s - \bar s)
+\end{align*}
+so that by taking $\A = \Sigmab^{\frac12} \P_{-n} \Sigmab^{\frac12}$ and $\ell = 2$ in Lemma~\ref{lem:bai-b26}, together with Lemma~\ref{l:rank-one-projection} and $|s - \bar s| \le \bar \gamma \sqrt{cn} + 2$, we deduce
+\begin{align*}
+  \E (\bar \alpha - \alpha_n)^2 &\le c_1 s + c_2 n + \bar \gamma^2 c_3 n + 4 \bar \gamma \sqrt{c_3 n} + 4 \le 4 + c_1 (\bar s + \bar \gamma \sqrt{c_3 n} + 2) + 4 \bar \gamma \sqrt{c_3 n} + (c_2 + \bar \gamma^2 c_3)n \\ 
+  &= c_1 \bar s + (c_2 + \bar \gamma^2 c_3)n + (c_1 + 4)\bar \gamma \sqrt{c_3 n} + 4 + 2 c_1
+\end{align*}
+and thus
+\begin{align*}
+  \bigg\|\E\bigg[\frac{\P_{-n}\bar\P^{-1}\xbt_ny_n}{\x_n^\top\P_{-n}\x_n} (\bar\alpha-\alpha_n)\bigg]\bigg\| &\le \sqrt{ \E \| (\X)^\dagger \y \|^2 } \cdot \sqrt{ \frac{ c_1 \bar s + (c_2 + \bar \gamma^2 c_3)n + (c_1 + 4)\bar \gamma \sqrt{c_3 n} + 4 + 2 c_1 }{\bar s^2} } \\ 
+  &\le \sqrt{ \E \| (\X)^\dagger \y \|^2 } \cdot \frac{C}{\sqrt n}
+\end{align*}
+for some constant $C> 0$, where we recall $\bar s \ge n$. Putting thing together, we get
+\begin{equation}
+  \big\|\E[\X^\dagger\y]-\E[\xbt y]\big\| \leq C \frac{\sqrt n}{r}
+  \cdot\|\E[\xbt_ny_n]\| + C\frac{\sqrt n}{r} \cdot \sqrt{ \E \|
+    (\X)^\dagger \y \|^2 }. 
+\end{equation}
+
+
+\clearpage
+
+Note that with Jensen's inequality,
+\begin{align*}
+  &\bigg\|\E\bigg[\frac{\P_{-n}\bar\P^{-1}\xbt_ny_n}{\x_n^\top\P_{-n}\x_n} (\bar\alpha-\alpha_n)\bigg]\bigg\| \le \sqrt{ \E \left[ \left( \frac{\bar \alpha - \alpha_n}{\alpha_n} \right)^2 y_n^2 \cdot \tilde \x_n^\top \bar \P^{-1} \P_{-n} \bar \P^{-1} \tilde \x_n \right] } \\ 
+  &\le \sqrt{ \E \left[ \left( \frac{\bar \alpha - \alpha_n}{\alpha_n} \right)^2 \cdot (\bar \gamma + 1)^2 \cdot \| \tilde \x_n y_n \|^2  \right] }
+\end{align*}
+where we used the fact that $\bar \P^{-1} = \bar \gamma \Sigmab + \I$ so that $\bar\P \preceq (\bar\gamma+1) \I$ and $\P^{-1} \P_{-n} \bar \P^{-1} \preceq (\bar\gamma+1)^2 \I$.
+
+% As a consequence, with Cauchy–Schwarz inequality, we have
+% \begin{align*}
+%   \bigg\|\E\bigg[\frac{\P_{-n}\bar\P^{-1}\xbt_ny_n}{\x_n^\top\P_{-n}\x_n} (\bar\alpha-\alpha_n)\bigg]\bigg\| \le (\bar \gamma + 1) \cdot \left( \E[ \| \tilde \x_n y_n \|^4 ] \right)^{1/4} \cdot \left( \E \frac{  (\alpha_n - \bar \alpha)^4}{ \alpha_n^4} \right)^{1/4}.
+% \end{align*}
+% Let us first focus on the expectation (conditioned on $\P_{-n}$) $\E_{\x_n} \frac{  (\alpha_n - \bar \alpha)^4}{ \alpha_n^4}$, and write
+% \begin{align*}
+%   \E_{\x_n} \frac{  (\x_i^\top \P_{-n} \x_i - \bar \alpha)^4}{ (\x_i^\top \P_{-n} \x_i)^4 } \le \E_{\x_n} \left[ \frac{  (\x_i^\top \P_{-n} \x_i - \bar \alpha)^4 }{ (\x_i^\top \P_{-n} \x_i)^4 }~|~\x_n^\top \P_{-n} \x_n \ge \right]
+% \end{align*}
+
+As a consequence, with Cauchy–Schwarz inequality, we have
+\begin{align*}
+  \bigg\|\E\bigg[\frac{\P_{-n}\bar\P^{-1}\xbt_ny_n}{\x_n^\top\P_{-n}\x_n} (\bar\alpha-\alpha_n)\bigg]\bigg\| \le (\bar \gamma + 1) \cdot \left( \E[ \| \tilde \x_n y_n \|^4 ] \right)^{1/4} \cdot \left( \E (\bar \alpha - \alpha_n)^8 \right)^{1/8} \cdot \left( \E \frac1{ \alpha_n^8 } \right)^{1/8}.
+\end{align*}
+
+Note from Lemma~\ref{lem:inverse-moment-bound} that
+\[
+  \E \frac1{ \alpha_n^8 } = \E \frac1{ (\x_n^\top \P_{-n} \x_n)^8} \le C \cdot \E \frac1{ (\tr \Sigmab \P_{-n})^8 }.
+\]
+While we can easily bound the probability of the bad event $\tr \P_{-n} \Sigmab \ge \epsilon s$ for $s = \tr \E[\P_{-n}] \Sigmab$, we do not have an easy control of what happens in this worst case scenario, where the denominator can get arbitrarily close to zero. In the previous proof, we always work with $\frac{\| \Sigmab \P_{-n} \| }{ \tr \P_{-n} \Sigmab } \le 1$ and allow for a control, here we have only $\frac{ \P_{-n} }{ \tr \P_{-n} \Sigmab }$ and the bound will depend on $\lambda_{\min}(\Sigmab)$.
+
+\bigskip
+
+We recall $\bar s = \tr \bar \P \Sigmab = \bar \alpha$, $s = \tr \E[\P_{-n}] \Sigmab$ and $|s - \bar s| \le \bar \gamma \sqrt{cn} + 2$, we have
+\begin{align}
+  \E (\bar \alpha - \alpha_n)^8 &= \E (\alpha_n - s + s - \bar s)^8 = \sum_{k=0}^8 C_k \E(\alpha_n - s )^k (s-\bar s)^{8-k} \nonumber \\ 
+  %%%
+  &\le \sum_{k=0}^8 C_k \E(\alpha_n - s )^k (\bar \gamma \sqrt{cn} + 2)^{8-k}. \label{eq:diff}
+\end{align}
+%where we used the fact that $\E(\alpha_n - s )^k \le \E(\alpha_n - s )^8$ for $0 \le k \le 8$.
+
+Similarly, we have $\E [\alpha_n - s] = 0$ and for $2 \le k \le 8$
+\[
+  \E(\alpha_n - s )^k = \E (\alpha_n - \tr \P_{-n} \Sigmab + \tr \P_{-n} \Sigmab - s)^k
+\]
+so that
+\begin{align*}
+  \E(\alpha_n - s )^2 &= \E (\alpha_n - \tr \P_{-n} \Sigmab)^2 + \E (\tr \P_{-n} \Sigmab - s)^2 \\ 
+  %%%
+  \E(\alpha_n - s )^3 &= \E (\alpha_n - \tr \P_{-n} \Sigmab)^3 + \E (\tr \P_{-n} \Sigmab - s)^3 \\ 
+  %%%
+  \E(\alpha_n - s )^4 &= \E (\alpha_n - \tr \P_{-n} \Sigmab)^4 + 6 \E(\alpha_n - \tr \P_{-n} \Sigmab)^2 \cdot \E (\tr \P_{-n} \Sigmab - s)^2 + \E (\tr \P_{-n} \Sigmab - s)^4 \\ 
+  %%%
+  \E(\alpha_n - s )^5 &= \E (\alpha_n - \tr \P_{-n} \Sigmab)^5 + 10 \E(\alpha_n - \tr \P_{-n} \Sigmab)^3 \cdot \E (\tr \P_{-n} \Sigmab - s)^2 \\ 
+  &+ 10 \E(\alpha_n - \tr \P_{-n} \Sigmab)^2 \cdot \E (\tr \P_{-n} \Sigmab - s)^3 + \E (\tr \P_{-n} \Sigmab - s)^5 \\ 
+  &\ldots
+  %%%
+  % \E(\alpha_n - s )^6 &= \E (\alpha_n - \tr \P_{-n} \Sigmab)^5 + 10 \E(\alpha_n - \tr \P_{-n} \Sigmab)^3 \cdot \E (\tr \P_{-n} \Sigmab - s)^2 \\ 
+  % &+ 10 \E(\alpha_n - \tr \P_{-n} \Sigmab)^2 \cdot \E (\tr \P_{-n} \Sigmab - s)^3 + \E (\tr \P_{-n} \Sigmab - s)^5 \\
+  % %%%
+  % \E(\alpha_n - s )^7 &= \E (\alpha_n - \tr \P_{-n} \Sigmab)^5 + 10 \E(\alpha_n - \tr \P_{-n} \Sigmab)^3 \cdot \E (\tr \P_{-n} \Sigmab - s)^2 \\ 
+  % &+ 10 \E(\alpha_n - \tr \P_{-n} \Sigmab)^2 \cdot \E (\tr \P_{-n} \Sigmab - s)^3 + \E (\tr \P_{-n} \Sigmab - s)^5 \\
+  % %%%
+  % \E(\alpha_n - s )^8 &= \E (\alpha_n - \tr \P_{-n} \Sigmab)^5 + 10 \E(\alpha_n - \tr \P_{-n} \Sigmab)^3 \cdot \E (\tr \P_{-n} \Sigmab - s)^2 \\ 
+  % &+ 10 \E(\alpha_n - \tr \P_{-n} \Sigmab)^2 \cdot \E (\tr \P_{-n} \Sigmab - s)^3 + \E (\tr \P_{-n} \Sigmab - s)^5 
+\end{align*}
+Note with Lemma~\ref{lem:bai-b26} we have, for $k \ge 2$ that
+\[
+  \E (\alpha_n - \tr \P_{-n} \Sigmab)^k \le c \cdot \E (\tr \Sigmab \P_{-n} \Sigmab)^{k/2} \le c \cdot \E (\tr \Sigmab \P_{-n})^{k/2}.
+\]
+Consider then the event $\tr \P_{-n} \Sigmab \ge \frac32 s$, which, according to Lemma~\ref{l:trace}, happens with exponentially low probability as
+\[
+  \Pr(\tr \P_{-n} \Sigmab \le s/2) \le 2 e^{- \frac{c s^2}n}.
+\]
+As a consequence, we have
+\[
+  \E (\alpha_n - \tr \P_{-n} \Sigmab)^k \le c \cdot \E \left[ (\tr \Sigmab \P_{-n})^{k/2}~|~\tr \P_{-n} \Sigmab \le \frac32 s\right] + c \cdot (\tr \Sigmab)^{k/2} \cdot e^{-xx} \le c \cdot s^{k/2}
+\]
+for $s \tr \Sigmab $.
+
+This allows us to conclude, together with Lemma~\ref{l:trace} (\textbf{To be done!}) that
+\[
+  \E (\alpha_n - s)^k \le c_k n^{k/2}
+\]
+holds for some constant $c_k$ that depends on $2 \le k \le 8$ but independent of $n$, as long as
+
+Plugging back into \eqref{eq:diff}, we obtain
+\[
+  \E (\bar \alpha - \alpha_n)^8 \le C n^4.
+\]
+Further note from Lemma~\ref{lem:inverse-moment-bound} that
+\[
+  \E \frac1{ \alpha_n^8 } = \E \frac1{ (\x_n^\top \P_{-n} \x_n)^8} \le C \cdot \E \frac1{ (\tr \Sigmab \P_{-n})^8 }
+\]
+we conclude that
+\[
+  \bigg\|\E\bigg[\frac{\P_{-n}\bar\P^{-1}\xbt_ny_n}{\x_n^\top\P_{-n}\x_n} (\bar\alpha-\alpha_n)\bigg]\bigg\| \le (\bar \gamma + 1) \cdot \left( \E[ \| \tilde \x_n y_n \|^4 ] \right)^{1/4} \cdot \left( \E (\bar \alpha - \alpha_n)^8 \right)^{1/8} \cdot \left( \E \frac1{ \alpha_n^8 } \right)^{1/8}
+\]
+
+
+\subsection{Linear plus non-linear}
+Suppose that $y = \x^\top\w + f + \xi$, where
+$\xi\sim\Nc(0,\sigma^2)$ and $f=f(\x)$ is a non-linearity.
+Let $\w_\mu = \Sigmab_\lambda^{-1}\E[\x y]$, where $\Sigmab_\lambda =
+\Sigmab+\lambda\I$, and assume that  
+$ \big(\E_\x[\|\x f\|^4]\big)^{\frac14}\leq M\cdot \|\w_\mu\|$. Next,
+letting $\f = f(\X)$, suppose we have:
+\begin{align*}
+  \|\E[\X^\dagger\f] - (\Sigmab+\lambda\I)^{-1}\E[\x f]\|\leq \epsilon\cdot
+ \big(\E_\x[\|\x f\|^4]\big)^{\frac14},
+\end{align*}
+for $\epsilon=O(\frac{\sqrt n}{r})$. Then it follows that:
+\begin{align*}
+  \|\E[\X^\dagger\y] - \w_\mu\|
+  &= \|\E[\X^\dagger\X]\w + \E[\X^\dagger\f] -
+    \Sigmab_\lambda^{-1}(\Sigmab\w + \E[\x f])\|\\
+  &\leq \epsilon\cdot \|\Sigmab_\lambda^{-1}\Sigmab\w\| +
+    \epsilon\cdot \big(\E[\|\x f\|^4]\big)^{\frac14}\\
+  &\leq  \epsilon\cdot \|\w_\mu\| + \epsilon\cdot
+    \|\Sigmab_\lambda^{-1}\E[\x f]\| +  \epsilon\cdot \big(\E[\|\x
+    f\|^4]\big)^{\frac14}\\
+  &\leq \epsilon\cdot \|\w_\mu\| + 2\epsilon\cdot \big(\E[\|\x
+    f\|^4]\big)^{\frac14}\\
+  &\leq O(\epsilon M)\cdot \|\w_\mu\|.
+\end{align*}
+\section{Computation of the expectation}
+
+\subsection{Generalized linear model}
+
+Consider the nonlinear model $\y = \sigma(\X \w) + \xi$, with $\y \in \mathbb R^n$, $\w \in \mathbb R^d$, $\X \in \mathbb R^{n \times d}$ and independent noise $\xi$ of zero mean. Here $\sigma: \mathbb R \mapsto \mathbb R$ is the \emph{link function}, popular choices of $\sigma(\cdot)$ are
+\begin{enumerate}
+  \item \emph{logit link function}: $\sigma(t) = \frac1{ 1 + e^{-t} }$;
+  \item \emph{prohibit link function}: $\sigma(t) = \Phi(t)$ with $\Phi$ the cumulative distribution function of standard normal;
+  \item \emph{cloglog link function}: $\sigma(t) = 1 - e^{-e^t}$;
+  \item possible non-differentiable function such as the ReLU $\sigma(t) = \max(t,0)$ in a neural network context.
+\end{enumerate}
+
+
+For $\x \sim \Nc(0, \Sigmab)$ we denote $\x = \Sigmab^{\frac12} \z$ with $\z \sim \Nc(0, \I_d)$ standard normal. We can decompose $\z$ as follows
+\[
+  \z = \eta \frac{\Sigmab^{\frac12} \w}{ \sqrt{\w^\T \Sigmab \w} } + \z_\perp, \quad \eta = \frac{\w^\T \Sigmab^{\frac12} \z}{ \sqrt{\w^\T \Sigmab \w} }
+\]
+with $\Sigmab^{\frac12} \w/\sqrt{\w^\T \Sigmab \w}$ the unit vector in the direction of $\Sigmab^{\frac12} \w$ and $\z_\perp$ lying on the $(d-1)$-dimensional subspace orthogonal to $\Sigmab^{\frac12} \w$. Using the orthogonal invariance of the standard Gaussian we have  that both $\eta$ and $\z_\perp$ and they are \emph{independent}.
+
+As such, we have
+\[
+  \E[ \sigma(\w^\T \x) \x ] = \E \left[ \sigma(\eta \sqrt{\w^\T \Sigmab \w} ) \left( \eta \frac{\Sigmab \w}{ \sqrt{\w^\T \Sigmab \w} } + \Sigmab^{\frac12} \z_\perp \right) \right] = \E \left[ \eta \sigma(\eta \sqrt{\w^\T \Sigmab \w} ) \right] \frac{\Sigmab \w}{ \sqrt{\w^\T \Sigmab \w} }.
+\]
+which is a constant scaling of $\Sigmab \w$, with the constant $\kappa$ depends on the link function $\sigma(\cdot)$ via
+\[
+  \kappa = \E \left[ \eta \sigma(\eta \sqrt{\w^\T \Sigmab \w} ) \right] = \frac1{\sqrt{2 \pi}} \int x \sigma(x \sqrt{\w^\T \Sigmab \w}) e^{-x^2/2} dx.
+\]
+
+\subsection{More generic models}
+
+More generally, for $y(\x) \in \mathbb R$ an arbitrary function of $\x \in \mathbb R^d$, we have the following lemma to compute the expectation.
+
+\begin{lemma}[Stein's lemma, from \cite{stein1981estimation}]\label{lem:stein}
+Let $x \sim \Nc(0,1)$ and $y: \mathbb R \mapsto \mathbb R$ a continuously differentiable function such that $\E[y'(x)] < \infty$. Then,
+\begin{equation}
+  \E[x y(x)] = \E[y'(x)].
+\end{equation}
+Moreover, for $\x \sim \Nc(\zero, \Sigmab)$ with $\Sigmab \in \mathbb R^{d \times d}$ and $y: \mathbb R^d \mapsto \mathbb R$ a continuously differentiable function with derivatives having at most polynomial growth with respect to $d$,
+\begin{equation}
+  \E[[\x]_i y(\x)] = \sum_{j=1}^d \Sigmab_{ij} \E \left[ \frac{\partial y(\x)}{\partial [\x]_j} \right]
+\end{equation}
+where $\partial/\partial [\x]_i$ indicates differentiation with respect to the $i$-th entry of $\x$. Or in vector form
+\[
+  \E[\x y(\x)] = \Sigmab \E[\nabla y(\x)].
+\]
+\end{lemma}
+
+
+% \clearpage
+% Since we have the following concentration
+% \[
+%   \frac1n \x_n^\T \P_{-n} \x_n \simeq \bar \gamma^{-1}, \quad \| \E [\P_{-i} - \bar \P] \| \simeq 0
+% \]
+% therefore
+% \[
+%   \E[\X^\dagger \y] = \E \sum_{i=1}^n \frac{\P_{-i} \x_i y(\x_i)}{ \x_i^\T \P_{-i} \x_i } \simeq \bar \gamma \E [\P_{-i}] \E[\x_i y(\x_i)] \simeq \bar \gamma \bar \P \E[y(\x) \x] = ( \Sigmab + \bar \gamma^{-1} \I)^{-1} \E[y(\x) \x]
+% \]
+% note that by definition $\gamma^{-1} = \lambda$ and thus the conclusion.
+
+% To rigorously prove the above result, we need to either find a way, similar to Lemma~2, to compute the expectation
+% \[
+%   \E \frac{\P_{-n} \x_n y(\x_n)}{ \x_n^\T \P_{-n} \x_n } = \frac{ \E[\P_{-n}] \E[\x_n y(\x_n)]}{ \tr \Sigmab \P_{-n} }
+% \]
+% for arbitrary $y(\x)$, or to bound the difference
+% \[
+%   \E \frac{\P_{-n} \x_n y(\x_n)}{ \x_n^\T \P_{-n} \x_n } - \frac{\P_{-n} \x_n y(\x_n) }{ \tr \Sigmab \P_{-n} } = \E \frac{\P_{-n} \x_n y(\x_n) \left( \tr \Sigmab \P_{-n} - \x_n^\T \P_{-n} \x_n \right) }{ \x_n^\T \P_{-n} \x_n \cdot \tr \Sigmab \P_{-n} }
+% \]
+% perhaps with Bai and Silverstein lemma or Hanson-wright.
+
+% We need the following lemma, which follows from the integration by parts.
+
+
+
+
+% \begin{Lemma}[Nash-Poincar\'e inequality, from \cite{pastur2005simple}]\label{lem:poincare}
+% For $\x \sim \Nc(\zero, \Sigmab)$ with $\Sigmab \in \mathbb R^{d \times d}$ and $f: \mathbb R^d \mapsto \mathbb R$ continuously differentiable with derivatives having at most polynomial growth with respect to $d$,
+% \begin{equation*}
+%     \var[ f(\x) ] \le 2 \E[(\nabla f)^\T \Sigmab (\nabla f)] = 2 \sum_{i,j=1}^d \Sigmab_{ij} \E\left[ \frac{\partial f(\x)}{\partial [\x]_i}\frac{\partial f(\x)}{\partial [\x]_j}\right].
+% \end{equation*}
+% \end{Lemma}
+
+\section{Beyond min-norm solution}
+
+Another idea is to (always) work with the linear model $\y = \X^\T \w + \xi$, and consider the possible implicit regularization effect of enhancing different structures of the solution. Instead of choosing the min-norm solution, we can consider the solution to the following general optimization problem
+\[
+  \min_{\w \in \mathbb R^p} \ell(\w)
+\]
+for a convex function $\ell: \mathbb R^p \mapsto \mathbb R$ that enhances certain structure of the solution. For instance
+\begin{enumerate}
+  \item min-norm or minimal energy solution $\ell(\cdot) = \| \cdot \|_2$
+  \item sparse solution $\ell(\cdot) = \| \cdot \|_1$
+  \item binary response $\ell(\cdot) = \| \cdot \|_\infty$ so that $\w \in \{ \pm \}^p$.
+\end{enumerate}
+
+\section{Extension to other sketches}
+
+We are interested in extending Lemma~\ref{l:rank-one-projection},
+which currently is only applicable for Gaussian $\z$.
+
+Let $z_i$ be independent, mean zero, variance 1, sub-Gaussian
+with $\|z_i\|_{\psi_2} \leq K$.
+Fix $\A \succ 0$ symmetric.
+
+\begin{proposition}
+  \label{prop:inv-moment-high-prob}
+  For any $k \geq 1$ and $\epsilon \geq 0$,
+  with probability $\geq 1 - e^{-\frac{r}{K^2} (1 - \frac{\epsilon}{\|\A\|})}$
+  \begin{align*}
+    (\z^\top \A \z)^{-k} < (\epsilon r)^{-k}
+  \end{align*}
+
+  In particular, 
+  \begin{itemize}
+    \item 
+      Taking $\epsilon = 1/2$ gives
+      $(\z^\top \A \z)^{-k} < (r / 2)^{-k}$.
+      with probability $\geq 1 - e^{-\frac{r}{K^2}(1 - \frac{1}{2 \|\A\|})}$.
+    \item 
+      Taking $\epsilon = \|\A\|/2$ gives
+      $(\z^\top \A \z)^{-k} < (\tr \A / 2)^{-k}$.
+      with probability $\geq 1 - e^{-\frac{r}{2 K^2}}$.
+  \end{itemize}
+\end{proposition}
+
+\feynman{We could alternatively bound by $(\epsilon \tr \A)^{-k}$ instead of $r$
+with a probability not involving $\|\A\|$}
+
+\begin{proof}
+  Since $z_i$ are independent, $\E \z^\top \A \z = \tr \A$.
+  By Hanson-Wright,
+  the event $E = \{ \z^\top \A \z \geq (1 - \epsilon) \tr \A \}$
+  satisfies the required high probability bound.
+\end{proof}
+
+\begin{lemma}
+  \begin{align*}
+    \left\| \E \left[
+      \frac{\z \z^\top}{\z^\top \A \z}
+      \mid E
+    \right] - \frac{\I}{\tr \A} \right\|
+    &\leq C \Pr[E]^{-1/2} (\tr \A)^{-1} r^{-1/2}
+  \end{align*}
+  for some event $E$ with $\Pr[E] \geq 1 - e^{-\frac{r}{2 K^2}}$.
+
+  Alternatively,
+  \begin{align*}
+    \left\| \E \left[
+      \frac{\z \z^\top}{\z^\top \A \z}
+      \mid E
+    \right] - \frac{\I}{\tr \A} \right\|
+    &\leq C \Pr[E]^{-1/2} r^{-3/2}
+  \end{align*}
+  for some event $E$ with $\Pr[E] \geq 1 - e^{-\frac{r}{K^2} (1 - \frac{1}{2 \|\A\|})}$.
+\end{lemma}
+
+\begin{proof}
+  By \Cref{prop:inv-moment-high-prob}, the event $E$
+  (with $\epsilon = 1/2$ or $\epsilon = \|\A\| / 2$) satisfies the desired
+  probability bound. Notice
+  \begin{align*}
+    \left\| \E \left[ 
+      \frac{\z \z^\top}{\z^\top \A \z}
+    \mid E \right] - \frac{\I}{\tr \A} \right\| 
+    &= \left\| \E \left[ 
+      \frac{\z \z^\top}{\z^\top \A \z} - \frac{\z \z^\top}{\tr \A} 
+    \mid E \right] \right\| 
+    = \left\| \E \left[ 
+      \frac{\z \z^\top}{\z^\top \A \z} \cdot \frac{ \tr \A - \z^\top \A \z }{\tr \A} 
+    \mid E \right] \right\| \\ 
+    %%%
+    &\le \sqrt{\E \left[
+      \frac{ (\z^\top \z)^2 }{ (\z^\top \A \z)^2 } 
+  \mid E \right] \cdot \frac{ \E[(\tr \A - \z^\top \A \z)^2 \mid E]}{(\tr \A)^2} } \\
+  \end{align*}
+  where we used Jensen and Cauchy–Schwarz.
+
+  We next apply Lemma~\ref{lem:bai-b26} conditionally
+  to simplify the second expectation
+  \begin{align*}
+    \E[(\tr \A - \z^\top \A \z)^2  \mid E]
+    &\leq \E[(\tr \A - \z^\top \A \z)^2] \Pr[E]^{-1} \\
+    &\leq C \Pr[E]^{-1} \tr(\A^2)
+  \end{align*}
+  Bounding $\tr(\A^2) = \|\A\|^2 \tr((\A / \|\A\|)^2) \leq \|\A\| \tr(\A)$
+  and substituting back in gives
+  \[
+    \left\| \E \left[ 
+      \frac{\z \z^\top}{\z^\top \A \z}
+    \mid E \right] - \frac{\I}{\tr \A} \right\| 
+    \le C \sqrt{\E \left[
+      \frac{ (\z^\top \z)^2 }{ (\z^\top \A \z)^2 } 
+    \mid E \right]} \Pr[E]^{-1/2} \sqrt{\frac{1}{r}}
+  \]
+  Applying \Cref{prop:inv-moment-high-prob}, in the $\epsilon = 1/2$ case
+  we have
+  \[
+    \left\| \E \left[ 
+      \frac{\z \z^\top}{\z^\top \A \z} \mid E
+    \right] - \frac{\I}{\tr \A} \right\| 
+    \le C \Pr[E]^{-1/2} \sqrt{\E[\|\z\|^4 \mid E]} r^{-3/2}
+  \]
+  The conclusion follows because sub-Gaussian implies bounded $4$th moments on
+  $z_i$, so
+  \begin{align*}
+    \E[\|\z\|^4 \mid E]
+    &= \E[\|\z\|^4 1_{E}] / \E[1_E]
+    \leq \E[\|\z\|^4] / \E[1_E]
+    = \Pr[E]^{-1} \sum_{i,j} \E[z_i^2 z_j^2]
+    < \infty 
+  \end{align*}
+
+  The other result follows from using
+  \Cref{prop:inv-moment-high-prob} with $\epsilon = \|\A\| / 2$.
+\end{proof}
+
+
+\bibliographystyle{alpha}
+  \bibliography{pap}
+
+\end{document}

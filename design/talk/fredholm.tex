@@ -1,0 +1,209 @@
+\documentclass[10pt]{beamer}
+%\beamertemplateshadingbackground{brown!70}{yellow!10}
+\mode<presentation>
+{
+  %\usetheme{Warsaw}
+  \usecolortheme{crane}
+  % or ...
+
+%  \setbeamercovered{transparent}
+  % or whatever (possibly just delete it)
+}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]{}
+\usepackage{tikz,pgfplots}
+\pgfplotsset{compat=newest}
+\usepackage[utf8]{inputenc}
+\usetikzlibrary{patterns}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{colortbl}
+%\usepackage{multicol}
+\usepackage{cancel}
+\usepackage{ulem}
+\usepackage{multirow}
+\usepackage{relsize}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{forloop}% http://ctan.org/pkg/forloop
+\newcounter{loopcntr}
+\newcommand{\rpt}[2][1]{%
+  \forloop{loopcntr}{0}{\value{loopcntr}<#1}{#2}%
+}
+%\pagestyle{plain}
+%\input{defs2}
+\input{../shortdefs}
+
+\edef\polishl{\l}
+\setlength{\columnsep}{0.7em}
+\setlength{\columnseprule}{0mm}
+\setlength{\arrayrulewidth}{1pt} 
+
+\newcommand{\svr}[1]{{\textcolor{darkSilver}{#1}}}
+\definecolor{brightyellow}{cmyk}{0,0,0.7,0.0}
+\definecolor{lightyellow}{cmyk}{0,0,0.3,0.0}
+\definecolor{lighteryellow}{cmyk}{0,0,0.1,0.0}
+\definecolor{lightestyellow}{cmyk}{0,0,0.05,0.0}
+\AtBeginSection[]
+{
+\begin{frame}<beamer>
+\frametitle{Outline}
+\tableofcontents[currentsection]
+\end{frame}
+}
+\def\layersep{2.5cm}
+
+
+%  \fboxsep=3pt
+% %\fboxsep=0mm%padding thickness
+% \fboxrule=2pt%border thickness
+
+\setkeys{Gin}{width=0.7\textwidth}
+
+\title[]{Connections between Fredholm determinants and determinant
+  preserving random matrices}
+
+\author[]{Micha{\l} Derezi\'{n}ski\\
+UC Berkeley}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\linespread{1.3}
+
+\begin{frame}
+  \frametitle{Fredholm determinant}
+  Consider a kernel $K:\Xc\times \Xc\rightarrow \R$ and a
+  probability measure $\mu$ on $\Xc$.\\
+  Let the integral operator $T_K:L^2(\Xc,\mu)\rightarrow L^2(\Xc,\mu)$
+  be defined as:
+  \begin{align*}
+    T_Kf(z) = \int_xK(z,x)f(x)\mu(dx) = \E_{x\sim\mu}[K(z,x)f(x)].
+  \end{align*}
+  The Fredholm determinant of $T_K$ is defined as follows:
+  \begin{align*}
+    \det(\I+T_K)
+    &= \sum_{k\geq
+      0}\frac1{k!}\int_{\Xc}\dots\int_{\Xc}\det\big[K(x_i,x_j)\big]_{i,j=1}^k\,\mu(dx_1)\dots\mu(dx_k)
+    \\
+    &=
+      \sum_{k\geq
+      0}\frac1{k!}\E_{x_1,...,x_k\sim\mu^k}\,\det\big[K(x_i,x_j)\big]_{i,j=1}^k
+      \\
+      &\overset{(*)}=\ee\cdot\E\,\det\big[K(x_i,x_j)\big]_{i,j=1}^K
+  \end{align*}
+  where in $(*)$ we let $x_1,x_2,...\sim\mu$ and  $K\sim\Poisson(1)$
+\end{frame}
+
+\begin{frame}
+  \frametitle{Finite dimensional domain}
+Consider $\Xc=\R^d$ and $K(x,y)=\langle x, y\rangle_{\R^d}$.\\
+Then, using Sylvester's theorem, $\det(I+AB)=\det(I+BA)$, we have
+\begin{align*}
+  \det(I + T_K) = \det\big(I + \E_{x\sim\mu}\,xx^\top\big).
+\end{align*}
+We get the following expectation identity for regular determinants:
+\begin{align*}
+\E\,\det\,XX^\top = \ee^{-1}\det\big( I+
+  \E_{x\sim\mu}\,xx^\top\big),\quad\text{for } X\sim\mu^K,\  K\sim\Poisson(1)
+\end{align*}
+This is a generalization of the DPP normalization constant identity:
+\begin{align*}
+  \sum_{S\subseteq [n]}\det\,X_SX_S^\top = \det(I + XX^\top).
+\end{align*}
+In \cite{surrogate-design} we provide a different proof of the
+generalized identity, \\
+via \emph{determinant preserving random matrices}.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Determinant preserving random matrices}
+\begin{definition}[\cite{surrogate-design}]
+A random $d\times d$ matrix $A$ is \emph{determinant preserving} (d.p.) if
+\begin{align*}
+  \E\big[\!\det(A_{\Ic,\Jc})\big] =
+  \det\!\big(\E[A_{\Ic,\Jc}]\big)\quad \text{for all }\Ic,\Jc\subseteq
+  [d]\text{ s.t. }|\Ic|=|\Jc|.
+\end{align*}
+\vspace{-7mm}
+\end{definition}
+
+Basic examples:
+\begin{itemize}
+\item Every \textit{deterministic} matrix
+\item Every \textit{scalar} random variable
+\item Random matrix with i.i.d.~Gaussian entries
+\end{itemize}
+\vspace{3mm}
+  \begin{lemma}[Closure]
+  If $A$ and $B$ are independent and determinant preserving, then:
+  \begin{itemize}
+  \item $A+B$ is determinant preserving,
+  \item $AB$ is determinant preserving.
+    \end{itemize}
+  \end{lemma}
+\end{frame}
+
+\begin{frame}
+\frametitle{Unbiased estimator for the Fredholm determinant}
+Using d.p.~theory, we can show that:
+\begin{align*}
+\E\,\det\big(I+\tfrac1\lambda X^\top X\big)
+  = \det\big(I+\E\,\tfrac1\lambda X^\top X\big),
+  \quad\text{for } X\sim\mu^K,\  K\sim\Poisson(\lambda). 
+\end{align*}
+Note that $\E\frac1\lambda X^\top X = \E_{x\sim\mu}xx^\top$, so we
+have:
+\begin{align*}
+  \det(I+T_K)
+  &=\det\big(I + \E_{x\sim\mu}\,xx^\top\big)
+  \\
+  &=\det\big(I+\E\,\tfrac1\lambda X^\top X\big)
+  \\
+  &=\E\,\det\big(I+\tfrac1\lambda X^\top X\big)
+  \\
+  &=\E\,\det\big(I+\tfrac1\lambda X X^\top\big)
+  \\
+   &=\E\,\det\Big(I+\tfrac1\lambda \big[K(x_i,x_j)\big]_{i,j=1}^K\Big)
+\end{align*}
+\begin{enumerate}
+  \item By rescaling the probability measure $\mu$ and
+introducing weights $w_i$ into the estimator, we can do
+\textit{importance sampling}.
+\item We can view the sampling as a scaled random projection $P T_K
+  P$. 
+\end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Connections to the exterior algebras}
+    \begin{lemma}[Adjugate]
+    If $A$ is determinant preserving, then  $\E[\adj(A)]=\adj(\E[A])$.
+  \end{lemma}
+\emph{Note}: The $(i,j)$th entry of $\adj(A)$ is
+$(-1)^{i+j}\det(A_{[n]\backslash\{j\},[n]\backslash\{i\}})$.\\[2mm]
+Further, we have:
+\begin{align*}
+  \tr\,\adj(A) = \sum_{S:|S|=n-1}\prod_{i\in S}\lambda_i(A) = \tr\,\bigwedge\nolimits^{n-1}(A)
+\end{align*}
+
+\begin{conjecture}
+  If $A$ is determinant preserving, then
+  \begin{align*}
+\E\,\bigwedge\nolimits^{k}(A) = \bigwedge\nolimits^k(\E\,A)\quad\text{
+    for any $k$.}
+    \end{align*}
+  \end{conjecture}
+\end{frame}
+
+\begin{frame}[allowframebreaks]
+  \frametitle{References}
+  \small
+  \bibliographystyle{alpha}
+  \bibliography{../pap}
+\end{frame}
+
+
+\end{document}

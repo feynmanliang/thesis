@@ -1,0 +1,118 @@
+\documentclass{article}
+
+\usepackage{neurips_2019_author_response}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+
+\usepackage{mwe}
+
+\bibliographystyle{unsrtnat}
+
+\begin{document}
+
+We would like to first stress that the main contribution of this
+paper is theoretical (Theorems 1 and 3). For a long time, the area of
+experimental design has been dominated by heuristic approaches (such
+as greedy bottom-up and Fedorov's exchange method), and obtaining efficient
+algorithms which guarantee a $(1+\epsilon)$-approximate solution is
+considered a challenging task. For this task, our results
+significantly improve on previous works that were published at top
+machine learning and computational theory venues such as ICML'17
+(\cite{pmlr-v70-allen-zhu17e}), SODA'19 (\cite{Nikolov:2019}) and COLT'19
+(\cite{pmlr-v99-madan19a}). Those improvements are not limited to
+approximation guarantees but also involve significantly faster
+runtimes and a broader scope of applicable optimality criteria. While we do also
+present numerical experiments comparing our algorithm to heuristic
+approaches (Figure 1 in the submission), our primary point of comparison is with other methods that
+provide theoretical guarantees for this task (Table 1 in the submission).
+
+We also note that in both Bayesian and classical experimental design, A/C/D/V-optimality criteria have
+historically been the standard evaluation metric (see \cite{chaloner1984optimal}) and
+are still used in recent works published at NeurIPS
+(\cite{mariet2017elementary}, Figure 1).  Improvements in algorithms for
+optimal Bayesian design, such as our paper, immediately imply improved
+performance guarantees for practical experimental design applications
+ranging from clinical trials \cite{flournoy1993clinical,berry2002adaptive}
+to materials science \cite{terejanu2012bayesian}. 
+
+In the final version, we will add a conclusion section which
+consolidates our results for ease of reference and differentiation
+from prior work (as requested by Reviewers 1 and 4). 
+
+\subsubsection*{Comments of Reviewer 3}
+\begin{quote}
+  \emph{``There are many Theorems/Lemmas and it is not always clear
+    which are new results, and which are previous work.''} 
+\end{quote}
+As discussed above, our primary contribution is theoretical, and in
+fact \emph{all} the lemmas and theorems presented in this paper are
+novel results. We will clarify this in the final version.
+
+\begin{quote}
+\emph{``It would be much more convincing to add another figure that
+  shows mean/sd of test error in k-fold CV.''}
+\end{quote}
+Typically, in experimental design literature we use the optimality
+criteria as the performance metric. Nevertheless, we acknowledge that evaluating
+mean-squared error under cross-validation may be more meaningful for NeurIPS
+readers and we are happy to include this in the final version.%Figure~\ref{fig:mse} in our paper.
+
+\subsubsection*{Comments of Reviewer 4}
+\begin{quote}
+  \emph{``The main theorems (Theorem 1-2) rely on sampling from DPPs,
+    but the statement does not involve probabilistic modifications (in
+    expectation, with high probability, etc.).''}
+\end{quote}
+Even though the output of our algorithms is randomized, the
+approximation guarantees in Theorems 1 and 3 are in fact
+deterministic. We achieve this by running the randomized procedure
+repeatedly until the guarantee is satisfied. Because of this, the time
+complexity guarantee holds with high probability, as explained in the
+proof of Lemma 13 (page 7). We will clarify this further in the final version.
+
+\begin{quote}
+  \emph{``It would be helpful if the algorithms are summarized as
+  pseudo-code and pointed from Introduction.''}
+\end{quote}
+We provide pseudo-code for our algorithm on page 5, document the
+SDP being solved in equation (5), and describe the algorithm used to solve
+the SDP in the experiments section (Section 5). We will try to
+consolidate this information into one pseudo-code in the final version.
+
+% \begin{figure}[h]
+%   \centering
+%   \includegraphics[width=0.30\textwidth]{example-image-a}
+%   \caption{Regularized mean-squared error loss computed on remaining $n-k$
+%     points.}
+%   \label{fig:mse}
+% \end{figure}
+
+% While reviewer 4 is correct in observing that the greedy bottom-up method
+% performs similarly to our method, we do not believe this is a significant
+% concern because (1) most previous work in Bayesian experimental design
+% (\cite{singh2018approximate,mariet2017elementary}) also do not significantly
+% outperform greeedy bottom up / Fedorov exchange algorithms in experiments and
+% (2) the theoretical guarantees for greedy methods (which rely on weak
+% submodularity) are much looser and only applicable to D-optimality
+% \cite{bouhtou2010submodularity}) whereas our theoretical results apply to all
+% of the A/C/D/V-optimality criteria.
+
+% Finally, we do not believe reviewer 4's concerns on pseudo-code are valid
+% because we provide pseudo-code for our algorithm on page 5, document the
+% SDP being solved in equation 5, and describe the algorithm used to solve
+% the SDP in the experiments section (section 5).
+
+
+\renewcommand\refname{\normalsize References}
+\setlength{\bibsep}{0pt plus 0.2ex}
+\tiny
+\bibliography{refs}
+
+\end{document}

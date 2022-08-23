@@ -1,0 +1,10 @@
+We thank the reviewers for their comments and feedback. We will thoroughly address the concerns of the reviewers regarding the overall presentation of our results.
+
+Novelty of the contributions.
+As all the reviewers observe, the key novelty of this paper is in the techniques introduced for analyzing the surrogate design. Those techniques, particularly the notion of "determinant preserving random matrices", should be of significant independent interest for the analysis of determinantal point  processes and related distributions. Prior to our work, we are not aware of any non-trivial family of random designs for which exact MSE analysis in the under-determined regime was possible.
+
+Relevance of surrogate design.
+In Appendix F, we perform a detailed empirical evaluation which goes far beyond what is shown in Figure 1. These experiments provide strong evidence for our Conjectures 15 and 16, and they show that surrogate expressions offer extremely accurate estimates of the MSE in the non-isotropic multivariate Gaussian i.i.d. design setting, especially for high-dimensional problems. Our experiments study four different eigenvalue decay profiles, three different aspect ratios of the data and a range of dimensions between 10 and 1000. All of the plots are accompanied by bootstrapped confidence intervals and a detailed discussion.
+
+Comparison to prior work.
+The most directly comparable results from prior work are by Hastie et al. (2019). We provide a comparison between our expressions and theirs in Section 5. In fact, in the isotropic Gaussian case, our expressions for the MSE asymptotically match those derived by Hastie et al (2019).

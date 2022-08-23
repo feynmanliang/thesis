@@ -1,0 +1,159 @@
+\documentclass[12pt]{../sty/colt2019/colt2018-arxiv}
+% \else
+% \documentclass[anon,12pt]{sty/colt2019/colt2019} % Anonymized submission
+% \documentclass[12pt]{colt2019} % Include author names
+% \fi
+
+% The following packages will be automatically loaded:
+% amsmath, amssymb, natbib, graphicx, url, algorithm2e
+
+% \title[Short Title]{Full Title of Article}
+\title{Minimax experimental design: Open problems}
+\usepackage{times}
+ 
+
+\usepackage{color}
+\usepackage{cancel}
+\usepackage{wrapfig}
+\usepackage{caption}
+\usepackage{algorithm}
+\usepackage{xfrac}
+\usepackage{algorithmic}
+\input{../shortdefs}
+% Use \Name{Author Name} to specify the name.
+% If the surname contains spaces, enclose the surname
+% in braces, e.g. \Name{John {Smith Jones}} similarly
+% if the name has a "von" part, e.g \Name{Jane {de Winter}}.
+% If the first letter in the forenames is a diacritic
+% enclose the diacritic in braces, e.g. \Name{{\'E}louise Smith}
+
+% Two authors with the same address
+% \coltauthor{\Name{Author Name1} \Email{abc@sample.com}\and
+%  \Name{Author Name2} \Email{xyz@sample.com}\\
+%  \addr Address}
+
+% Three or more authors with the same address:
+% \coltauthor{\Name{Author Name1} \Email{an1@sample.com}\\
+%  \Name{Author Name2} \Email{an2@sample.com}\\
+%  \Name{Author Name3} \Email{an3@sample.com}\\
+%  \addr Address}
+
+%  Authors with different addresses:
+\coltauthor{\Name{Micha{\l } Derezi\'{n}ski}
+  \Email{mderezin@berkeley.edu}\\
+  \addr Department of Statistics, UC Berkeley 
+} 
+
+\begin{document}
+
+\maketitle
+
+
+\section{A list of open problems and conjectures}
+
+\subsection{Optimal sample complexity for the MSE}
+\begin{conjecture}
+  Given $\X\in\R^{n\times d}$ such that 
+$\tr((\X^\top\X)^{-1})\!=\!\phi$ and $\epsilon>0$, there is a
+random experimental design $(S,\wbh)$
+of size $k=O(d+\phi/\epsilon)$ s.t.~for \textbf{any} random
+response vector $\y$, 
+\begin{align*}
+\E_{S,\wbh,\y}\big[\wbh(\y_S)\big]=\w^*\quad\text{and}\quad
+  \mathrm{MSE}\big[\wbh(\y_S)\big] - \mathrm{MSE}\big[\wols(\y|\X)\big]
+  \leq \epsilon\cdot 
+  \E_\y\big[\|\xib_{\y|\X}\|^2\big].%\quad\text{and}\quad k= O(d\log n + \phi/\epsilon).
+\end{align*}
+\end{conjecture}
+\textbf{Best known:} \ $k=O(d\log n + \phi/\epsilon)$ via rescaled volume sampling.
+
+We believe that rescaled volume sampling achieves sample complexity $\Theta(d\log d+\phi/\epsilon)$ (but not the conjectured $d+\phi/\epsilon$). Showing this would make the bound independent of the data size $n$, which has important implications for experimental design over continuous distributions (instead of finite $n\times d$ matrices).
+
+\subsection{The no-bias conjecture}
+\begin{conjecture}
+  Given any $\X$, for any (possibly biased) random experimental design $(S,\wbh)$ of size $k$, there is an unbiased design $(\St,\wbt)\in\Wc_k(\X)$ such that
+  \begin{align*}
+    \max_{\y\in\Fc\backslash\mathrm{Sp}(\X)}\,\frac{\mathrm{MSE}\big[\wbt(\y_{\St})\big]-
+    \mathrm{MSE}\big[\wols(\y|\X)\big]
+    }{\E_\y\big[\|\xib_{\y|\X}\|^2\big]}\leq     \max_{\y\in\Fc\backslash\mathrm{Sp}(\X)}\,\frac{\mathrm{MSE}\big[\wbh(\y_S)\big]-
+    \mathrm{MSE}\big[\wols(\y|\X)\big]
+    }{\E_\y\big[\|\xib_{\y|\X}\|^2\big]}.
+  \end{align*}
+\end{conjecture}
+The conjecture suggests that due to the worst-case nature of the criterion, no biased estimator should perform better than every unbiased design. If true, this would imply that dropping the unbiasedness constraint from the definition of the minimax value $R_k^*(\X)$ would not alter it.
+
+\subsection{Bayesian minimax experimental design}
+In Bayesian experimental design we assume that $\y=\X\w+\z$, where $\w\sim D_\w$  is a random vector with a known prior $D_\w$ and $\z$ has mean zero. Since wish to minimize $\E[\|\wbh(\y_S)-\w\|^2]$, knowledge of the prior should favor a biased estimator.
+
+\textbf{Open:} Define a criterion that takes maximum over noise vector $\z$ given a prior $D_\w$. Show that this value is smaller than $R_k^*$ and that there is a biased estimator better than any unbiased estimator.
+
+\subsection{Finding optimal volume-rescaled i.i.d.~sampling design}
+We define the following minimization problem over distributions $q\in\Delta_n$ with support on $\{1..n\}$:
+\begin{align*}
+  \hat{R}_k^*(\X) = \argmin_{q\in\Delta_n}\max_{\y\in\R^n\backslash\mathrm{Sp}(\x)}
+  \E_{\pi\sim\Vol_q^k(\X)}\bigg[\frac{\|(\S_\pi\X)^\dagger\S_\pi\y - \X^\dagger\y\|^2}{\|\X\X^\dagger\y-\y\|^2}\bigg].
+\end{align*}
+We know that $R_k^*(\X)\leq \hat{R}_k^*(\X)\leq C\cdot \phi/k$ for $k\geq C\cdot d\log n$.\\
+\textbf{Open:} Find an efficient optimization algorithm that converges to the optimum distribution $q$.
+\subsection{Minimax experimental design over distributions}
+Consider a distribution $(\x,y)\sim D$ jointly drawing a vector $\x\in\R^d$ and a real response value $y$. We define the optimum solution  and noise variable as:
+\begin{align*}
+  \w^*=\argmin_\w\E\big[(\x^\top\w-y)^2\big] = \big(\E[\x\x^\top]\big)^{-1}\E[\x\,y],\qquad \xi = \x^\top\w^*-y.
+\end{align*}
+Random experimental design in this setting samples a set of points from the support of the input distribution $D_{\cal X}$ and then queries the labels from $D_{\cal Y|\x}$. Minimax experimental design extends naturally to this setting for both MSE and MSPE.\\
+\textbf{Known:} The minimax value for MSPE is bounded by $d^2/k$ (unpublished)\\
+\textbf{Open:} Bound the MSE minimax value, get closer to the conjectured $\phi/k$ bound
+
+\subsection{Minimax experimental design for any loss function}
+Consider a loss function $L_\y(\w)=\sum_{i=1}^n\ell(\x_i^\top\w,y_i)$. For $\X$ and random vector $\y\in\Fc$
+define:
+\begin{align*}
+\w^* \defeq \argmin_\w\E\big[L_\y(\w)\big],\qquad
+  \wols(\y|\X)\defeq \argmin_\w L_\y(\w),
+\end{align*}
+\begin{align*}
+R_k^*(\X)&\defeq
+  \min_{(S,\wbh)}\ \max_{\y\in\Fc\backslash\mathrm{Sp}(\X)}\,\frac{\mathrm{MSE}\big[\wbh(\y_S)\big]-
+     \mathrm{MSE}\big[\wols(\y|\X)\big]
+  }{\E\big[L_\y(\w^*)\big]}.
+\end{align*}
+\subsection{Kernel ridge experimental design}
+\begin{conjecture}
+Suppose that $\w\sim \Nc(\zero,\Sigmab)$. Let $\y=\X\w+\z$,
+where $\E[\z]=\zero$. For $\C_\lambda=(\X^\top\X+\lambda\Sigmab^{-1})^{-1}$,
+we define
+$\phi_\lambda=\tr\big(\C_\lambda\big)$ and 
+$\w_\lambda(\y)=\C_\lambda\X^\top\y$. 
+\begin{align*}
+  \E\Big[\E\big[\|\wbh(\y_S) - \w\|^2
+  -\|\w_\lambda(\y)-\w\|^2\mid\w\big]\Big]
+  &\leq
+O\big(\phi_\lambda/k\big)\cdot\E\Big[\E\big[\|\X\w-\y\|^2\mid \w\big] +
+    \lambda\|\Sigmab^{-\sfrac12}\w\|^2\Big],
+  \\
+  \MSE{\wbh(\y_S)} - \MSE{\w_\lambda(\y)}
+&\leq O\big(\phi_\lambda/k\big) \cdot\Big(\tr\big(\Var[\z]\big)+ \lambda\Big)
+\end{align*}
+
+\begin{align*}
+\min_{(S,\wbh)}\ \max_{\underset{\tr\Var[\z]\geq \sigma^2}{\z:\,\E[\z]=\zero}}\,\frac{  \MSE{\wbh(\y_S)} - \MSE{\w_\lambda(\y)}
+  }{\tr\,\Var[\z]}\leq O\big(1/k\big)\cdot \min_\lambda\big\{ \phi_\lambda(1+\lambda/\sigma^2)\big\}.
+\end{align*}
+\end{conjecture}
+
+
+\subsection{Extending the minimax framework to D,E,...-optimality}
+Most classical optimality criteria for experimental design have an interpretation in terms of the response vector $\y$ being linear plus i.i.d.~noise. Thus, they should have corresponding minimax variants.\\
+\textbf{Known:} A-optimality, $F_A(S)=\tr((\X_S^\top\X_S)^{-1})$, is the MSE,\\
+and $V$-optimality, $F_V(S)=\tr(\X(\X_S^\top\X_S)^{-1}\X^\top)$,  is the MSPE\\ 
+\textbf{Open:} Any other one, such as D-optimality, $F_D(S)=\det(\X_S^\top\X_S)^{-1}$.
+
+
+\subsection{Active minimax experimental design}
+Is it possible to achieve a better minimax value if the experimental design procedure is allowed to sample and query online?
+\subsection{$\y$ independent ratio and optimize $\q$}
+Write the ratio in the minimax w.o. $\y$ i.t.o. some norms
+of matrices. Then try to optimize $\q$.
+\Red{This would be a key additional piece for a journal paper.}
+\end{document}
+

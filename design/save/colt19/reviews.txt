@@ -1,0 +1,124 @@
+### REVIEW 1 ###
+
+beautiful generalization of linear regression experimental design to non-iid and even worst case response variables
+COLT 2019 Conference Paper150 Program Committee Member1
+21 Mar 2019 (modified: 22 Mar 2019)COLT 2019 Conference Paper150 Official ReviewReaders: COLT 2019 Conference Program Chairs, Program Committee, Authors
+
+Confidence: 3: The reviewer is fairly confident that the evaluation is correct
+Rating: 7: Good paper, accept
+Review: In this paper the 'A-optimal' and 'V-optimal' settings of classical linear regression experimental design is essentially unified with a setting in which the y-values can come from any distribution (including degenerate distributions, i.e. worst case choices of the y-vector). 
+By putting randomness in the choice of the subset S of the sample of x_i's for which the y_i's are queried, one can handle the worst-case setting. But the nice thing is that, by doing this in a clever way, one hardly looses compared to best known bound for the standard (uncorrelated mean 0 y's). 
+
+This is all very well explained in the paper; I have very little comments (although I did not check the proof in detail; but the main ideas (volume   and iid sampling) make sense .
+
+A few remarks though, the first of which a bit critical:
+
+- 'minimax optimal experimental design'  is really 'minimax optimal among all unbiased estimators', right? 
+At the very least I would change the name of this section/title to 'minimax optimal unbiased experimental design'. 
++++MW: Done in final version
+But I also think there should be an extended  discussion why you restrict to unbiased estimators here. Biased estimators are sometimes better...(in particular, in dimensions > 3 the standard unbiased least squares is inadmissible....). 
++++ MW: Fine w. me to add "unbiased" to the name.
+We want unbiased because they can be easily combined.
+Stress that again! This reviewer hints at the Stein
+estimator. We dont want to go there (what additional reason?)
+
+- how does this compare to the pseudo-sequential setting: x1, ..., x_n are given in advance, 
+but one may choose k x_i's in an adaptive manner: after choosing the first i and querying y_i, dependent on the result one may decide what second x_i to query etc. Again this can be combined with randomness. From both a Bayesian and a worst-case perspective this seems a more natural approach; perhaps you should add a few lines about it in thepaper.
++++ MW: If you predict while now having a full rank weight
+vector w. pos. probability, then range factor must appear.
+
+- notation: I found it confusing that \hat{\bf w}({\bf y}_S )is not written conditional on {\bf X}: even though it randomizes, surely it cannot be calculated without having access to {\bf X}, so I don't understand why you don't write it in the conditional here (whereas you do explicitly write the conditionals elsewhere). 
++++ MW: Did not look at the paper again for this. Probably
+fine to add the conditional explicitly
+
+### Review 2 ###
+
+A nice paper with unifying perspective on sub-selection of samples for fitting linear models and a novel experiment design, but the presentation can benefit from reroganization
+COLT 2019 Conference Paper150 AnonReviewer1
+20 Mar 2019 (modified: 22 Mar 2019)COLT 2019 Conference Paper150 Official ReviewReaders: COLT 2019 Conference Program Chairs, Program Committee, Authors
+
+Confidence: 4: The reviewer is confident but not absolutely certain that the evaluation is correct
+Rating: 7: Good paper, accept
+Review: The authors consider the task of sub-selecting samples when trying to fit a linear model while still ensuring small error compared to the optimal linear predictor w*. The paper tries to bring together the framework common in statistics—linear generative model with Gaussian noise—along with the commonly used adversarial setting in TCS—where the responses are fixed but arbitrary. The main contribution of the paper is the novel random experimental design based on a sampling algorithm (result stated in Theorem 4).
+
+Given $n$ samples in $d$ dimensions, this algorithm (Alg 1, equation (4)) selects a subset of samples with size $d \log n + \phi /\epsilon$ to yield an unbiased estimate of w* and the excess MSE error, when compared to the OLS, is bounded by epsilon times the variance of Xw* - y, which might be deterministic (TCS) or is obtained by taking expectation over the noise model (statistics). In the past work, constant probability bounds were obtained for the MSE error and bounds on expected error were hard to derive. This paper and proof tackles it in a subtle way by using a mixture of two sampling techniques namely, volume sampling and iid sampling—
+the prior is used to control in the MSE in the tail and iid sampling helps to concentrate the error in the bulk of the distribution. Their algorithm appears to be novel, the ideas and discussion are clearly presented, prior work has been summarized well. Overall I found the paper to be a good read with sufficient theoretical contributions (while heavily building on the results from prior work by Derezin ́ski et al.).
+
+Comments:
+— Some more discussion about their choice of q (on page 5-6) would be useful.
+
+— Some of the discussion in the paper is distracting and I recommend the authors to underscore these results in passing. A couple of these instances are stated below:
+
+(i) Theorem 5 and Proposition 7 are slightly distracting given that they are straightforward consequences of the results/definitions. A small comment about these results and further discussion in the appendix would be sufficient.
+
+(ii) The authors define the minimax-optimal value in Definition 8 and provide some minor results in Prop 9. Other than that, I hardly find the use of this definition throughout the paper and sometimes its mention is misleading. Such a ``minimax'' discussion acts as a distraction given that neither their proposed an optimal estimator nor had an in-depth discussion as to how can one go about finding one such estimator.  Lemma 13 is an obvious result and is not worthy of stating in a lemma. I would instead suggest the authors to simply state the quantity (Definition 8) and saying that it is a challenge to bound it in their general settings.  In simple words, Section 3 does not have new ideas but appears pretty heavy, it should instead be stated as Proof of Theorem 10 and the prior results should be stated in a less elaborate way so as to make the paper less daunting (in terms of the number of results/lemmas).
+
+
+### Review 3 ###
+
+COLT 2019 Conference Paper150 AnonReviewer2
+14 Mar 2019 (modified: 22 Mar 2019)COLT 2019 Conference Paper150 Official ReviewReaders: COLT 2019 Conference Program Chairs, Program Committee, Authors
+
+Confidence: 3: The reviewer is fairly confident that the evaluation is correct
+Rating: 6: Marginally above acceptance threshold
+Review: This paper studies the question of experimental design in linear regression under the
+random design setting, in which the noise variables conditioned on the design points are
+not necessarily centered.
+
+Theorem 4 is the main result of this paper. I think it is interesting, because there is few
+results of doing experimental design under the non-realizable case with provable
+guarantees. I will leave some comments on Theorem 4 at the end of this report.
+
+My major concern is with Sec. 1.2, and the so-called “minimax optimality” the authors
+defined. It is very confusing, on many levels. A minimax quantity Rk*(X) is defined,
+characterizing the minimum variance of the best unbiased estimators on k selected
+design points. For a typical paper, the next step would then be establishing matching
+upper and lower bounds of Rk*(X), and pointing out which estimator attains such
+bounds. However, except for Lemma 13, which is not very explicit, I cannot find any
+such upper/lower bounds of Rk*(X), in either the main text or the appendix. We also
+don’t know whether the proposed Algorithm 1 has the smallest Rk*(X), in any sense.
+Basically, without lower bounds, what is the point of introducing the notion of Rk*(X), and
+how can you possibly claim “optimality”?
++++MW: Point out the lower bounds
+
+As for Theorem 4, while the theorem itself is clear and non-trivial, it also has important
+limitations. It would be good if the authors could discuss these aspects in a revised
+version:
+
+1. The guarantees in both Corollary 2 and Theorem 4 (an in fact Theorem 1 too,
+implicitly) are additive, which are very different from the approximation
+guarantees from Allen-Zhu et al. (2017), Wang et al. (2017) and Nikolov et al
+(2018), deriving multiplicative guarantees. The main difference is the in
+Corollary 2 and Theorem 4, the RHS of MSE differences is in terms of n𝜎2, while
+in multiplicative approximation the RHS must be multiples of the error of the
+best k-subset estimator. It is understandable that, for the non-realizable case,
+achieving multiplicative approximation might be very difficult if not impossible, but
+I feel this difference should be highlighted and discussed.
+
+2. While it seems natural that in a non-realizable setting, unbiasedness is a
+property that any good (subsampled) estimator should possess, many good
+(minimax optimal) estimators are actually biased because small bias can usually
+save us a lot of variance. Therefore I suggest avoiding the usage of the term
+“minimax”, while replacing it with “minimum variance unbiased”, especially in the
+title of this paper.
++++ Well we have matching lower bounds and we want to
+stress the worst-case nature of our approach. Therefore
+minimax is the appropriate term
+
+3. Minor comment: I suggest deriving some example scalings of ϕ assuming X is
+randomly generated from some underlying distribution (like multivariate
+Gaussian). This helps the readers understand the actual behavior of the
+condition on k. From my calculations, when X is sampled from the standard
+Gaussian, the ϕ/𝜀 term is dominated by the first d log n term, assuming the RHS
+is targeted at O(1) level.
+
+Overall, the merit of this paper should be judged on the novelty/significance of the proof
+of Theorem 4, which unfortunately is not highlighted much, especially comparing to
+existing works on volume sampling. As I am not an expert in this field, I will leave this
+task to my fellow reviewers. The materials related to the “minimax” Rk*(X) are I feel not
+interesting and should be removed.
++++ The minimax stuff is written already and justified.
+Removing it would possibly strengthen a conference version,
+but then you would have to be sure that the minimax stuff
+will get published in a journal version. I suggest to punt
+and keep it

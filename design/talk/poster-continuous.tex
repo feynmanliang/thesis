@@ -1,0 +1,321 @@
+% \documentclass[8pt]{beamer}
+\documentclass{beamer}
+\usepackage[orientation=landscape, size=a2, scale=1.75]{beamerposter}
+
+% \beamertemplateshadingbackground{brown!70}{yellow!10}
+\mode<presentation>
+{
+  %\usetheme{Warsaw}
+  \usecolortheme{crane}
+  % or ...
+
+  % \setbeamercovered{transparent}
+  % \setbeamercovered{
+  %   still covered={\opaqueness<1>{50}\opaqueness<2->{20}}
+  % }
+%    \setbeamercovered{invisible}
+  % or whatever (possibly just delete it)
+}
+\setbeamertemplate{navigation symbols}{}
+% \setbeamertemplate{footline}[frame number]{}
+\usepackage{tikz,pgfplots}
+\pgfplotsset{compat=newest}
+\usepackage[utf8]{inputenc}
+\usetikzlibrary{patterns}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{colortbl}
+%\usepackage{multicol}
+\usepackage{cancel}
+\usepackage{ulem}
+\usepackage{multirow}
+\usepackage{relsize}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{forloop}% http://ctan.org/pkg/forloop
+\newcounter{loopcntr}
+\newcommand{\rpt}[2][1]{%
+  \forloop{loopcntr}{0}{\value{loopcntr}<#1}{#2}%
+}
+%\pagestyle{plain}
+%\input{defs2}
+\input{../shortdefs}
+
+\edef\polishl{\l}
+\setlength{\columnsep}{0.7em}
+\setlength{\columnseprule}{0mm}
+\setlength{\arrayrulewidth}{1pt} 
+
+\newcommand{\svr}[1]{{\textcolor{darkSilver}{#1}}}
+\definecolor{brightyellow}{cmyk}{0,0,0.7,0.0}
+\definecolor{lightyellow}{cmyk}{0,0,0.3,0.0}
+\definecolor{lighteryellow}{cmyk}{0,0,0.1,0.0}
+\definecolor{lightestyellow}{cmyk}{0,0,0.05,0.0}
+
+%  \fboxsep=3pt
+% %\fboxsep=0mm%padding thickness
+% \fboxrule=2pt%border thickness
+
+
+\setkeys{Gin}{width=0.7\textwidth}
+
+% \title[]{Unbiased estimates for linear regression\\
+% via volume sampling}
+% \date{NIPS'17, 12-5-2017}
+% \author[]{Micha{\polishl } Derezi\'{n}ski and Manfred Warmuth}
+\def\layersep{2.5cm}
+\def\model{
+    \hspace{-1mm}\begin{tikzpicture}[scale=1.4,shorten >=1pt,draw=black!50, node distance=\layersep]
+    \tikzstyle{every pin edge}=[<-,shorten <=1pt]
+    \tikzstyle{neuron}=[circle,fill=black!25,minimum size=20pt,inner sep=0pt]
+    \tikzstyle{input neuron}=[neuron, fill=green!50];
+    \tikzstyle{output neuron}=[neuron, fill=red!50];
+    \tikzstyle{hidden neuron}=[neuron, fill=blue!50];
+    \tikzstyle{annot} = [text width=4em, text centered]
+
+    % Draw the input layer nodes
+      \node[input neuron, pin=left:$\mid\ \ $] (I-1) at (0,-1) {};
+      \node[input neuron, pin=left:Learning model:\quad $\x_i\ $] (I-2) at (0,-2) {};
+      \node[input neuron, pin=left:$\mid\ \ $] (I-3) at (0,-3) {};
+
+    %   \foreach \name / \y in {2,...,3}
+    % % This is the same as writing \foreach \name / \y in {1/1,2/2,3/3,4/4}
+    %     \node[input neuron, pin=left:$\mid$] (I-\name) at (0,-\y) {};
+
+    % Draw the hidden layer nodes
+    \foreach \name / \y in {1,...,4}
+        \path[yshift=0.5cm]
+            node[hidden neuron] (H-\name) at (\layersep,-\y cm) {};
+
+    % Draw the output layer node
+            \node[output neuron,pin={[pin
+              edge={->}]right:$f_\w(\x_i)$}] (O) at (5,-2) {};
+
+    % Connect every node in the input layer with every node in the
+    % hidden layer.
+    \foreach \source in {1,...,3}
+        \foreach \dest in {1,...,4}
+            \path (I-\source) edge (H-\dest);
+
+    % Connect every node in the hidden layer with the output layer
+    \foreach \source in {1,...,4}
+        \path (H-\source) edge (O);
+
+        \draw [decorate,decoration={brace}] (5,-4)  -- (0,-4);
+        \draw (2.5,-4.5) node {\mbox{\footnotesize parameters: $\w\in\R^d$}}; 
+
+    % Annotate the layers
+      \end{tikzpicture}
+}
+
+
+\begin{document}
+
+\begin{frame}
+  \frametitle{
+\centering\textrm{\textbf{\LARGE Exact expressions for double descent and
+    implicit regularization}}\\
+\centering\textrm{\textbf{\LARGE via surrogate random design}}\\[1mm]
+\textit{\large Micha{\polishl } Derezi\'{n}ski, \ Feynman Liang,
+  \ Michael Mahoney\qquad UC Berkeley}\\[-5mm]
+}
+\begin{columns}
+  \begin{column}{0.32\textwidth}
+
+    \begin{block}{Over-parameterization in Machine Learning}
+
+      \model
+      \vspace{3mm}
+      
+    ``Classical'' ML: \qquad\textit{parameters} $\ll$ \textit{data}\quad~\\
+    ``Modern'' ML: \qquad\textit{parameters} $\gg$ \textit{data}\quad~\\
+\textit{Phase transition:} \qquad\textit{parameters} $\sim$ \textit{data}\quad~\\[10mm]
+
+\textbf{Double descent} \cite{BHMM19}: \\
+Error curve around the phase transition between ``Classical'' and
+``Modern'' ML
+\vspace{7mm}
+
+\end{block}
+
+\begin{block}{\underline{Simple model}: Linear regression}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \vspace{2mm}
+      
+      Standard i.i.d.~random design\\
+$\X\sim\mu^n$\\
+$\y=\X\w+\xib$\qquad$\xib\sim\Nc(\zero,\sigma^2\I)$
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \begin{tikzpicture}[scale=2]
+        \draw [fill=brown!30] (-2,1.5) rectangle (0,3);
+        \draw [color=black] (-2,2) -- (0,2);
+        \draw (-1,2.2) node {\mbox{\footnotesize $\x_i^\top$}}; 
+        \draw (-2.5,3) node {$\X$}; 
+        \draw [decorate,decoration={brace}] (-2,3.1) -- (0,3.1);
+        \draw (-1,3.4) node {\mbox{\footnotesize $d$}}; 
+        \draw [decorate,decoration={brace}] (-2.1,1.5) -- (-2.1,3);
+        \draw (-2.4,2.25) node {\mbox{\footnotesize $n$}}; 
+        \draw [color=black,line width =0.5mm] (1,1.5) -- (1,3);
+        \draw [color=black] (0.75,3) node {$\y$};
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+\vspace{1cm}
+  
+  Moore-Penrose estimator:
+  \begin{align*}
+    \X^\dagger\y =
+  \begin{cases}
+    \text{minimum norm solution},& \text{for }n\leq d,\\
+    \text{least squares solution},& \text{for }n>d.
+  \end{cases}
+  \end{align*}
+\vspace{5mm}
+  
+  Goal:\quad find\quad$\MSE{\X^\dagger\y}=\E\,\|\X^\dagger\y-\w\|^2$\\[5mm]
+  Prior work: \\
+
+  \begin{itemize}
+  \item   Asymptotics \cite{HMRT19_TR}
+  \item Upper bounds \cite{BLLT19_TR}
+  \end{itemize}
+  \vspace{3mm}
+  
+  \Red{No closed form expressions, even for
+    $\mu=\Nc(\zero,\Sigmab)$\,!}
+  \vspace{5mm}
+  
+\end{block}
+
+\end{column}
+
+\begin{column}{.32\textwidth}
+
+\begin{block}{\underline{Main result}: Exact expressions for double descent}
+ \textit{Key idea}: Alter the i.i.d.~design to get a ``nicer'' surrogate
+  \begin{align*}
+    \underbrace{\X\sim\mu^n}_{\text{i.i.d.}}\qquad\Longrightarrow\qquad
+    \underbrace{\Xb\sim S_\mu^n}_{\text{surrogate}} 
+  \end{align*}
+  \vspace{-1cm}
+  
+\textbf{Theorem}\\
+  Let \ $\Xb\sim S_\mu^n$, \ $\yb_i=\xbb_i^\top\w+\xi$ \ and \
+$\Sigmab_\mu=\E_\mu[\x\x^\top]$. Then,
+{\small  \begin{align*}
+ &\MSE{\Xb^\dagger\ybb} =\\
+  &  \begin{cases}
+    \sigma^2\,\tr\big((\Sigmab_\mu+\lambda_n\I)^{-1}\big)
+    \frac{1-\alpha_n}{d-n}\ +\
+\frac{\w^{\top}(\Sigmab_\mu+\lambda_n\I)^{-1}\w}
+{\tr((\Sigmab_\mu+\lambda_n\I)^{-1})}(d-n),
+& (n<d),\\
+\sigma^2\, \tr(\Sigmab_\mu^{-1}),& (n=d),\\
+\sigma^2\,\tr(\Sigmab_\mu^{-1})\frac{1-\beta_n}{n-d},&(n>d),
+\end{cases}
+  \end{align*}}
+ where $\lambda_n$ satisfies: $n=\tr((\Sigmab_\mu+\lambda_n\I)^{-1}\Sigmab_\mu)$.
+\end{block}
+
+\begin{block}{\underline{Double descent}: Effect of spectral decay}
+Multivariate Gaussian design
+ $\mu=\Nc(\zero,\Sigmab)$, $d=100$\\[1mm]
+ $\Sigmab$ - exponentially decaying eigenvalues, condition number
+ $\kappa$\\[3mm]
+ 
+\includegraphics[width=\textwidth]{figs/descent-intro-nice}
+\end{block}
+
+
+\begin{block}{\emph{Surrogate design}: Determinantal Point Process}
+Surrogate design $\Xb$ is defined so that
+\begin{align*}
+  \Pr\big[\Xb\in E\big]\  \propto\ \E[\pdet(\X\X^\top)\cdot 1_{\X\in E}]
+  \quad\text{for}\quad\X\sim\mu^K.
+\end{align*}
+\vspace{-1mm}
+
+\textit{Asymptotic consistency} with sub-gaussian distributions:
+\begin{align*}
+\MSE{\Xb^\dagger\ybb} - \MSE{\X^\dagger\y} \rightarrow 0,
+\end{align*}
+with probability one as $d,n\rightarrow \infty$ with $n/d\rightarrow c$.
+\end{block}
+
+\end{column}
+
+\begin{column}{0.32\textwidth}
+
+\begin{block}{\underline{Implicit regularization}: Minimum norm
+    $\Rightarrow$ Ridge }
+  
+Why does ``Modern'' ML work?\\
+Because it induces \textit{implicit regularization}
+
+\begin{align*}
+    \E[\Xb^\dagger\ybb]
+    &\,=\,
+      \argmin_\w\,\E\big[(\x^\top\w-y)^2\big] + \overbrace{\lambda_n
+    \,\|\w\|^2}^{\text{ridge}}\qquad(n<d)
+\end{align*}
+\vspace{5mm}
+
+  Our observations:\\
+  \begin{itemize}
+    \item Minimum norm induces a ridge regularizer:
+      $\lambda_n\|\w\|^2$
+\item Data size:
+  $n=\underbrace{\tr((\Sigmab_\mu+\lambda_n\I)^{-1}\Sigmab_\mu)}_{\text{ridge
+      effective dimension}}$
+  \end{itemize}
+\vspace{5mm}
+
+  \includegraphics[width=0.495\textwidth]{../figs/descent-bias}~%
+  \nobreak\includegraphics[width=0.495\textwidth]{../figs/descent-lambda}
+
+\end{block}
+
+\begin{block}{\underline{Proofs}: Determinant preserving random
+      matrices}
+\textbf{Definition.}
+Random matrix $\A$ is \textit{determinant
+  preserving} (d.p.) if for all $\Ic,\Jc\subseteq
+  [d]$ such that $|\Ic|=|\Jc|$,
+\begin{align*}
+  \E\big[\!\det(\A_{\Ic,\Jc})\big] =
+  \det\!\big(\E[\A_{\Ic,\Jc}]\big).
+\end{align*}
+\vspace{-2mm}
+
+Examples:
+  \begin{itemize}
+  \item $\A$ has i.i.d.~Gaussian entries  $a_{ij}\sim\Nc(0,1)$
+  \item $\A = s\Z$, where $s$ is random and $\Z$ is a 
+    rank-1 matrix
+    \item $\A=\X^\top\X$, where $\X\sim\mu^K$ and $K\sim\Poisson(\gamma)$
+    \end{itemize}
+\vspace{1cm}
+    
+\textbf{Theorem} (closure properties) \
+    If $\A,\B$ are d.p.~and independent, then $\A+\B$ and $\A\B$ are
+    also d.p.
+    \vspace{6mm}
+    
+{\footnotesize See \cite{dpps-in-randnla}:\textit{``Determinantal
+    point processes in randomized numerical 
+        linear algebra''}}
+
+\end{block}
+
+\end{column}
+\end{columns}
+\vspace{3cm}
+
+\bibliographystyle{alpha}
+  \bibliography{../pap}
+\end{frame}
+
+
+\end{document}

@@ -1,0 +1,345 @@
+\message{ !name(nystrom-press.tex)}\documentclass[10pt,handout]{beamer}
+%\beamertemplateshadingbackground{brown!70}{yellow!10}
+\mode<presentation>
+{
+  %\usetheme{Warsaw}
+  %\usecolortheme{crane}
+  % or ...
+
+%  \setbeamertemplate{footline}[]
+ % \setbeamercovered{transparent}
+  % or whatever (possibly just delete it)
+}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]{}
+\usepackage{tikz,pgfplots}
+\pgfplotsset{compat=newest}
+\usepackage[utf8]{inputenc}
+\usetikzlibrary{patterns}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{colortbl}
+%\usepackage{multicol}
+\usepackage{cancel}
+\usepackage{ulem}
+\usepackage{multirow}
+\usepackage{relsize}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{forloop}% http://ctan.org/pkg/forloop
+\newcounter{loopcntr}
+\usepackage{tkz-euclide}
+\usetkzobj{all}
+\newcommand{\rpt}[2][1]{%
+  \forloop{loopcntr}{0}{\value{loopcntr}<#1}{#2}%
+}
+%\pagestyle{plain}
+%\input{defs2}
+\input{../shortdefs}
+
+\edef\polishl{\l}
+\setlength{\columnsep}{0.7em}
+\setlength{\columnseprule}{0mm}
+\setlength{\arrayrulewidth}{1pt} 
+
+\newcommand{\svr}[1]{{\textcolor{darkSilver}{#1}}}
+\definecolor{brightyellow}{cmyk}{0,0,0.7,0.0}
+\definecolor{lightyellow}{cmyk}{0,0,0.3,0.0}
+\definecolor{lighteryellow}{cmyk}{0,0,0.1,0.0}
+\definecolor{lightestyellow}{cmyk}{0,0,0.05,0.0}
+\AtBeginSection[]
+{
+\begin{frame}
+\frametitle{Outline}
+\tableofcontents[currentsection]
+\end{frame}
+}
+\def\layersep{2.5cm}
+
+
+\setkeys{Gin}{width=0.7\textwidth}
+
+\title[]{\large\textrm{Improved guarantees and a multiple-descent curve
+for Column Subset Selection and the Nystr\"om method}}
+
+\author[]{Micha{\l} Derezi\'{n}ski,\quad Rajiv Khanna\quad and\quad
+  Michael Mahoney\\[2mm]
+\small\textit{University of California, Berkeley}}
+\date{NeurIPS 2020}
+
+\begin{document}
+
+\message{ !name(nystrom-press.tex) !offset(-3) }
+
+% \begin{frame}
+%   \titlepage
+%   \vspace{-5mm}
+%    \centering\includegraphics[width=0.5\textwidth]{figs/nystrom-bounds-press}
+% \end{frame}
+
+\linespread{1.3}
+
+\begin{frame}
+  \frametitle{Interpretable summarization}
+  \begin{columns}
+%     \begin{column}{.33\textwidth}
+% \underline{Examples}\\[2mm]
+% Genomes, documents, stocks, images, etc.
+% \end{column}
+\begin{column}{.65\textwidth}
+  \hspace{3mm}\underline{Applications to real-world problems}
+  \begin{itemize}
+  \item   \onslide<+->
+    {\scriptsize\cite{paschou2007pca} (\textit{PLOS Genetics})
+      \textit{``PCA-correlated SNPs...''}} %\\[1mm]
+\item   \onslide<+-> \cite{mahoney2009cur} (\textit{PNAS})
+  {\scriptsize\textit{``CUR matrix decompositions...''}}
+  \end{itemize}
+\end{column}
+\begin{column}{.4\textwidth}
+  \vspace{-2mm}
+  
+  \emph{Optimal summarization}:\\[1mm]
+  Top $k$ \textit{principal components}\\
+  \Red{Not interpretable!}\\[5mm]
+  \onslide<+->
+\end{column}
+\end{columns}
+  \begin{center}
+    \includegraphics[width=\textwidth]{figs/snp.png}
+  \end{center}
+  \vspace{3mm}
+  
+  \begin{columns}
+    \begin{column}{0.71\textwidth}
+      \onslide<+->
+      % \begin{align*}
+      %   \Er = \big\|\A - \mathrm{Proj}(\A)\big\|_F^2
+      % \end{align*}
+      \emph{Goal}: \textit{Interpretable} summarization\\
+      using a subset of $k$ elements
+\vspace{3mm}
+
+\begin{block}{}
+%  \vspace{-3mm}
+$\textsf{Cost of interpretability} =\frac{\mathsf{Error}(\text{best subset of size $k$})}{\mathsf{Error}(
+        \text{top $k$ principal components})}$\hspace{-8mm}
+\end{block}
+      
+%       \begin{align*}
+%   \text{Cost of interpretability:}\qquad
+%         \frac{\mathrm{Error}(\text{\small best subset})}{\mathrm{Error}(
+%         \text{\small principal components})}
+% \end{align*}
+
+    \end{column}
+    \begin{column}{0.27\textwidth}
+      \begin{center}
+        \onslide<1->
+        \vspace{-.5cm}
+        \begin{tikzpicture}[scale=.45,rotate=0,transform shape]
+
+        \draw (-3.2,-3.2) -- (3.2,3.2);
+        \tkzDefPoint(0,1){A};         \tkzDefPoint(0.5,.5){A1}; \tkzDrawSegment[thick,red](A,A1);
+        \tkzDefPoint(1.8,.5){B};     \tkzDefPoint(1.15,1.15){B1}; \tkzDrawSegment[thick,red](B,B1);
+        \tkzDefPoint(2.5,1.5){C};   \tkzDefPoint(2,2){C1}; \tkzDrawSegment[thick,red](C,C1);
+        \tkzDefPoint(-1.5,-.3){D}; \tkzDefPoint(-.9,-.9){D1}; \tkzDrawSegment[thick,red](D,D1);
+        \tkzDefPoint(-2,-.3){E};    \tkzDefPoint(-1.15,-1.15){E1}; \tkzDrawSegment[thick,red](E,E1);
+        \tkzDefPoint(1,1.5){F};  \tkzDefPoint(1.25,1.25){F1}; \tkzDrawSegment[thick,red](F,F1);
+        \tkzDefPoint(.5,-.5){G};  \tkzDefPoint(0,0){G1}; \tkzDrawSegment[thick,red](G,G1);
+        \tkzDefPoint(2,4.4/1.65){H};  \tkzDefPoint((2+4.4/1.65)/2,(2+4.4/1.65)/2){H1}; \tkzDrawSegment[thick,red](H,H1);
+        \tkzDefPoint(-1,0){I};  \tkzDefPoint(-.5,-.5){I1}; \tkzDrawSegment[thick,red](I,I1);
+        \tkzDefPoint(1.1,2.5){J};  \tkzDefPoint(1.8,1.8){J1}; \tkzDrawSegment[thick,red](J,J1);
+        \tkzDefPoint(-1.32,-1.76){K};  \tkzDefPoint(-1.54,-1.54){K1}; \tkzDrawSegment[thick,red](K,K1);
+        \tkzDefPoint(-1.5,-2.5){L};  \tkzDefPoint(-2,-2){L1}; \tkzDrawSegment[thick,red](L,L1);
+
+        \only<3-4>{
+            \draw [thick,blue] (-3.3/1.4,-4.4/1.4) -- (3.3/1.4,4.4/1.4);
+            % \tkzDrawSegment[thick,red](H,K);
+            \foreach \n in {H,K} \node at (\n)[circle,fill=cyan,inner
+            sep=2.25pt]{};
+          }
+
+        \foreach \n in {A,B,C,D,E,F,G,H,I,J,K,L} \node at (\n)[circle,fill=blue,inner
+        sep=1.5pt]{};
+        \foreach \n in {A1,B1,C1,D1,E1,F1,G1,H1,I1,J1,K1,L1} \node at (\n)[circle,fill=black,inner
+        sep=1pt]{};        
+
+      \end{tikzpicture}   
+    \end{center}
+  \end{column}
+\end{columns}
+
+
+
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Going beyond worst-case guarantees}
+  \begin{align*}
+\hspace{-3mm}\text{Prior work \cite{pca-volume-sampling,belabbas-wolfe09}}:\quad
+    \underbrace{\text{Cost of interpretability}\ 
+\leq\  \text{Subset size}}_{\text{\textit{Worst-case optimal}, used in ICML'19
+    Best Paper}} %\qquad\text{for size $k$}
+  \end{align*}  
+%     \onslide<+->
+%   \textit{\footnotesize E.g., used in ICML 2019 Best Paper
+%     \cite{sparse-variational-gp}}\\[1mm]
+\vspace{4mm}
+
+\underline{Our results}\\
+We use a RandNLA technique called Determinantal Point Processes to:
+  \vspace{5mm}
+
+ \begin{columns}
+   \hspace{-3mm}\begin{column}{.48\textwidth}
+     \centering
+\Blue{Go beyond worst-case analysis}
+
+\includegraphics[width=\textwidth]{figs/deshpande-all-press}
+\end{column}
+\begin{column}{.48\textwidth}
+\Blue{Uncover the multiple-descent curve}
+
+  \includegraphics[width=1.05\textwidth]{figs/nystrom-bounds-press}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+% \begin{frame}
+%   \frametitle{\underline{New}: Multiple-descent curve}
+%   \centering\includegraphics[width=.9\textwidth]{figs/nystrom-bounds-press}
+%   % \onslide<+->
+%   % \begin{itemize}
+%   % \item \onslide<+->
+
+  
+%   %Mutliple spikes are possible!
+%   % \item \onslide<+-> Sharp spectral drop \ $\Longrightarrow$ \ large spike
+%   % \end{itemize}
+% \end{frame}
+
+\begin{frame}
+  \frametitle{Connection to double descent}
+  \emph{Double descent}: Exhibited by generalization error \cite{BHMM19}
+  \vspace{5mm}
+  
+  \onslide<+->  
+  \begin{columns}
+    \begin{column}{.6\textwidth}
+      ``Classical'' ML: \hfill\textit{parameters} $\ll$ \textit{data}\\
+    ``Modern'' ML: \hfill \textit{parameters} $\gg$ \textit{data}\\
+\textit{Phase transition:} \hfill\textit{parameters} $\sim$ \textit{data}
+\end{column}
+\begin{column}{.45\textwidth}
+\includegraphics[width=\textwidth]{figs/descent-intro-nice}
+\end{column}
+\end{columns}
+\vspace{5mm}
+
+\onslide<+->
+\emph{Connections}:
+\begin{enumerate}
+\item Correlated with the condition number of the data \cite{double-descent-condition}
+\item \onslide<+-> Multiple peaks are possible
+  \cite{liang2020multiple,BLLT19_TR}
+\item \onslide<+-> Similar techniques can be used for the analysis \cite{surrogate-design}\\[-1mm]
+{  \footnotesize\textit{``Exact expressions for
+    double descent...''}, NeurIPS'20.}
+\end{enumerate}
+
+
+% \let\thefootnote\relax\footnotetext{\hspace{-5mm}Plot based on
+%   \cite{surrogate-design},
+% \textit{``Exact expressions for double descent...''}, NeurIPS'20.}
+\end{frame}
+
+% \begin{frame}
+%   \frametitle{Multiple-descent in real-world subset selection}
+% %  \emph{Kernel}: Gaussian Radial Basis Function
+%   % ,
+%   % $\langle\a_i,\a_j\rangle_\text{K}=\exp(-\|\a_i\!-\!\a_j\|^2/\sigma^2)$
+% %  \\[3mm]
+  
+%   \centering
+%   \includegraphics[width=0.45\textwidth]{../figs/nystrom/rbf-bodyfat-double}
+%   \hspace{5mm}
+%   \includegraphics[width=0.45\textwidth]{../figs/nystrom/rbf-eunite2001-double}
+  
+%   \let\thefootnote\relax\footnotetext{Datasets from the Libsvm repository \cite{libsvm}}  
+% \end{frame}
+
+
+% \begin{frame}
+% \frametitle{\underline{New}: Improved guarantees under smooth spectral
+%   decay}
+% \onslide <+->
+% Smooth spectral decay \ $\Longrightarrow$ \ no spikes!
+% \vspace{5mm}
+
+% \begin{enumerate}
+% \item \onslide<+->
+%   \emph{Polynomial spectral decay}:\quad $i$th singular
+%   value \ $\asymp\ i^{-p}$
+%   \vspace{-2mm}
+%   \begin{align*}
+%     \text{Approximation factor}\ \leq\ O(1+p)\quad\text{for all $k$}
+%   \end{align*}
+%   \vspace{0mm}
+  
+% \item \onslide<+->
+%   \emph{Exponential spectral decay}:\quad $i$th singular
+%     value \ $\asymp\ (1-\delta)^i$
+%     \vspace{-2mm}
+%     \begin{align*}
+%     \text{Approximation factor}\ \leq\ O(1+\delta k)\quad\text{for all $k$}
+%     \end{align*}
+% \end{enumerate}
+% \end{frame}
+
+\begin{frame}
+  \frametitle{\underline{Method}: Determinantal Point Processes (DPPs)}
+\onslide<+->
+  \emph{Joint} randomized selection of column subset $S$\\[2mm]
+
+  \onslide<+->
+  \emph{Negative correlation}: $\Pr(i\in S\mid j\in S) < \Pr(i\in S)$
+  \vspace{-2mm}
+  
+\begin{center}
+  \includegraphics[width=0.6\textwidth]{../figs/gue.png}
+  \vspace{-3mm}
+  
+  \small  uniform~(left) versus DPP (right)%
+\end{center}
+\vspace{-2mm}
+\begin{itemize}
+  \item \onslide<+->\emph{Fast algorithms}: \cite{alpha-dpp} (here at
+    \textit{NeurIPS'20})\\[-1mm]
+    \hspace{-3mm}{\footnotesize\textit{``Sampling
+      from a $k$-DPP without looking at all items''}}
+  \item \onslide<+->\emph{Learn more}: \cite{dpps-in-randnla}
+    (to appear in \textit{Notices of the AMS})\\[-1mm]
+    \hspace{-3mm}{\footnotesize\textit{``Determinantal Point Processes in Randomized Numerical
+      Linear Algebra''}}
+\end{itemize}
+\let\thefootnote\relax\footnotetext{Image from \cite{dpp-ml}}  
+  \end{frame}
+
+
+\begin{frame}[allowframebreaks]
+  \frametitle{References}
+  \tiny
+  \bibliographystyle{alpha}
+  \bibliography{../pap}
+\end{frame}
+
+% \begin{frame}
+% \centering  \Large Thank you!
+% \end{frame}
+
+
+\end{document}
+\message{ !name(nystrom-press.tex) !offset(-345) }

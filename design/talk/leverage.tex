@@ -1,0 +1,234 @@
+\documentclass[10pt]{beamer}
+%\beamertemplateshadingbackground{brown!70}{yellow!10}
+\mode<presentation>
+{
+  %\usetheme{Warsaw}
+  \usecolortheme{crane}
+  % or ...
+
+%  \setbeamercovered{transparent}
+  % or whatever (possibly just delete it)
+}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]{}
+\usepackage{tikz,pgfplots}
+\pgfplotsset{compat=newest}
+\usepackage[utf8]{inputenc}
+\usetikzlibrary{patterns}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{colortbl}
+%\usepackage{multicol}
+\usepackage{cancel}
+\usepackage{ulem}
+\usepackage{multirow}
+\usepackage{relsize}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{forloop}% http://ctan.org/pkg/forloop
+\newcounter{loopcntr}
+\newcommand{\rpt}[2][1]{%
+  \forloop{loopcntr}{0}{\value{loopcntr}<#1}{#2}%
+}
+%\pagestyle{plain}
+%\input{defs2}
+\input{../shortdefs}
+
+\edef\polishl{\l}
+\setlength{\columnsep}{0.7em}
+\setlength{\columnseprule}{0mm}
+\setlength{\arrayrulewidth}{1pt} 
+
+\newcommand{\svr}[1]{{\textcolor{darkSilver}{#1}}}
+\definecolor{brightyellow}{cmyk}{0,0,0.7,0.0}
+\definecolor{lightyellow}{cmyk}{0,0,0.3,0.0}
+\definecolor{lighteryellow}{cmyk}{0,0,0.1,0.0}
+\definecolor{lightestyellow}{cmyk}{0,0,0.05,0.0}
+\AtBeginSection[]
+{
+\begin{frame}<beamer>
+\frametitle{Outline}
+\tableofcontents[currentsection]
+\end{frame}
+}
+\def\layersep{2.5cm}
+
+
+%  \fboxsep=3pt
+% %\fboxsep=0mm%padding thickness
+% \fboxrule=2pt%border thickness
+
+\setkeys{Gin}{width=0.7\textwidth}
+
+\title[]{Extending leverage scores to interpolating models}
+
+\author[]{Micha{\l} Derezi\'{n}ski\\
+UC Berkeley}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\linespread{1.3}
+
+\section{Ridge leverage score approach}
+
+\begin{frame}
+  \frametitle{Fixed design over-determined least squares}
+  Let $\X$ be a tall full rank $n\times d$ matrix with rows
+  $\x_i^\top$. Define
+  \begin{align*}
+    \text{$i$-th leverage score:}\quad \tau(i) = \x_i^\top(\X^\top\X)^{-1}\x_i.
+  \end{align*}
+  Note that $\sum_i\tau(i) =
+  \tr((\X^\top\X)^{-1}(\sum_i\x_i\x_i^\top))=d$.\\[5mm]
+Let $\Sigmab = \frac1n\X^\top\X$ be the covariance matrix of the
+data. Then:
+\begin{align*}
+  \tau(i) = n\cdot \ell(i),\quad\text{where}\quad \ell(i) = \x_i^\top\Sigmab^{-1}\x_i
+\end{align*}
+Note that $\E_i[\ell(i)]=\tr(\Sigmab^{-1}(\frac1n\sum_i\x_i\x_i^\top))= d$
+for a uniformly random $i$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Random design least squares}
+  We generalize the fixed design setting by letting $n\rightarrow
+  \infty$.\\
+  Now, the ``design'' is a $d$-variate distribution $\x^\top\!\sim\mu$.\\
+  Let $\Sigmab=\E_\mu[\x\x^\top]$ be the covariance matrix of $\mu$.\\[5mm]
+Define a (rank $d$) leverage score of point $\x\in\R^d$ with respect to $\mu$ as:
+\begin{align*}
+  \ell_d(\x) = \x^\top\Sigmab^{-1}\x.
+\end{align*}
+Note that we have $\E_\mu[\ell_d(x)] = d$.\\[4mm]
+Similarly, we define rank $n<d$ leverage scores:
+\begin{align*}
+  \ell_n(\x) = \x^\top(\Sigmab+\lambda_n\I)^{-1}\x,\quad\text{for
+  $\lambda_n$ such that}\quad
+  \tr(\Sigmab(\Sigmab+\lambda_n\I)^{-1}) = n.
+\end{align*}
+Note that we have $\E_\mu[\ell_n(\x)]= n$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Finite sample estimates in over-determined setting}
+  Suppose that $\X\sim\mu^n$ for $n>d$.
+  \\The bias-corrected estimate of the  inverse covariance 
+  quadratic form is:
+  \begin{align*}
+\v^\top(\tfrac{1}{n-d}\X^\top\X)^{-1}\v \asymp \v^\top\Sigmab^{-1}\v.
+  \end{align*}
+  As a result, we obtain the following estimate of the $\mu$-leverage
+  score of $\x_i$:
+  \begin{align*}
+    \ell_d(i) = \x_i^\top(\tfrac1{n-d}\X_{-i}^\top\X_{-i})^{-1}\x_i \asymp \ell_d(\x_i),
+  \end{align*}
+  where we excluded $\x_i$ from the covariance estimate to make them
+  independent, so that:
+  \begin{align*}
+    \E[\ell_d(i)] =
+    \tr\Big(\E\big[(\tfrac1{n-d}\X_{-i}^\top\X_{-i})^{-1}\big]\E[\x_i\x_i^\top]\Big)
+    \asymp d.
+  \end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{ Finite sample estimates in under-determined setting }
+  Suppose that $\X\sim\mu^n$ for $n<d$.\\
+  Our goal is to estimate $\ell_n(\x_i)=\x_i^\top(\Sigmab+\lambda_n\I)^{-1}\x_i$.\\
+  We have the following estimates:
+  \begin{align*}
+\v^\top(\X^\top\X)^\dagger\v
+    &\asymp \frac{\v^\top(\Sigmab +\lambda_n\I)^{-1}\v}{d-n}
+  \end{align*}
+  We obtain the following estimate of the rank $n$ leverage score of $\x_i$:
+  \begin{align*}
+    \ell_n(i) = 
+    \x_i^\top(\tfrac1{|d-n|}\X_{-i}^\top\X_{-i})^\dagger\x_i
+    \asymp\ell_n(\x_i),
+  \end{align*}
+  where note that we again remove the row $\x_i$ from $\X$. Otherwise
+  the estimate becomes trivial: 
+  $\x_i^\top(\X^\top\X)^\dagger\x_i = 1$.
+  Here, again we have:
+    \begin{align*}
+    \E[\ell_n(i)] =
+    \tr\Big(\E\big[(\tfrac1{d-n}\X_{-i}^\top\X_{-i})^\dagger\big]\E[\x_i\x_i^\top]\Big)
+    \asymp \tr\big((\Sigmab+\lambda_n\I)^{-1}\Sigmab\big) = n.
+  \end{align*}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Connections to leave-one-out variance and stability}
+  Let the responses satisfy $y_i = \x_i^\top\w^*+\xi_i$ for
+  $\xi_i\sim\Nc(0,\sigma^2)$.\\
+  Define the leave-one-out solution as
+  $\wbh_{-i}=\X_{-i}^\dagger\y_{-i}$. Then, we have:
+  \begin{align*}
+\frac{\Var[\x_i^\top\wbh_{-i}\mid \X]}{\Var[y_i\mid \x_i]} = \x_i^\top(\X_{-i}^\top\X_{-i})^\dagger\x_i.
+  \end{align*}
+Also, if $\w^*\sim\Nc(\zero,\I)$ and
+  $V(\w,\z_i)=(y_i-\x_i^\top\w)^2$ for $\z_i=(\x_i,y_i)$, then:
+  \begin{align*}
+    \hspace{-4mm}\E\big[V(\wbh_{-i},\z_i) -\underbrace{ V(\wbh,\z_i)}_{0}\mid \X\big]
+    & =     \E_{\xib}\big[(y_i-\x_i^\top\wbh_{-i})^2 \mid \X\big]
+    \\[-2mm]
+&= \sigma^2 + \sigma^2\x_i^\top(\X_{-i}^\top\X_{-i})^\dagger\x_i + \x_i^\top(\I-\X_{-i}^\dagger\X_{-i})\x_i.
+  \end{align*}
+\end{frame}
+
+
+% \begin{frame}
+%   \frametitle{ OLD: Finite sample estimates in under-determined setting }
+%   Suppose that $\X\sim\mu^n$ for $n<d$.\\
+%   Our goal is to estimate $\ell_n(\x_i)=\x_i^\top(\Sigmab+\lambda_n\I)^{-1}\x_i$.\\
+%   We have the following estimates:
+%   \begin{align*}
+% \v^\top(\I - \X^\dagger\X)\v
+%     &\asymp \v^\top(\tfrac1{\lambda_n}\Sigmab +\I)^{-1}\v
+%     \\
+% \tr\big((\X\X^\top)^{-1}\big)
+%     &\asymp \tfrac1{\lambda_n}.
+%   \end{align*}
+%   We obtain the following estimate of the rank $n$ leverage score of $\x_i$:
+%   \begin{align*}
+%     \ell_n(i) = \tr\big((\X_{-i}\X_{-i}^\top)^{-1}\big)\cdot
+%     \x_i^\top\big(\I-(\X_{-i})^\dagger\X_{-i}\big)\x_i
+%     \asymp\ell_n(\x_i),
+%   \end{align*}
+%   where note that we again remove the row $\x_i$ from $\X$. Here, this
+%   is crucial, because otherwise the estimate is zero. Note that
+%   $\E[\ell_n(i)]\asymp n$.
+% \end{frame}
+
+% \section{Variance approach}
+
+% \begin{frame}
+%     \frametitle{Fixed design over-determined least squares}
+%   Let $\X$ be a tall full rank $n\times d$ matrix with rows
+%   $\x_i^\top$.\\
+%   Let the responses satisfy $y_i = \x_i^\top\w^*+\xi$ for
+%   $\xi\sim\Nc(0,1)$.\\
+%   Define the leverage score of $\x_i$ as the variance of $\x_i^\top\wbh$
+%   for $\wbh=\X^\dagger\y$:
+%   \begin{align*}
+%     \text{$i$-th leverage score:}\quad \tau(\x_i) = \Var[\x_i^\top\wbh]= \x_i^\top(\X^\top\X)^{-1}\x_i.
+%   \end{align*}
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Random design least squares}
+%   We generalize the fixed design setting by letting $n\rightarrow
+%   \infty$.\\
+%   Now, the ``design'' is a $d$-variate distribution $\x^\top\!\sim\mu$.\\
+%   Let $\Sigmab=\E_\mu[\x\x^\top]$ be the covariance matrix of $\mu$.\\[5mm]
+% Define a leverage score of point $\x\in\R^d$ with respect to $\X\sim\mu^n$ as:
+% \begin{align*}
+%   \ell_n(\x) =\Var[\x^\top\wbh] = |n-d|\cdot \x^\top(\X^\top\X)^\dagger\x.
+% \end{align*}
+% \end{frame}
+
+\end{document}

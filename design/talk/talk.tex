@@ -1,0 +1,835 @@
+\documentclass{beamer}
+%\beamertemplateshadingbackground{brown!70}{yellow!10}
+\mode<presentation>
+{
+    %\usetheme{Warsaw}
+    \usecolortheme{crane}
+    % or ...
+
+    \setbeamercovered{transparent}
+    % or whatever (possibly just delete it)
+}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]{}
+
+\usepackage{tikz,pgfplots}
+\pgfplotsset{compat=newest}
+\usepackage{mathtools}
+\usepackage{relsize}
+\usepackage[utf8]{inputenc}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{colortbl}
+%\usepackage{multicol}
+\usepackage{cancel}
+\usepackage{multirow}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{xfrac}
+\usepackage{forloop}% http://ctan.org/pkg/forloop
+\AtBeginSection[]
+{
+\begin{frame}<beamer>
+\frametitle{Outline}
+\tableofcontents[currentsection]
+\end{frame}
+}
+
+\input{../shortdefs}
+\renewcommand{\Xinv}{(\X^\top\X)^{-1}}
+\renewcommand{\Xinvr}{(\lambda\I+\X_{-1}^\top\X_{-1})^{-1}}
+
+\title[]{Minimax experimental design}
+
+\author[]{Micha{\l } Derezi\'{n}ski}
+
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\section{Overview}
+
+\begin{frame}
+  \frametitle{Classical statistical regression}
+  We consider $n$ parameterized experiments:
+  $\x_1,\dots,\x_n\in\R^d$.\\
+  Each experiment has a real random outcome $Y_i$ for $i=1..n$.\\[2mm]
+  \textbf{Classical setup:}\\
+$Y_i=\x_i^\top\w^*+\xi_i$,\quad
+  $\E[\xi_i]=0$,\quad $\Var[\xi_i]=\sigma^2$,\quad $\cov[\xi_i,\xi_j]=0$,
+\  $i\neq j$\\[3mm]
+The \textit{ordinary least squares} estimator $\wols=\X^+ Y$ satisfies:
+  \begin{align*}
+    \text{\small(unbiasedness)}  && \quad \E[\wols]
+  \  &=\ \w^*,\\[2mm]
+    \text{\small(mean squared error)} &&\quad
+\overbrace{\E\,\|\wols-\w^*\|^2}^{\text{MSE}(\wols)}
+                                         \   &=\ \sigma^2\tr\big((\X^\top\X)^{-1}\big)\\
+    \text{letting }b=\tr\big((\X^\top\X)^{-1}\big)&&&=\frac bn\cdot \E\,\|\xib\|^2\\
+\hspace{-8mm}    \text{\small(mean squared prediction error)}
+&&\quad \overbrace{\E\,\|\X(\wols-\w^*)\|^2}^{\text{MSPE}(\wols)}
+   \  &=\ \sigma^2d \\
+    &&&=\frac dn \cdot\E\,\|\xib\|^2
+\end{align*}
+%   Suppose we have a budget of $k$ experiments. \textit{Goal:}\\
+% Construct a sequence of experiments $\pi\in[n]^k$ and
+%   estimator $\wbh_\pi$ s.t.
+%   \begin{align*}
+% \text{(unbiasedness)},\quad    \E[\wbh_\pi] &= \w^*,\quad\text{and}\\
+% \text{(mean squared error)},\quad
+%     \sum_{i=1}^d\Var\big[(\wbh_\pi)_i\big]&\text{ is small} \\
+%                                             &\text{ or }\\
+% \text{(m. sq. prediction e.)},\quad
+%     \sum_{i=1}^n\Var\big[\x_i^\top\wbh_\pi\big]&\text{ is small} 
+%   \end{align*}
+  % \textbf{Our general setup:}\\
+  % No assumptions on $Y_i$. We define $\w^* \defeq
+  % \E\big[\wbh\big]=\X^+\E[Y]$\\
+  % We consider the same problem with budget $k$\\
+  % (except we allow $\pi$ to be random to avoid adversarial scenarios)
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimental design in classical setting}
+  Suppose we have a budget of $k$ experiments out of the $n$
+  choices.\\
+  \textit{Goal:} Select a subset of $k$ experiments
+  $S\subseteq [n]$\\
+  \textbf{Question:} How large does $k$ need to be so that:
+  \[\overbrace{\text{Excess estimation error}}^{\text{MSE or MSPE}}
+    \ \leq\  \epsilon\,\cdot\,
+    \overbrace{\text{Total noise}}^{\E\,\|\xib\|^2}\quad ?\]
+ Denote $L^*=\E\,\|\xib\|^2 = n\sigma^2$.\\[3mm]
+ \textbf{Prior result:} \\
+   There is a design $(S,\wbh)$ of size $k$ s.t.~$\E[\wbh_S]=\w^*$ and:
+  \begin{align*}
+\text{MSE}(\wbh_S) - \text{MSE}(\wols)
+    \ &\leq\ \epsilon\cdot
+      L^*,\quad\text{for }k\geq  d+ b/\epsilon,\\
+\text{MSPE}(\wbh_S)-\text{MSPE}(\wols)
+\ &\leq\ \epsilon\cdot L^*,\quad\text{for }k\geq  d + d/\epsilon,
+  \end{align*}
+  where $b = \tr((\X^\top\X)^{-1})$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimental design in general setting}
+  %   We consider $n$ parameterized experiments:
+  % $\x_1,\dots,\x_n\in\R^d$.\\
+  % Each experiment has a real random outcome $Y_i$ for
+  % $i=1..n$.\\[2mm]
+  
+No assumptions on $Y_i$. We define
+  $\w^* \defeq\E[\wols]=\X^+\E[Y]$\\
+Define ``total noise'' as $L^* \defeq \E\,\|\xib\|^2$, where $\xib\defeq
+  \X^\top\w^*\!-\!Y$.\\[6mm] 
+
+  \textbf{Theorem 1 (MSE).}\\
+  There is a random design $(S,\wbh)$ such that $\E[\wbh_S]=\w^*$ and
+\begin{align*}
+\text{MSE}(\wbh_S) - \text{MSE}(\wols)
+    \ &\leq\ \epsilon\cdot
+      L^*,\quad\text{for }k=O(d\log n + b/\epsilon),
+\end{align*}
+where $b=\tr((\X^\top\X)^{-1})$.
+\vspace{6mm}
+
+  \textbf{Theorem 2 (MSPE).}\\
+  There is a random design $(S,\wbh)$ such that $\E[\wbh_S]=\w^*$ and
+\begin{align*}
+\text{MSPE}(\wbh_S) - \text{MSPE}(\wols)
+    \ &\leq\ \epsilon\cdot
+  L^*,\quad\text{for }k=O(d\log n + d/\epsilon).
+\end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Examples}
+  1. Statistical setting (homoscedastic noise):\\
+  $\E[\xi_i]=0$,\quad$\Var[\xi_i]=\sigma^2$,\qquad
+$L^* = n\sigma^2$\\[6mm]
+  2. Statistical setting (any mean-zero noise):\\
+  $\E[\xi_i]=0$,\quad$\Var[\xi_i] = \sigma_i^2$,\qquad
+  $L^*=\sum_i\sigma_i^2$ \\[6mm]
+  3. Computer science setting (fixed residuals):\\
+$\E[\xi_i]=r_i$,\quad \!$\Var[\xi_i] = 0$,\qquad
+\ $L^*=\sum_ir_i^2$\\[6mm]
+4. Anything in between...
+\end{frame}
+
+\begin{frame}
+  \frametitle{Minimax experimental design}
+  Given matrix $\X\in\R^{n\times d}$ and budget $k$ we define: 
+  \begin{align*}
+R_k^*(\X)\quad =\quad \min_{S,\wbh}\quad\overbrace{\max_{Y}\quad
+    \frac{\text{MSE}(\wbh_S)-\text{MSE}(\wols)}
+    {  \E\big[\|\X\w^*- Y\|^2\big]}}^{R_k(\wbh_S\,|\,\X)}
+  \end{align*}
+  \vspace{3mm}
+  
+  \textbf{Conjecture 1.} For any estimator $\wbh_S$, there is an
+ estimator $\wbt_S$ s.t.~$R_k(\wbt_S\,|\,\X)\leq
+ R_k(\wbh_S\,|\,\X)$ and $\E[\wbt_S]=\w^*$ for all $Y$.\\[5mm] 
+  \textbf{Conjecture 2.} Maximum over all
+  variables $Y$ is always equal to maximum over all constant vectors $\y$
+\end{frame}
+
+\begin{frame}
+  \frametitle{Tractable minimax design}
+    Given matrix $\X\in\R^{n\times d}$ and budget $k$ we
+    define:
+    \begin{align*}
+      \widehat{R}_k(\X)\quad =\quad \min_{q}\ R_k(\w_\pi^*\,|\,\X),
+    \end{align*}
+    where $\w_\pi^*$ is obtained by $q$-rescaled volume sampling.\\[5mm]
+    Advantages:
+    \begin{enumerate}
+    \item Efficient sampling,
+    \item Always unbiased,
+    \item $R_k(\w_\pi^*\,|\,\X)$ can be easily estimated.
+      % Defining $P_\X\defeq\X(\X^\top\X)^{-1}\X^\top$,
+      % \begin{align*}
+      %   R_k(\w_\pi^*\,|\,\X) =
+      %   \big\|\E\big[\Q_\pi^{\sfrac12}(\Q_\pi^{\sfrac12}\P_\X
+      %   \Q_\pi^{\sfrac12})^+\Q_\pi^{\sfrac12}\big]-\P_\X\big\|
+      % \end{align*}
+    \end{enumerate}
+    \vspace{3mm}
+    
+    \textbf{Question:} Is there an efficient iterative
+   optimizer for finding $q^*$?
+\end{frame}
+
+\section{Averaging unbiased estimators}
+
+
+% \begin{frame}
+% \frametitle{Subsampling for linear regression}
+% \only<1->
+% {
+% {\bf Given}: $n$ points $\x_i\in\R^d$ with hidden labels $y_i\in \R$\\
+% {\bf Goal}: Minimize loss $L(\w)= \sum_i (\x_i^\top\w-y_i)^2$ over
+% all $n$ points
+% }
+% \only<1>
+% {
+% \begin{columns}
+% \begin{column}{0.3\textwidth}
+% \end{column}
+% \begin{column}{0.5\textwidth}
+% \begin{center}
+% 	\begin{tikzpicture}[scale=0.9]
+%           \draw [fill=brown!30] (-2,0) rectangle (0,3);
+%           \draw [decorate,decoration={brace}] (-2.1,0) -- (-2.1,3);
+%           \draw (-2.4,1.51) node {\mbox{\fontsize{8}{8}\selectfont $n$}}; 
+%           \draw [decorate,decoration={brace}] (-2,3.1) -- (0,3.1);
+%           \draw (-1,3.4) node {\mbox{\fontsize{8}{8}\selectfont $d$}}; 
+
+% %          \draw [color=black] (-2,2) -- (0,2);
+% %          \draw (-2.25,2) node {\mbox{\footnotesize $\x_4^\top$}}; 
+% %          \draw [color=black] (-2,1.5) -- (0,1.5);
+% %          \draw (-2.25,1.5) node {\mbox{\footnotesize $\x_6^\top$}}; 
+% %          \draw [color=black] (-2,0.5) -- (0,0.5);
+% %          \draw (-2.25,0.5) node {\mbox{\footnotesize $\x_9^\top$}}; 
+% 	    \draw (-2.5,3) node {$\X$}; 
+%             \draw [color=lightgray,line width =0.5mm] (1,0) -- (1,3);
+%             \draw [color=lightgray] (0.75,3) node {$\y$};
+% %            \draw (0.75,2) node {\mbox{\footnotesize $y_4$}}; 
+% %            \draw (0.75,1.5) node {\mbox{\footnotesize $y_6$}}; 
+% %            \draw (0.75,0.5) node {\mbox{\footnotesize $y_9$}}; 
+% 	\end{tikzpicture}
+% \end{center}
+% \end{column}
+% \end{columns}
+% }
+% \only<2->
+% {
+% \begin{columns}
+% \begin{column}{0.3\textwidth}
+% \\\vspace{0.8cm}
+% Sample $S=\{4,6,9\}$\\
+% \vspace{1cm}
+% Receive $y_4, y_6, y_9$
+% \end{column}
+% \begin{column}{0.5\textwidth}
+% \begin{center}
+% 	\begin{tikzpicture}[scale=0.9]
+%           \draw [fill=brown!30] (-2,0) rectangle (0,3);
+%           \draw [color=black] (-2,2) -- (0,2);
+%           \draw (-2.25,2) node {\mbox{\footnotesize $\x_4^\top$}}; 
+%           \draw [color=black] (-2,1.5) -- (0,1.5);
+%           \draw (-2.25,1.5) node {\mbox{\footnotesize $\x_6^\top$}}; 
+%           \draw [color=black] (-2,0.5) -- (0,0.5);
+%           \draw (-2.25,0.5) node {\mbox{\footnotesize $\x_9^\top$}}; 
+% 	   \draw (-2.5,3) node {$\X$}; 
+%            \draw [decorate,decoration={brace}] (-2,3.1) -- (0,3.1);
+%           \draw (-1,3.4) node {\mbox{\fontsize{8}{8}\selectfont $d$}}; 
+%             \draw [color=lightgray,line width =0.5mm] (1,0) -- (1,3);
+%             \draw [color=lightgray] (0.75,3) node {$\y$};
+%             \draw (0.75,2) node {\mbox{\footnotesize $y_4$}}; 
+%             \draw (1,2) node {.}; 
+%             \draw[mark=*,mark size=1.5pt] plot coordinates{(1,2)};
+%             \draw (0.75,1.5) node {\mbox{\footnotesize $y_6$}}; 
+%             \draw (1,1.5) node {.}; 
+%             \draw[mark=*,mark size=1.5pt] plot coordinates{(1,1.5)};
+%             \draw (0.75,0.5) node {\mbox{\footnotesize $y_9$}}; 
+%             \draw[mark=*,mark size=1.5pt] plot coordinates{(1,.5)};
+% 	\end{tikzpicture}
+% \end{center}
+% \end{column}
+% \end{columns}
+% }
+% \vspace{1cm}
+% \pause
+% \pause
+% {\bf Goal}: Design the sampling of $S$ and estimator $\wbh(S)$ such that:
+% \begin{align*}
+% \E\Big[L\big(\wbh(S)\big)\Big] \leq (1+\epsilon)
+%   L(\w^*),\quad\text{where  }\w^* = \argmin_\w L(\w).
+% \end{align*}
+% \end{frame}
+
+\begin{frame}
+  \frametitle{Distributed sampling for regression}
+  Central server has the matrix $\X$ but no labels.\\
+
+  There is $m$ learners, each can query a small number of labels.\\[3mm]
+  % The learners are not allowed to share the labels with anyone.\\[3mm]
+
+  We consider the following distributed learning procedure:
+  \begin{enumerate}
+    \item For each $t$, server sends learner $t$ a small sample of
+      input points along with some side information,
+    \item Learner $t$ queries the labels and computes estimator $\wbh_t$
+      \item Server collects all estimators $\wbh_t$ and
+        produces:
+  \end{enumerate}
+\begin{align*}
+\wbh = \frac{1}{m}\sum_{t=1}^m\wbh_t
+\end{align*}
+\textbf{Goal:} Minimizing computation,
+communication and number of queries per learner, obtain $\wbh$ such that
+\begin{align*}
+\E\big[ L(\wbh)\big] \leq \Big(1+\frac1m\Big)\,L(\w^*).
+\end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Applying volume sampling in the distributed setting}
+  We generate $m$ independent volume sampled estimators $\wbh_t$.\\
+Volume sampling implies $\E[\wbh_t] = \w^*$, so for $\wbh =
+  \frac1m\sum_t\wbh_t$ we have
+  \begin{align*}
+    \E\big[L(\wbh)\big] -L(\w^*) = \frac1m\Big(\E\big[L(\wbh_t)\big]
+    - L(\w^*)\Big),
+  \end{align*}
+  for any fixed $t$.\\[2mm]
+  So if $\E[L(\wbh_t)]\leq 2\,L(\w^*)$, then $\E[L(\wbh)]\leq
+  (1+\frac1m)\,L(\w^*)$\\[5mm]
+  
+  \textbf{Note:} Tail bounds do not imply expected bounds!\\
+  \textbf{Example:} For an i.i.d.~leverage score sample of size
+  $O(d\log d+d/\epsilon)$, 
+  \begin{align*}
+L(\wbh_t)\leq (1+\epsilon) L(\w^*)\text{ w.p. 0.9,\quad but}\quad
+    \frac{\E\big[L(\wbh_t)\big]}{L(\w^*)} \text{ cannot be bounded}
+  \end{align*}
+  (a simple lower bound can be shown here)
+\end{frame}
+
+\begin{frame}
+  \frametitle{Comparison to prior results}
+  For volume sampling it was shown by [DW17] that
+  \begin{align*}
+    \E\big[L(\wbh_t)\big]\leq (d+1)\,L(\w^*)
+  \end{align*}
+So we need $d$ independent volume samples (of size $d$) per machine to
+get estimator $\wbh_t$ such that $\E\big[L(\wbh_t)\big]\leq
+2\,L(\w^*)$.\\[3mm] 
+To obtain an averaged estimator s.t. $\E[L(\wbh)]\leq
+(1+\frac1m)L(\w^*)$, the cost per machine is:
+\begin{enumerate}
+\item $d^2$ labels
+\item $ O(d^5)$ runtime
+\end{enumerate}
+\vspace{5mm}
+\hrule
+\vspace{6mm}
+
+The cost per machine obtained in \textbf{our new results} is:
+\begin{enumerate}
+\item $O(d\log n)$ labels \qquad (new expected loss bound)
+  \item $O(d^3\log n)$ runtime \qquad (new sampling algorithm)
+\end{enumerate}
+\end{frame}
+
+
+\section{Rescaled volume sampling [DWH18a]}
+
+\begin{frame}
+\frametitle{Rescaled volume sampling [DWH18a]}
+Let $\X\in\R^{n\times d}$ be any matrix and $q = (q_1...q_n)$ be any distribution\\
+For any $\pi\in[n]^k$, define matrix $\Q_\pi\in\R^{n\times n}$ s.t.
+\vspace{-2mm}
+\[
+\Q_\pi=\sum_{i=1}^k\frac{1}{q_{\pi_i}}\e_{\pi_i}\e_{\pi_i}^\top=\!\begin{pmatrix}
+\sfrac{s_{\pi\!,1}}{q_1}\!\!&&0\\
+&\ddots&\\
+0&&\!\!\sfrac{s_{\pi\!,n}}{q_n}
+\end{pmatrix}\quad\text{where}\quad s_{\pi\!,j}=|\{i:\pi_i=j\}|.
+\]
+% \[\Xt = \begin{pmatrix}\frac{1}{\sqrt{q_{1}}}\x_{1}^\top\\
+% \cdots\\
+% \frac{1}{\sqrt{q_{n}}}\x_{n}^\top
+% \end{pmatrix}.\]
+We define $q$-rescaled size $k$ volume sampling of $\X$:
+\begin{align*}
+\text{for $\pi\in[n]^k$,}\quad
+P(\pi) \propto \det\big(
+%\overbrace{\sum \frac{1}{q_{\pi_i}}\x_{\pi_i}\x_{\pi_i}^\top}^{
+\X^\top\!\Q_\pi\X\big) \prod_{i=1}^kq_{\pi_i}
+\end{align*}
+% \begin{align*}
+% P(\pi) \propto \det\big(
+% %\overbrace{\sum \frac{1}{q_{\pi_i}}\x_{\pi_i}\x_{\pi_i}^\top}^{
+% \Xt_{\pi}^\top\Xt_{\pi}\big) \prod_{i=1}^kq_{\pi_i}
+% \end{align*}
+% \textbf{Simple implementation using rejection sampling}:\\
+% 1. Sample $\hat{\pi}_1...\hat{\pi}_k\in[n]$ i.i.d. from $q$,\\
+% 2. w.p. $\det(\X^\top\!\Q_{\hat{\pi}}\X)\,/ D$, set $\pi=\hat{\pi}$ (otherwise go to step 1), where
+% \[D \geq \max_{\tilde{\pi}\in[n]^k}\det(\X^\top\!\Q_{\tilde{\pi}}\X)\]
+\end{frame}
+
+\begin{frame}
+\frametitle{Square loss under rescaled volume sampling}
+We define the least squares solution after sampling $\pi\in[n]^k$:
+\begin{align*}
+\w_\pi^* &\defeq \argmin_\w L_\pi(\w)\\
+\text{where }
+L_\pi(\w)&\defeq\|\Q_\pi^{\sfrac{1}{2}}(\X\w - \y)\|^2=\sum_{i=1}^ns_i\,\frac{1}{q_i}(\x_i^\top\w-\y_i)^2
+\end{align*}
+Then, the least squares solution can be computed as:
+\begin{align*}
+\w_\pi^* = (\Q_\pi^{\sfrac{1}{2}}\X)^+\Q_\pi^{\sfrac{1}{2}}\y
+\end{align*}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Prior results [DWH18a]}
+Unbiasedness for any $q$ with full support:
+\begin{align*}
+\E[\w_\pi^*] = \w^*
+\end{align*}
+
+\textbf{Leveraged volume sampling:}\\
+Use $q = (\frac{\ell_1}{d},...,\frac{\ell_n}{d})$, where $\ell_i=\x_i^\top(\X^\top\X)^{-1}\x_i$\\[4mm]
+\textit{Tail bounds for leveraged volume sampling:}
+\begin{align*}
+L(\w_\pi^*)\leq (1+\epsilon)\,L(\w^*)\quad\text{ w.p.~$0.9$ for }k\geq C\Big(d\log d + \frac{d}{\epsilon}\Big)
+\end{align*}
+\textit{Cost:} $O(d^4)$ per sample, \\
+plus computing leverage scores, $O(nd\log n + d^4\log d)$\\[3mm]
+\end{frame}
+
+
+\section{New expected loss bound}
+
+\begin{frame}
+  \frametitle{From random noise to fixed noise}
+  Recall that $\wbh=\X^+Y$ and $\w^*=\X^+\E[Y]$. Let
+  $\P\defeq\X\X^+$.\\
+  Note that if $\E[\w_\pi^*|Y]=\wbh$, then $\E[\w_\pi^*] = \w^*$. Also,
+  \begin{align*}
+    \E\big[\|\X\wbh-Y\|^2\big]
+    &= \E\big[\|\X(\wbh-\w^*)\|^2\big] +
+    \E\big[\|\X\w^*-Y\|^2\big] \\
+&= \E\big[\|\P(Y-\E[Y])\|^2\big] + \sum_i\E[\xi_i^2]\\
+    &\leq \E\big[\|Y-\E[Y]\|^2\big]+ L^*\ \leq\ 2\,L^*.
+  \end{align*}
+  Note that if $\Var[Y]=\zero$ then $\wbh=\w^*$ and $\|\X\wbh-Y\|^2=L^*$.\\
+  So, w.l.o.g.~we can assume that noise is fixed.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Main result}
+  Let $q =(q_1..q_n)$ be a distribution s.t. $q_i\geq
+  \max\{\frac1{2n},\frac{\ell_i}{2d}\}$ for all $i$.\\ [5mm]
+  \textbf{Theorem.} \ 
+For a $q$-rescaled volume sample of size $k=O(d \log n)$:
+  \begin{align*}
+    \E\big[L(\w_\pi^*)\big] \leq 2 L(\w^*).
+  \end{align*}
+  \vspace{8mm}
+  
+  \textbf{Preliminaries:} Let $\U = \X(\X^\top\X)^{-\frac12}$. Note
+  that
+  \begin{align*}
+    L(\w_\pi^*) - L(\w^*) = \|(\U^\top\Q_\pi\U)^{-1}\U^\top\Q_\pi\r\|^2,
+  \end{align*}
+  where $\r=\X\w^*-\y$ and $\|\r\|^2=L(\w^*)$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bounding the expected loss}
+We use \underline{closure under augmentation} with i.i.d. samples [DWH18b]:
+\begin{align*}
+  \pi = [\underbrace{\pi_1,\ \dots,\ \pi_d}_{\text{volume
+  sampling}}\ ,\ \underbrace{\pi_{d+1},\ \dots,\ \pi_k}_{\text{i.i.d.~samples}}].
+\end{align*}
+Let $A$ be the event that
+$\|(\frac1s\U^\top\Q_{\pi_{s:k}}\U)^{-1}\|\leq 2$ for $s=k/2$.
+\begin{align*}
+\E\big[L(\w_\pi^*)\big] = \Pr(A)\,\E\big[L(\w_\pi^*)\,|\,A\big] +
+\Pr(\neg A)\,\E\big[L(\w_\pi^*)\,|\,\neg A\big].
+\end{align*}
+For $k=\Theta(d\log \frac{d}{\delta})$ we have $\Pr(\neg A)\leq
+\delta$ and:  
+\begin{align*}
+ \Pr(A)\E\big[L(\w_\pi^*)\,|\,A\big]&= \frac32 L(\w^*),\\
+  \E\big[L(\w_\pi^*)\,|\,\neg A\big]& = Cnd\, L(\w^*).
+\end{align*}
+For $\delta=\frac1{2Cnd}$, we get
+$\E\big[L(\w_\pi^*)\big] \leq 2 L(\w^*)$ for $k=\Theta(d\log n)$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bounding expected loss when A succeeds}
+Recall that for $\r=\X\w^*-\y$, we have $\|\r\|^2=L(\w^*)$ and
+$\E\big[\|\frac1k\U^\top\Q_\pi\r\|^2\big] \leq C\frac{d}{k}\|\r\|^2$
+(Theorem 8 [DWH18a]). If $A$, then
+\begin{center} $\|(\frac1k\U^\top\Q_\pi\U)^{-1}\|\leq
+  2\,\|(\frac1s\U^\top\Q_{\pi_{s:k}}\U)^{-1}\|\leq 4$,\quad so\end{center} 
+  \begin{align*}
+    \hspace{-5mm}
+    \Pr(A)\,\Big(\E\big[L(\w_\pi^*)\,|\,A\big] - L(\w^*)\Big)
+    &=
+      \Pr(A)\,
+      \E\Big[\big\|(\frac1k\U^\top\Q_\pi\U)^{-1}
+      \frac1k\U^\top\Q_\pi\r\big\|^2\,|\,A\Big]
+    \\
+    &\leq 16\ \Pr(A)\,\E\Big[\|\frac1k\U^\top\Q_\pi\r\|^2\,|\,A\Big],
+  \end{align*}
+Now, we just have to get rid of the conditioning on $A$:
+  \begin{align*}
+    \hspace{-0.7cm}\Pr(A)\, \E\Big[\|\frac1k\U^\top\Q_\pi\r\|^2\,|\,A\Big]
+    &=
+    \E\Big[\|\frac1k\U^\top\Q_\pi\r\|^2\Big] - \Pr(\neg A)
+    \E\Big[\|\frac1k\U^\top\Q_\pi\r\|^2\,|\,\neg A\Big]\\
+    &\leq \E\Big[\|\frac1k\U^\top\Q_\pi\r\|^2\Big] \leq  \frac1{32}L(\w^*),
+  \end{align*}
+  for $k\geq 32Cd$, so we get $\Pr(A)\,\E[L(\w_\pi^*)\,|\,A]\leq
+  \frac32 L(\w^*)$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bounding expected loss when A fails}
+  For this we use that $q_i\geq
+  \max\{\frac1{2n},\frac{\ell_i}{2d}\}$, so that $\Q_\pi\preceq 2nk\,\I$.
+  \begin{align*}
+    L(\w_\pi^*)& - L(\w^*)
+= \|(\U^\top\Q_\pi\U)^{-1}\U^\top\Q_\pi\r\|^2 = \r^\top\Q_\pi\U (\U^\top\Q_\pi\U)^{-2}\U^\top\Q_\pi\r\\
+&\leq \|\r\|^2 \big\|\Q_\pi\U (\U^\top\Q_\pi\U)^{-2}\U^\top\Q_\pi\big\|\\
+&\leq L(\w^*)\tr\big(\Q_\pi\U
+(\U^\top\Q_\pi\U)^{-2}\U^\top\Q_\pi\big)\\
+&= L(\w^*)
+\tr\big(\U^\top\Q_\pi^2\U(\U^\top\Q_\pi\U)^{-2}\big)\\
+&\leq L(\w^*)2nk\, \tr\big(
+\U^\top\Q_\pi\U(\U^\top\Q_\pi\U)^{-2}\big)\\
+&=2nk\,L(\w^*)\,\tr\big((\U^\top\Q_\pi\U)^{-1}\big)\leq 2nk\,L(\w^*)\,\tr\big((\U^\top\Q_{\pi_{1:s-1}}\U)^{-1}\big).
+  \end{align*}
+Note that $\pi_{1:s-1}$ is distributed according to leveraged volume
+sampling (up to permutation), and it is independent of event $A$, so:
+\begin{align*}
+  \E\Big[\tr\big((\U^\top\Q_{\pi_{1:s-1}}\U)^{-1}\big)\,|\,\neg A\Big]
+  &=\E\Big[\tr\big((\U^\top\Q_{\pi_{1:s-1}}\U)^{-1}\big)\Big]\\
+\big(\text{Theorem 4 [DWH18a]}\big)\quad  &\leq \frac{\tr\big((\U^\top\U)^{-1}\big)}{s-d}= \frac{2d}{k-2d}
+\end{align*}
+So we get $\E\big[L(\w_\pi^*)\,|\,\neg A\big]= O\big(nd\,L(\w^*)\big)$.
+\end{frame}
+
+\section{New Variance bound}
+
+\begin{frame}
+  \frametitle{Bounding the variance}
+We use \underline{closure under augmentation} with i.i.d. samples [DWH18b]:
+\begin{align*}
+  \pi = [\underbrace{\pi_1,\ \dots,\ \pi_d}_{\text{volume
+  sampling}}\ ,\ \underbrace{\pi_{d+1},\ \dots,\ \pi_k}_{\text{i.i.d.~samples}}].
+\end{align*}
+Let $A$ be the event that
+$\|(\frac1s\X^\top\Q_{\pi_{s:k}}\X)^{-1}\X^\top\X\|\leq 2$ for $s=k/2$.
+\begin{align*}
+  \E\big[\|\w_\pi^*-\w^*\|^2\big]
+  &= \Pr(A)\,\E\big[\|\w_\pi^*-\w^*\|^2\,|\,A\big] \\
+  &\quad + \Pr(\neg A)\,\E\big[\|\w_\pi^*-\w^*\|^2\,|\,\neg A\big].
+\end{align*}
+% For $k=\Theta(d\log \frac{d}{\delta})$ we have $\Pr(\neg A)\leq
+% \delta$ and:  
+% \begin{align*}
+%  \Pr(A)\E\big[L(\w_\pi^*)\,|\,A\big]&= \frac32 L(\w^*),\\
+%   \E\big[L(\w_\pi^*)\,|\,\neg A\big]& = Cnd\, L(\w^*).
+% \end{align*}
+% For $\delta=\frac1{2Cnd}$, we get
+% $\E\big[L(\w_\pi^*)\big] \leq 2 L(\w^*)$ for $k=\Theta(d\log n)$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{If A fails}
+  Assume that $q_i\geq \frac1{2n}$, so that $\Q_\pi\preceq 2nk\I$.
+  \begin{align*}
+    \|\w_\pi^*-\w^*\|^2
+    &= \big\|(\X^\top\Q_\pi\X)^{-1}\X^\top\Q_\pi(\y -
+      \X\w^*)\big\|^2\\
+    &\leq
+      \|\xib\|^2\,\|\Q_\pi\X(\X^\top\Q_\pi\X)^{-2}\X^\top\Q_\pi\|\\
+    &\leq
+      \|\xib\|^2\tr\big(\X^\top\Q_\pi^2\X(\X^\top\Q_\pi\X)^{-2}\big)\\
+    &\leq 2nk  \|\xib\|^2\tr\big((\X^\top\Q_\pi\X)^{-1}\big)
+      \leq 2nk  \|\xib\|^2\tr\big((\X^\top\Q_{\pi_{1:s-1}}\X)^{-1}\big)
+  \end{align*}
+  Note that $\pi_{1:s-1}$ is distributed according to leveraged volume
+sampling (up to permutation), and it is independent of event $A$, so:
+\begin{align*}
+  \E\Big[\tr\big((\X^\top\Q_{\pi_{1:s-1}}\X)^{-1}\big)\,|\,\neg A\Big]
+  &=\E\Big[\tr\big((\X^\top\Q_{\pi_{1:s-1}}\X)^{-1}\big)\Big]\\
+\big(\text{Theorem 4 [DWH18a]}\big)\quad  &\leq \frac{\tr\big((\X^\top\X)^{-1}\big)}{s-d}= \frac{2b}{k-2d}
+\end{align*}
+So we get $\E\big[\|\w_\pi^*-\w^*\|^2|\,\neg A\big]\leq Cnb\,\|\xib\|^2$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{If A succeeds}
+  \begin{align*}
+\hspace{-6mm}    \E\big[\|\w_\pi^*-\w^*\|\,|\,A\big]
+    &= \E\big[\big\|(\X^\top\Q_\pi\X)^{-1}\X^\top\Q_\pi(\y - \X\w^*)\big\|\,|\,A\big]\\
+    &\leq
+      \E\Big[\Big\|\Big(\frac1k\X^\top\Q_\pi\X\Big)^{-1}\X^\top\X\Big\|\cdot
+      \Big\|\frac1k(\X^\top\X)^{-1}\X^\top\Q_\pi
+      \xib\Big\|\,|\,A\Big]\\
+    &\leq 2\ \E\Big[\Big\|\frac1k(\X^\top\X)^{-1}\X^\top\Q_\pi
+      \xib\Big\|\,|\,A\Big]
+  \end{align*}
+  So, we have:
+  \begin{align*}
+    \Pr(A)\E\big[\|\w_\pi^*-\w^*\|\,|\,A\big]
+    &\leq 2\ \Pr(A)\ \E\Big[\Big\|\frac1k(\X^\top\X)^{-1}\X^\top\Q_\pi
+    \xib\Big\|\,|\,A\Big]\\
+    &\leq2\, \E\Big[\Big\|\frac1k(\X^\top\X)^{-1}\X^\top\Q_\pi
+    \xib\Big\|^2\Big]
+    \end{align*}
+  So again we need \textit{matrix multiplication}.
+  \end{frame}
+
+\begin{frame}
+  \frametitle{Sampling with pseudo-inverse square norms}
+  Consider a distribution $q=(q_1,\dots,q_n)$ such that
+  \begin{align*}
+    q_i \geq \frac{\|(\X^+)_{:,i}\|^2}{2\,\|\X^+\|_F^2} =
+    \frac{\x_i^\top(\X^\top\X)^{-2}\x_i}{2\,\tr\big((\X^\top\X)^{-1}\big)}.
+  \end{align*}
+  From standard matrix multiplication, if $\X^\top\r = \zero$, then:
+  \begin{align*}
+    \E\  \Big\|\frac1k\X^+\Q_\pi \r\Big\|^2 \leq
+    C\,\frac1k \|\X^+\|_F^2\,\|\r\|^2.
+  \end{align*}
+  Note that $\|\X^+\|_F^2=\tr\big((\X^\top\X)^{-1}\big)=b$. \\
+  So for $k=O(b/\epsilon)$ we have $\E\|\frac1k\X^+\Q_\pi\r\|^2\leq
+  \epsilon\cdot L^*$.\\[5mm]
+  \textbf{Question:} Can we get subspace embedding with this sampling?
+\end{frame}
+
+\begin{frame}
+  \frametitle{Chernoff bound for pseudo-inverse square norms}
+Let $q$ be as before and $\U=\X(\X^\top\X)^{-\frac12}$.  Observe that:
+  \begin{align*}
+\|\u_i\|^2=\x_i^\top(\X^\top\X)^{-1}\x_i \leq
+    \lambda_{\max}(\X^\top\X)\cdot \x_i^\top(\X^\top\X)^{-2}\x_i. 
+  \end{align*}
+  Let $\Z_i = \frac1{q_i}\u_i\u_i^\top$.
+  Sample $\pi_1,\dots,\pi_k\sim q$.\\[1mm]
+  Matrix Chernoff for matrices
+  $\|\Z_{\pi_i}\|\leq \lambda_{\max}(\X^\top\X)\cdot b$ says we
+  need
+  \[k=O\big( \lambda_{\max}(\X^\top\X)\cdot b\log
+    (d/\delta)\big)=O\big(\kappa d\log(d/\delta)\big),\]
+  and for this $k$ we get $Pr(\neg A)\leq \delta$.
+  \end{frame}
+
+\begin{frame}
+  \frametitle{Sampling with a mixture}
+  Consider a distribution $q=(q_1,\dots,q_n)$ such that
+  \begin{align*}
+    q_i = \frac{\beta\ell_i+ \| (\X^+)_{:,i}\|^2}{\beta d +b}.
+  \end{align*}
+where $\ell_i=\x_i^\top(\X^\top\X)^{-1}\x_i$. Let $\z_i =
+\frac{r_i}{q_i}(\X^+)_{:,i}$. If $\X^\top\r = \zero$, then
+$\E[\z_{\pi_1}] = \X^+\r = (\X^\top\X)^{-1}\X^\top\r = \zero$ and:
+  \begin{align*}
+    \E\, \Big\|\frac1k\X^+\Q_\pi \r\Big\|^2 &= \E\,\Big\|\frac1k
+    \sum_{i=1}^k\z_{\pi_i}\Big\|^2 = \frac1k
+    \E\,\|\z_{\pi_1}\|^2\\
+    &=\sum_{i=1}^nq_i \frac{r_i^2 \| (\X^+)_{:,i}\|^2}{q_i^2}\leq
+\frac{\beta d\!+\! b}{k}\|\r\|^2
+  \end{align*}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Chernoff bound for mixture}
+  Consider a distribution $q=(q_1,\dots,q_n)$ such that
+  \begin{align*}
+    q_i = \frac{\beta\ell_i+ \| (\X^+)_{:,i}\|^2}{\beta d +b}.
+  \end{align*}
+  Let $\Z_i = \frac1{q_i}\u_i\u_i^\top$.
+  Sample $\pi_1,\dots,\pi_k\sim q$.\\[1mm]
+  Matrix Chernoff for matrices
+  $\|\Z_{\pi_i}\|\leq \frac{\beta d + b}{\beta}= d + b/\beta$ says we
+  need $k\geq (d+b/\beta)\log d/\delta$.
+%   \begin{align*}
+%     \Pr\bigg(\lambda_{\min}\Big(\frac1k\sum_{i=1}^k\z_{\pi_i}\z_{\pi_i}^\top\Big)
+%     \leq \frac12\mu_{\min}\bigg)\leq d \text{e}^{-k\mu_{\min}/b}
+%   \end{align*}
+% where  $\mu_{\min}=\lambda_{\min}\big(\X^+\X^{+\top}\big)=\lambda_{\min}\big((\X^\top\X)^{-1}\big)$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Selecting the optimal mixture}
+  To get subspace embedding and matrix multiplication we need:
+  \begin{align*}
+    k = O\big( (d+b/\beta)\log n + (\beta d + b)/\epsilon\big)
+  \end{align*}
+  Selecting $\beta = \sqrt{\frac{b\epsilon}{d}\log n}$, we get:
+  \begin{align*}
+    (d+b/\beta)\log n + (\beta d + b)/\epsilon
+    &= d\log n +
+    2\sqrt{(b/\epsilon)d\log n} + b/\epsilon\\
+&=\big(\sqrt{d\log n} + \sqrt{b/\epsilon}\big)^2\\
+&\leq 2\,(d\log n + b/\epsilon)
+    \end{align*}
+  \end{frame}
+
+\begin{frame}
+  \frametitle{Leverage score sampling analysis}
+  \begin{align*}
+\hspace{-6mm}    \|\w_\pi^*-\w^*\|
+    &= \big\|(\X^\top\Q_\pi\X)^{-1}\X^\top\Q_\pi
+      \overbrace{(\y - \X\w^*)}^{\r}\big\|\\
+    &\leq
+      \Big\|\Big(\frac1k\X^\top\Q_\pi\X\Big)^{-1}\X^\top\X\Big\|\cdot
+      \Big\|\frac1k(\X^\top\X)^{-1}\X^\top\Q_\pi \r\Big\|\\
+    &\leq
+      \Big\|\Big(\frac1k\X^\top\Q_\pi\X\Big)^{-1}\X^\top\X\Big\|\cdot
+      \big\|(\X^\top\X)^{-\frac12}\big\|\cdot
+      \Big\|\frac1k\underbrace{(\X^\top\X)^{-\frac12}\X^\top}_{\U^\top}\Q_\pi\r\Big\|
+  \end{align*}
+  For $k\geq C\cdot d\log d/\delta$ we can bound the first term by a
+  constant.\\
+  For $k\geq C\cdot d/(\delta\epsilon)$ we can bound the third term by
+  $\sqrt{\epsilon}\cdot \|\r\|$. So:
+  \begin{align*}
+    \|\w_\pi^*-\w^*\|^2\leq \frac{\epsilon}{\lambda_{\min}(\X^\top\X)}
+    L^*\leq \epsilon\,b\cdot L^*.
+  \end{align*}
+
+\end{frame}
+
+
+\section{New sampling algorithm}
+
+\begin{frame}
+  \frametitle{Main algorithmic result and comparison to prior work}
+  Previous volume sampling algorithms:
+  \begin{enumerate}
+  \item Classical bottom-up sampling: $O(nd^2)$ per sample [...]\\[2mm]
+  \item Reverse iterative sampling: $O(nd^2)$ per sample [DW18b]\\[2mm]
+  \item Det. rejection sampling: $O(d^4)$ per sample
+    [DWH18a]\\
+    One-time preprocessing: $O(nd^2)$ or $O(nd\log n + d^4\log d)$
+  \end{enumerate}
+  \vspace{5mm}
+  
+  \textbf{Theorem.} \  Classical bottom-up sampling can be implemented in
+  time $O(d^3\log d)$ per sample (after $O(nd^2)$ preprocessing).
+  
+\end{frame}
+
+  \begin{frame}
+    \frametitle{Classical bottom-up algorithm in $nd^2$ time}
+    Preprocessing: we compute matrix $\U=\X(\X^\top\X)^{-\frac12}$.\\[2mm]
+    
+    $\verb~Bottom-up~(\U)$:\vspace{0mm}
+    
+  \begin{algorithmic}[1]
+    \STATE \textbf{input:} $\U\in\R^{n\times d}$, such that $\U^\top\U=\I$
+    % \STATE $\forall _{i=1}^n\ \ubt_i \leftarrow\u_i$
+    \STATE $\U^{(0)} \leftarrow \U$
+    \STATE \textbf{for }$k=1..d$
+    \STATE  \quad Sample $\sigma_k \sim \big(\|\u_1^{(k-1)}\|^2,\dots,\|\u_n^{(k-1)}\|^2\big)$
+    \STATE \quad$\U^{(k)}\leftarrow \U^{(k-1)}\Big(\I -
+    \frac{\u_{\sigma_k}\u_{\sigma_k}^\top}{\|\u_{\sigma_k}\|^2}\Big)$
+    \STATE \textbf{end for}
+    \RETURN $S = \{\sigma_1,\dots,\sigma_d\}$
+  \end{algorithmic}
+  Note that $\U^{(k) \top}\U^{(k)}$ is a $(d-k)$-dimensional projection
+  so
+  \begin{align*}
+    \sum_{i=1}^n \big\|\u_i^{(k-1)}\big\|^2
+    &= \tr\big(\U^{(k)\top}\U^{(k)}\big) = d-k,\\
+\Pr(S)
+&=d!\cdot\prod_{k=0}^{d-1}\frac{\|\u_{\sigma_k}^{(k-1)}\|^2}{d-k}
+=\det(\U_S)^2.       
+  \end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Sampling from projected leverage scores}
+Given $\X$ and $\U=\X(\X^\top\X)^{-\frac12}$ and set $S$ of size $k$
+let:
+\begin{align*}
+  \P_S = \prod_{i\in S}\bigg(\I -
+  \frac{\u_i\u_i^\top}{\|\u_i\|^2}\bigg)\quad (\text{note:
+  }\text{rank}(\P_S) = d-k)
+\end{align*}
+Consider rejection sampling procedure:\\[1mm]
+1. Sample $i\sim
+\big(\frac{\|\u_1\|^2}{d},\dots,\frac{\|\u_n\|^2}{d}\big)$\\
+2. Accept with probability $\frac{\|(\U\P_S)_i\|^2}{\|\u_i\|^2}$
+(trivially bounded by 1)\\[5mm]
+This samples $i\sim \|(\U\P_S)_i\|^2$. Expected acceptance probability is:
+\begin{align*}
+  \E\bigg[\frac{\|(\U\P_S)_i\|^2}{\|\u_i\|^2}\bigg]
+  = \sum_{i=1}^n\frac{\|\u_i\|^2}{d}\,
+  \frac{\|(\U\P_S)_i\|^2}{\|\u_i\|^2} = \frac{\tr(\P_S\U^\top\U\P_S)}{d} = \frac{d-k}{d}.
+\end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bottom-up sampling using leverage scores}
+  $\verb~Bottom-up~(\U,\P)$,\quad \big(preprocessing computes
+  $\U=\X(\X^\top\X)^{-\frac12}$\big)
+  \begin{enumerate}
+  \item Let $r=\text{rank}(\P)$. If $r = 0$ then return $\{\}$
+  \item Repeat until accepted
+    \begin{enumerate}
+      \item Sample $i \sim
+        \big(\frac{\|\u_1\|^2}{d},\dots,\frac{\|\u_n\|^2}{d}\big)$
+      \item Accept w.p. $\frac{\|(\U\P)_i\|^2}{\|\u_i\|^2}$
+      \end{enumerate}
+    \item $S \sim \verb~Bottom-up~\bigg(\U,\ \  \P\cdot \Big(\I -
+      \frac{\P\u_i\u_i^\top\P}{\|(\U\P)_i\|^2}\Big)\bigg)$
+    \item Return $\{i\} \cup S$
+    \end{enumerate}
+    Expected number of rejection sampling trials is:
+    \begin{align*}
+      \sum_{k=0}^{d-1}\frac{d}{d-k} = d\sum_{i=1}^d\frac1i= O\big(d\ln(d)\big)
+    \end{align*}
+Trial is $d^2$, updating $\P$ is $d^2$, so expected
+runtime is $O(d^3\log d)$\\
+\textbf{Note:} \ There is a one-time preprocessing cost of $O(nd^2)$.
+\end{frame}
+
+
+\end{document}

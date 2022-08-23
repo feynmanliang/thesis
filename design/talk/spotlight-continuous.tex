@@ -1,0 +1,130 @@
+\documentclass[8pt]{beamer}
+% \beamertemplateshadingbackground{brown!70}{yellow!10}
+\mode<presentation>
+{
+  %\usetheme{Warsaw}
+  \usecolortheme{crane}
+  % or ...
+
+  % \setbeamercovered{transparent}
+  % \setbeamercovered{
+  %   still covered={\opaqueness<1>{50}\opaqueness<2->{20}}
+  % }
+%    \setbeamercovered{invisible}
+  % or whatever (possibly just delete it)
+}
+\setbeamertemplate{navigation symbols}{}
+% \setbeamertemplate{footline}[frame number]{}
+\usepackage{tikz,pgfplots}
+\pgfplotsset{compat=newest}
+\usepackage[utf8]{inputenc}
+\usetikzlibrary{patterns}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{colortbl}
+%\usepackage{multicol}
+\usepackage{cancel}
+\usepackage{ulem}
+\usepackage{multirow}
+\usepackage{relsize}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{forloop}% http://ctan.org/pkg/forloop
+\newcounter{loopcntr}
+\newcommand{\rpt}[2][1]{%
+  \forloop{loopcntr}{0}{\value{loopcntr}<#1}{#2}%
+}
+%\pagestyle{plain}
+%\input{defs2}
+\input{../shortdefs}
+
+\edef\polishl{\l}
+\setlength{\columnsep}{0.7em}
+\setlength{\columnseprule}{0mm}
+\setlength{\arrayrulewidth}{1pt} 
+
+\newcommand{\svr}[1]{{\textcolor{darkSilver}{#1}}}
+\definecolor{brightyellow}{cmyk}{0,0,0.7,0.0}
+\definecolor{lightyellow}{cmyk}{0,0,0.3,0.0}
+\definecolor{lighteryellow}{cmyk}{0,0,0.1,0.0}
+\definecolor{lightestyellow}{cmyk}{0,0,0.05,0.0}
+
+%  \fboxsep=3pt
+% %\fboxsep=0mm%padding thickness
+% \fboxrule=2pt%border thickness
+
+
+\setkeys{Gin}{width=0.7\textwidth}
+
+% \title[]{Unbiased estimates for linear regression\\
+% via volume sampling}
+% \date{NIPS'17, 12-5-2017}
+% \author[]{Micha{\polishl } Derezi\'{n}ski and Manfred Warmuth}
+
+\begin{document}
+
+\begin{frame}
+  \frametitle{
+\centering\textrm{Exact expressions for double descent and
+    implicit regularization via surrogate random design}\\[1mm]
+\normalsize{\it Micha{\polishl } Derezi\'{n}ski, \ Feynman Liang,
+  \ Michael Mahoney\qquad UC Berkeley}\\[-5mm]
+}
+\begin{columns}
+  \begin{column}{0.53\textwidth}
+    \begin{center}
+      {\only<2>{\bf}
+        \large\underline{Double descent}}
+    \end{center}
+    \vspace{2mm}
+    
+    ``Classical'' ML: \hfill\textit{parameters} $\ll$ \textit{data}\quad~\\
+    ``Modern'' ML: \hfill \textit{parameters} $\gg$ \textit{data}\quad~\\
+\textit{Phase transition:} \hfill\textit{parameters} $\sim$ \textit{data}\quad~\\[7mm]
+\textbf{Our contribution:}\\
+New \textit{exact} analysis for a linear model
+    
+\includegraphics[width=\textwidth]{figs/descent-intro-nice}
+\vspace{2mm}
+
+{\footnotesize
+%  Belkin, Hsu, Ma, Mandal (2019). arXiv:1812.11118\\
+\mbox{Hastie, Montanari, Rosset, Tibshirani (2019).~arXiv:1903.08560}\\
+   Bartlett, Long, Lugosi, Tsigler (2019). arXiv:1906.11300\\
+}
+  
+
+\end{column}
+\begin{column}{0.53\textwidth}
+    \begin{center}
+      {\only<3>{\bf}
+        \large\underline{Implicit regularization}}
+  \end{center}
+  \vspace{2mm}
+  
+Why does ``Modern'' ML work?\\
+Because it induces implicit regularization\\[10mm]
+\textbf{Our contribution:}\\
+Implicit \textit{ridge} regularization of the\\
+minimum-norm interpolating model $\X^\dagger\y$
+\vspace{3mm}
+  \begin{align*}
+    \E[\X^\dagger\y]
+    &\,\simeq\,
+      \argmin_\w\E\big[(\x^\top\w-y)^2\big] + \overbrace{\lambda
+    \,\|\w\|^2}^{\text{ridge}}\\
+&\quad\text{when parameters $\gg$ data}
+  \end{align*}
+  \vspace{7mm}
+
+  {\footnotesize
+    Mahoney (2012). arXiv:1203.0786\\
+    Neyshabur, Tomioka, Srebro (2014). arXiv:1412.6614\\
+    }
+\end{column}
+\end{columns}
+\pause\pause
+\end{frame}
+
+
+\end{document}

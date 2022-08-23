@@ -1,0 +1,1019 @@
+\documentclass{article}
+
+% Recommended, but optional, packages for figures and better
+% typesetting:
+\usepackage{fullpage}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{booktabs} % for professional tables
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathabx}
+\usepackage{color}
+\usepackage{cancel}
+\usepackage{wrapfig}
+\usepackage{caption}
+\usepackage{xfrac}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{mdframed}
+\usepackage{enumitem}
+%\usepackage{hyperref}
+\usepackage{cleveref}
+\input{shortdefs}
+
+\title{\textbf{Appendix for:} A multiple-descent curve in the Column Subset Selection
+  Problem
+  and the Nystr\"om method}
+\date{}
+
+  \begin{document}
+  \maketitle
+
+  \appendix
+
+  \section{Expectation formula for the random projection matrix}
+  \begin{theorem}\label{l:expectation_proj}
+  For any $\A$ and $S\subseteq [n]$, let $\P_S$ denote the  
+projection onto the $\mathrm{span}\{\a_i:i\in S\}$. If $S\sim \DPP(\A^\top\A)$, then
+\begin{align*}
+  \E[\P_S] & = \A(\I+\A^\top\A)^{-1}\A^\top.
+\end{align*}
+\end{theorem}
+\begin{proof}
+Fix $m$ as the column dimension of $\A$ and let $\A_S$ denote the
+submatrix of $\A$ consisting of the columns 
+indexed by $S$. We have $\P_S=\A_S(\K_{S,S})^+\A_S$, where $^+$
+denotes Moore-Penrose pseudo-inverse and $\K=\A^\top\A$. Let
+$\v\in\R^m$ be an arbitrary vector. When $\K_{S,S}$ is
+invertible, then a standard determinantal 
+identity states that:
+  \begin{align*}
+\det(\K_{S,S})\v^\top\P_S\v
+    =\det(\K_{S,S})\v^\top\A_S\K_{S,S}^{-1}\A_S^\top\v = \det(\K_{S,S}+\A_S^\top\v\v^\top\A_S)-\det(\K_{S,S}).
+  \end{align*}
+When $\K_{S,S}$ is not invertible then
+$\det(\K_{S,S})=\det(\K_{S,S}+\A_S^\top\v\v^\top\A_S)=0$, because the
+rank of $\K_{S,S}+\A_S^\top\v\v^\top\A_S=\A_S^\top(\I+\v\v^\top)\A_S$
+cannot be higher than the rank of $\K_{S,S}=\A_S^\top\A_S$. Thus,
+\begin{align*}
+  \det(\I+\K)\v^\top\E[\P_S]\v
+  &= \sum_{S\subseteq[n]:\,\det(\K_{S,S})>0}\det(\K_{S,S})
+\v^\top\A_S\K_{S,S}^{-1}\A_S^\top\v\\
+  &=\sum_{S\subseteq[n]}\det(\K_{S,S}+\A_S^\top\v\v^\top\A_S)-\det(\K_{S,S})\\
+  &=\sum_{S\subseteq[n]}\det\!\big([\K+\A^\top\v\v^\top\A]_{S,S}\big)-\det(\K_{S,S})\\
+  &\overset{(*)}{=}\det(\I + \K + \A^\top\v\v^\top\A) - \det(\I+\K)\\
+  &=\det(\I+\K)\v^\top\A(\I+\K)^{-1}\A^\top\v,
+\end{align*}
+where $(*)$ involves two applications of the determinantal summation identity (Theorem
+2.1, \cite{Kulesza2012book}) that corresponds to computing the
+normalization constant $\det(\I+\K)$ for a DPP. Since the above
+calculation holds for arbitrary vector $\v$, the claim follows.
+\end{proof}
+
+  \section{Non-trivial results for size less than stable rank}
+  We first point out the trivial upper bound.
+  \begin{theorem}
+    For any $\A$ and 
+    $r=\sr(\A)$, for all subsets $S$ of size $k<r$ we have
+    \begin{align*}
+      \Er_\A(S)\leq \Big(\,1+\tfrac{k}{r-k}\,\Big)\,\|\A-\A_k\|_F^2.
+    \end{align*}
+  \end{theorem}
+  \begin{proof}
+    First note that $\|\A-\A_k\|_F^2\geq \lambda_1(r-k)$, where
+    $r=\sr(\A)$ and $\lambda_1$ is the largest eigenvalue of
+    $\A^\top\A$. It follows that:
+    \begin{align*}
+      \Er_\A(S) = \|\A-\P_S\A\|_F^2 \leq \|\A\|_F^2= r\cdot \lambda_1
+      \leq \frac{r}{r-k}\,\|\A-\A_k\|_F^2,
+    \end{align*}
+    which concludes the proof.
+  \end{proof}
+
+  Next, we point out a non-trivial bound which improves the factor
+  when $k>r/2$.
+  \begin{theorem}
+Let $r=\sr(\A)$ and $k\in (\frac r2, r)$. There is $\alpha$ such that for
+    $S\sim\DPP(\frac1\alpha\A^\top\A)$,
+    \begin{align*}
+      \E[|S|]\leq k,\quad\text{and}\quad\E\big[\Er_\A(S)\big] \leq
+     \Big(\,1 +  \sqrt{\!\tfrac {k}{r-k}}\,\Big)\cdot\|\A-\A_k\|_F^2.
+    \end{align*}
+  \end{theorem}
+
+  \begin{proof}
+    Without loss of generality, assume that $\lambda_1=1$. Set
+    $\alpha=E_k/(\sqrt{r-k}(\sqrt k-\sqrt{r-k}))$, where $E_k=\sum_{j>k}\lambda_j=\|\A-\A_k\|_F^2\geq r-k$. Let
+    $\lambda_1'=...=\lambda_k'=1$, and for $i>k$ set
+    $\lambda_i'=\beta\lambda_i$, where $\beta = \frac{r-k}{E_k}\leq 1$. Now, let $\alpha'=\beta\alpha$. We have:
+  \begin{align*}
+    \E[|S|] &= \sum_{i}\frac{\lambda_i}{\lambda_i+\alpha} 
+   \leq\sum_{i=1}^k\frac{\lambda_i}{\lambda_i+\beta\alpha}
+    + \sum_{i>k}\frac{\beta\lambda_i}{\beta\lambda_i+\beta\alpha}\\
+&   \leq \sum_i \frac{\lambda_i'}{\lambda_i'+\alpha'}
+=\frac{k}{1+\alpha'} + \sum_{i> k}\frac{\lambda_i'}{\lambda_i'+\alpha'}\\
+    &\leq
+k - \frac k{1+\frac1{\alpha'}}+  \frac1{\alpha'} \sum_{i>k} \lambda_i' \\
+    &\overset{(*)}{=} k - \frac k{1 + \frac{\sqrt{k(r-k)} - (r-k)}{r-k}}
+      +\frac{r-k}{\alpha'}\\
+    &=k - \sqrt{k(r-k)} + \sqrt{k(r-k)} - (r-k)\leq k - (r-k).
+  \end{align*}
+    where $(*)$ follows because $\sum_{i>
+      k}\lambda_i'=(r-k)E_k/E_k=r-k$. We bound the error using as follows:
+    \begin{align*}
+      \E\big[\Er_\A(S)\big] = \alpha\,\E[|S|]\leq
+      \frac{k-(r-k)}{\sqrt{r-k}(\sqrt k-\sqrt{r-k})}\,E_k
+      =\frac{\sqrt k +\sqrt{r-k}}{\sqrt{r-k}}\,E_k,
+    \end{align*}
+which concludes the proof.
+  \end{proof}
+
+    \begin{theorem}
+    	\label{t:upperbound_withs}
+      For any $s\in[n]$, let $r=\sr(\A-\A_s)$ and suppose that
+      $s+\frac7{\epsilon^4}\ln^2\frac1\epsilon\leq k\leq r-1$ for $\epsilon\in(0,\frac12)$.
+%      and $k\geq (\frac6{\epsilon^2}\ln\frac1\epsilon)^2$ for $\epsilon\in(0,\frac12)$.
+      There is $\alpha$ such that for 
+    $S\sim\DPP(\frac1\alpha\A^\top\A)$,
+    \begin{align*}
+\E\big[\Er_\A(S) \mid |S|\leq s+k\big] \leq
+      (1+2\epsilon)^2\Big(\,1+\frac{s}{k}\,\Big)\sqrt{1+\tfrac{2k}{r-k}\,}\cdot\|\A-\A_{s+k}\|_F^2.
+    \end{align*}
+  \end{theorem}
+  \begin{proof}
+      Without loss of generality, assume that $\lambda_{s+1}=1$. Set
+    $\alpha=\sqrt{\frac{r+k}{r-k}}\frac{E_{s+k}}{(1-\epsilon)k}$, where
+    $E_{s+k}=\sum_{j>s+k}\lambda_j=\|\A-\A_{s+k}\|_F^2\geq r-k$. Let 
+    $\lambda_{s+1}'=...=\lambda_{s+k}'=1$, and for $i>s+k$ set
+    $\lambda_i'=\beta\lambda_i$, where $\beta =
+    \frac{r-k}{E_{s+k}}\leq 1$. Now, let
+    $\alpha_{i}=\beta\alpha=\frac{\sqrt{r^2-k^2}}{(1-\epsilon)k}$
+for $i>s+k$    and for $s+1\leq i\leq s+k$, let
+    \[\alpha_{i}'=(1-\epsilon)\frac{\sqrt{r+k}+\sqrt{r-k}}{2\sqrt{r+k}}\beta\alpha
+    =\frac{\sqrt{r-k}(\sqrt{r+k}+\sqrt{r-k})}{r+k - (r-k)} = \frac{\sqrt{r-k}}{\sqrt{r+k}-\sqrt{r-k}}.\]
+Note that $\alpha_i'\leq \alpha$ for all $i$, so we have:
+  \begin{align*}
+    \E[|S|] &= \sum_{i}\frac{\lambda_i}{\lambda_i+\alpha} 
+   \leq s + \sum_{i=s+1}^{s+k}\frac{\lambda_i}{\lambda_i+\alpha_i'}
+    + \sum_{i>s+k}\frac{\beta\lambda_i}{\beta\lambda_i+\beta\alpha}\\
+&   \leq s + \sum_{i>s} \frac{\lambda_i'}{\lambda_i'+\alpha_i'}
+=s + \frac{k}{1+\alpha'} + \sum_{i>s+k}\frac{\lambda_i'}{\lambda_i'+\alpha'}\\
+    &\leq s+
+k - \frac {k}{1+\frac1{\alpha'}}+  \frac1{\alpha'} \sum_{i>s+k} \lambda_i' \\
+    &\overset{(*)}{=} s + k - \frac{k}{1+\frac{\sqrt{r+k}-\sqrt{r-k}}{\sqrt{r-k}}}
+      +\frac{r-k}{\alpha'}\\
+                &=s + k - \frac{k\sqrt{r-k}}{\sqrt{r+k}}+
+                  (1-\epsilon)\frac{k\sqrt{r-k}}{\sqrt{r+k}}\\
+            &= s + k - \frac{\epsilon k\sqrt{r-k}}{\sqrt{r+k}}
+              \leq s+k,
+  \end{align*}
+    where $(*)$ follows because
+    $\sum_{i>s+ k}\lambda_i'=(r-k)E_{s+k}/E_{s+k}=r-k$.
+      Now, let $p_i=\frac{\lambda_i'}{\lambda_i'+\alpha_i'}$ be the
+      Bernoulli probabilities for
+  $b_i\sim\mathrm{Bernoulli}(p_i)$
+  and $X =\sum_{i>s} b_i$. From the above, we have:
+  \begin{align*}
+k - \E[X] \geq \frac{\epsilon k\sqrt{r-k}}{\sqrt{r+k}},
+  \end{align*}
+  and furthermore:
+  \begin{align*}
+    \Var[X]&\leq \sum_{i=s+1}^{s+k}(1-p_i) + \sum_{i>s+k}p_i
+    \leq \frac{k\sqrt{r-k}}{\sqrt{r+k}}+
+      (1-\epsilon)\frac{k\sqrt{r-k}}{\sqrt{r+k}} = (2-\epsilon) \frac{k\sqrt{r-k}}{\sqrt{r+k}} .
+  \end{align*}
+  Using
+  Theorem 2.6 from \cite{ChungLu2006book} with $\lambda=\frac{\epsilon
+    k\sqrt{r-k}}{\sqrt{r+k}}$, we have:
+  \begin{align*}
+    \Pr(|S|>s+k)&\leq \Pr(X>k)\leq \Pr(X > \E[X]+\lambda)
+    \leq \exp\Big(-\frac{\lambda^2}{2(\Var[X]+\lambda/3)}\Big)\\
+    &\leq \exp\Big(-\frac{\lambda^2}{2(\frac{2-\epsilon}\epsilon
+      \lambda+\lambda/3)}\Big)\leq\exp(-\epsilon\lambda /4)
+      =\exp\Big(-\frac{\epsilon^2k\sqrt{r-k}}{4\sqrt{r+k}}\Big). 
+  \end{align*}
+  Note that if $7\leq k\leq r-1$, then $k\frac{\sqrt{r-k}}{\sqrt{r+k}}\geq
+\frac{k}{\sqrt{2k+1}}\geq \frac{7}{16}\sqrt k$, so by simple algebra
+it follows that for $k\geq \frac 7{\epsilon^4}\ln^2\frac1\epsilon$,
+we have $k\frac{\sqrt{r-k}}{\sqrt{r+k}}\geq
+\frac4{\epsilon^2}\ln\frac1\epsilon$ and therefore
+$\Pr(|S|>s+k)\leq \epsilon$. Finally, we get:
+    \begin{align*}
+      \frac{\E\big[\Er_\A(S)\mid |S|\leq s+k\big]}{\|\A-\A_{s+k}\|_F^2}
+      &=
+        \frac{\alpha\,\E[|S|]}{E_{s+k}}
+        \leq(1-\epsilon)^{-2}\frac{s+k}{k}\sqrt{\tfrac{r+k}{r-k}\,},
+        =(1+2\epsilon)^2\Big(1+\frac sk\Big)\sqrt{1 + \tfrac {2k}{r-k}\,},        
+    \end{align*}
+    which completes the proof.
+\end{proof}
+
+  
+  \begin{theorem}
+For any $s\in[n]$, let $r=\sr(\A-\A_s)$ and suppose that $k\in(\frac
+r2,r-1)$ and $k\ge0q (\frac6{\epsilon^2}\ln\frac1\epsilon)^2$ for
+$\epsilon\in(0,\frac12)$. There is $\alpha$ such that for 
+    $S\sim\DPP(\frac1\alpha\A^\top\A)$,
+    \begin{align*}
+\E\big[\Er_\A(S)\mid |S|\leq s+k\big] \leq
+(1+2\epsilon)^2\Big(\,1+\frac{s}{2k-r}\,\Big)\Big(\,1 +  \sqrt{\!\tfrac {k}{r-k}}\,\Big)\cdot\|\A-\A_{s+k}\|_F^2.
+    \end{align*}
+  \end{theorem}
+
+  \begin{proof}
+    Without loss of generality, assume that $\lambda_{s+1}=1$. Set
+    $\alpha=E_{s+k}/((1-\epsilon)\sqrt{r-k}(\sqrt k-\sqrt{r-k}))$, where
+    $E_{s+k}=\sum_{j>s+k}\lambda_j=\|\A-\A_{s+k}\|_F^2\geq r-k$. Let 
+    $\lambda_{s+1}'=...=\lambda_{s+k}'=1$, and for $i>s+k$ set
+    $\lambda_i'=\beta\lambda_i$, where $\beta = \frac{r-k}{E_{s+k}}\leq 1$. Now, let $\alpha'=\beta\alpha$. We have:
+  \begin{align*}
+    \E[|S|] &= \sum_{i}\frac{\lambda_i}{\lambda_i+\alpha} 
+   \leq s + \sum_{i=s+1}^{s+k}\frac{\lambda_i}{\lambda_i+\beta\alpha}
+    + \sum_{i>s+k}\frac{\beta\lambda_i}{\beta\lambda_i+\beta\alpha}\\
+&   \leq s + \sum_{i>s} \frac{\lambda_i'}{\lambda_i'+\alpha'}
+=s + \frac{k}{1+\alpha'} + \sum_{i>s+k}\frac{\lambda_i'}{\lambda_i'+\alpha'}\\
+    &\leq s+
+k - \frac k{1+\frac1{\alpha'}}+  \frac1{\alpha'} \sum_{i>s+k} \lambda_i' \\
+    &\overset{(*)}{\leq} s + k - \frac k{1 + \frac{\sqrt{k(r-k)} - (r-k)}{r-k}}
+      +\frac{r-k}{\alpha'}\\
+    &=s + k - \sqrt{k(r-k)} + (1-\epsilon)\big(\sqrt{k(r-k)} -
+      (r-k)\big)\\
+            &\leq s+k -\epsilon \sqrt{k(r-k)} - (1-\epsilon)(r-k)
+              \leq s+k-(r-k).
+  \end{align*}
+  where $(*)$ follows because
+  $\sum_{i>s+ k}\lambda_i'=(r-k)E_{s+k}/E_{s+k}=r-k$.
+  Now, let
+  $b_i\sim\mathrm{Bernoulli}(\frac{\lambda_i'}{\lambda_i'+\alpha'})$. Using
+  Theorem 2.6 from \cite{ChungLu2006book}, we have:
+  \begin{align*}
+    \Pr(|S|>s+k) \leq \Pr\Big(\sum_{i>s}b_i>k\Big)\leq
+    \exp\Big(-\frac{\epsilon^2k(r-k)}{2(\sqrt{k(r-k)}(\frac1{1-\epsilon}+(1-\epsilon)+\frac\epsilon
+   3))}\Big)\leq \ee^{-\epsilon^2\sqrt{k}/6}\leq \epsilon.
+  \end{align*}
+  We bound the error as follows: 
+    \begin{align*}
+      \frac{\E\big[\Er_\A(S)\mid |S|\leq
+      s+k\big]}{\|\A-\A_{s+k}\|_F^2}
+      &= \frac{\alpha\,\E[|S|]}{\Pr(|S|\leq s+k)E_{s+k}}\leq
+      \frac1{(1-\epsilon)^2}\frac{s+k-(r-k)}{\sqrt{r-k}(\sqrt k-\sqrt{r-k})}\\
+      &\leq(1+2\epsilon)^2\bigg(\frac{s(\sqrt{k}+\sqrt{r-k})}{\sqrt{r-k}(k-(r-k))}+\frac{\sqrt k
+        +\sqrt{r-k}}{\sqrt{r-k}}\bigg) \\
+      &=(1+2\epsilon)^2\bigg(1 +
+        \frac{s}{k-(r-k)}\bigg) \frac{\sqrt k +\sqrt{r-k}}{\sqrt{r-k}},
+    \end{align*}
+which concludes the proof.
+  \end{proof}
+  \begin{theorem}\label{t:generalupperbound}
+    For any $s\in[n]$, let $r=\sr(\A-\A_s)$ and suppose that
+    $\frac2{\epsilon^2}\ln\frac1\epsilon\leq k<r$ for $\epsilon\in(0,\frac12)$.
+There is $\alpha$ such that if $S\sim\DPP(\frac1\alpha\A^\top\A)$ then
+\begin{align*}
+  \E\big[\Er_\A(S)\mid |S|\leq s+k\big]\leq (1+2\epsilon)^2 \Big(1+\frac
+          sk\Big)\Big(1 + \frac{k}{r-k}\Big)\,\|\A -
+  \A_{s+k}\|_F^2.%\quad\text{and}\quad \E[|S|]\leq s+k.
+\end{align*}
+  \end{theorem}
+\begin{proof}
+	We have
+	\begin{align*}
+	E_{s+k}=\|\A-\A_{s+k}\|_F^2\geq 
+	\frac{\lambda_{s+1}}{\lambda_{s+1}}\sum_{i>s+k}\lambda_i
+          =\lambda_{s+1} \Big( r -
+          \frac{\sum_{s< i\leq s+k}\lambda_i}{\lambda_{s+1}}\Big)\geq
+\lambda_{s+1}(r - k).
+	\end{align*}
+	
+Let $\alpha = \frac{r}{r-k}\frac{E_{s+k}}{(1-\epsilon)k}$. This makes sure that, 
+
+\begin{align*}
+  \E[|S|] = \sum_i\frac{\lambda_i}{\lambda_i+\frac{r}{r-k} \frac{E_{s+k}}{(1-\epsilon)k}}
+  \leq \sum_i\frac{\lambda_i}{\lambda_i+\frac{\lambda_{s+1}}{1-\epsilon}\frac{r}{k}}
+  \leq
+  s+(1-\epsilon)\sum_{i>s}\frac{\lambda_i}{\lambda_{s+1}\frac{r}k}
+  =s + (1-\epsilon)k.
+\end{align*}
+Since $|S|=\sum_i b_i$, where
+$b_i\sim\mathrm{Bernoulli}(\frac{\lambda_i}{\lambda_i+\alpha})$, and
+$\E\big[\sum_{i>s}b_i\big]\leq (1-\epsilon)k$, we have:
+\begin{align*}
+  \Pr(|S|>s+k)\leq \Pr\Big(\sum_{i>s}b_i>k\Big)\leq \ee^{-\epsilon^2 k/2}.
+\end{align*}
+Note that if $\epsilon\in(0,\frac12)$ and $k\geq
+\frac2{\epsilon^2}\ln\frac1\epsilon$, then $\ee^{-\epsilon^2 k/2}\leq
+\epsilon$, so we get:
+	\begin{align*}
+          \frac{\E[\Er_{\A}(S)\mid |S|\leq s+k]}{\|\A-\A_{s+k}\|_F^2}
+          &= \frac{\alpha \E[|S|]}{\Pr(|S|\leq s+k) E_{s+k}} 
+          \leq
+            \frac{1}{(1-\epsilon)^2}\frac{r}{r-k}\frac{s+k}{k} \\
+          &\leq (1+2\epsilon)^2 \Big(1+\frac
+          sk\Big)\Big(1 + \frac{k}{r-k}\Big),
+	\end{align*}
+        which concludes the proof.
+\end{proof}
+
+  
+  \begin{theorem}\label{t:upper_conditionnum}
+Given $\A$ and $r<k\leq n$, let $\kappa_r$ denote the condition
+    number of $\A-\A_{r}$. There is $\alpha$ such
+    that if $S\sim \DPP(\frac1\alpha\A^\top\A)$, then
+    \begin{align*}
+\E[|S|]\leq k\quad\text{and}\quad \E[\Er_\A(S)] \leq
+      \kappa_r^2\Big(1+\frac r{k-r}\Big)\,\|\A-\A_k\|_F^2.
+      \end{align*}
+    \end{theorem}
+    \begin{proof}
+      Let $\alpha=\frac{\kappa_r^2}{k-r}E_k$, where
+      $E_k=\|\A-\A_k\|_F^2$. Note that
+      $\kappa_r^2=\frac{\lambda_{r+1}}{\lambda_n}$, where $\lambda_i$ is
+      the $i$th largest eigenvalue of $\A^\top\A$. Note that $E_k\geq
+      (n-k)\lambda_n$, so we have
+      \begin{align*}
+        \E[|S|]&\leq \sum_i\frac{\lambda_i}{\lambda_i+\alpha}\leq r +
+        \frac{(n-r)\lambda_{r+1}}{\lambda_{r+1}+
+        \frac{\kappa_r^2}{k-r}(n-k)\lambda_n}\\
+               &=r + \frac{1}{\frac1{n-r} + \frac1{k-r}\,\frac{n-k}{n-r}} \\
+        &=r + \frac{1}{\frac1{n-r} + \frac1{k-r}\,(1 - \frac{k-r}{n-r})} \\
+& =  r + (k-r)= k.
+\end{align*}
+Finally, same as before, we have $\E[\Er_\A(S)]=\alpha\E[|S|]\leq
+\kappa_r^2(1+\frac r{k-r})\,E_k$.
+    \end{proof}
+
+
+\begin{theorem}
+	\label{t:upperbound} 	For any $\A \in \R^{m\times n}$, any $s\in[n]$, let $r=\sr(\A-\A_s)$. For any $\epsilon > 0$ s.t. $\epsilon^2 \geq 4s(1+\epsilon)/r$, let  
+	
+	\begin{align*}
+	 &\Phi_l = \frac{r}{2(1+\epsilon)} \left(  \epsilon - \sqrt{\epsilon^2 - \frac{4s(1+\epsilon)}{r} }  \right), \; & \Phi_u = \frac{r}{2(1+\epsilon)} \left(  \epsilon + \sqrt{\epsilon^2 - \frac{4s(1+\epsilon)}{r}  }  \right) \\
+	 &\Psi_l =  \frac{2}{\epsilon^2} \log (2+ \frac{1}{\epsilon}) - s
+	 \end{align*}
+	
+	
+	If k satisfies: $ \max(\Phi_l, \Psi_l) \leq k \leq  \Phi_u$, we can find a set $S$ of size $|S|\leq s+k$ with $\Er_\A(S)  \leq (1+3\epsilon)  \| \A - \A_{s+k}\|_F^2$ with $O(\frac1{\epsilon})$ rounds of DPP rejection sampling on average. 
+\end{theorem}
+\begin{proof}
+	We make use of concentration arguments in conjunction with Theorem~\ref{t:generalupperbound}. 
+	
+	To re-write the RHS in the result of Theorem~\ref{t:generalupperbound} in the form of $(1+\epsilon)$ we need (with $p=\frac{1+\epsilon}{r}$),
+	
+	\begin{align*}
+	 & (1 + \frac{s}{k}) (\frac{r}{r-k}) \leq 1+ \epsilon  \iff \left( \frac{s+k}{k} \right) \frac{1}{r-k} \leq p \\ 
+	 & \iff rkp - k^2p \geq s + k  \iff pk^2 - \epsilon k + s \leq 0,
+	\end{align*}
+	
+	which holds for $k \in \frac{1}{2p}[ \epsilon - (\epsilon^2 - 4ps )^{\frac{1}{2}}, \epsilon + (\epsilon^2 - 4ps )^{\frac{1}{2}}]$. 
+	 
+	 In other words, if $k$ satisfies the above condition, from Theorem~\ref{t:generalupperbound}, we have $\E[\Er_{\A}(S)] = \Big(1+\frac
+	 sk\Big)\Big(1 + \frac{k}{r-k}\Big)\,\|\A-\A_{s+k}\|_F^2 \leq (1+\epsilon) \|\A-\A_{s+k}\|_F^2$.
+	
+	For concentration, we make use of the fact that the size of the selected set through DPP sampling follows Poisson Binomial, which has the following concentration bound~\cite{ChungLu2006book}:
+	
+	\begin{align*}
+	\Pr(|S| > t) \leq \ee^{-\frac{(t-(1-\epsilon)t))^2}{2t}} =
+	\ee^{-\epsilon^2 t/2},
+	\end{align*}
+	
+	where $t=k+s$ for this result. Thus, using Theorem~\ref{t:generalupperbound}, we get	
+	\begin{align*}
+	& \E\big[\Er_{\A}(S)\mid |S|\leq t\big] \leq \frac{\E[\Er_{\A}(S)]}{\Pr(|S|\leq t)} \leq \frac {(1+\epsilon)\| \A - \A_{t}\|_F^2}{(1-\ee^{-\delta^2t/2}) }.  
+	\end{align*}
+	
+	With $\delta \leq \epsilon$, and $t \geq \frac{2}{\epsilon^2} \ln \left(2 + \frac1{\epsilon} \right)$, which ensures $\ee^{-\delta^2 t/2} \leq \frac{\epsilon}{1+2\epsilon}$, we get, $\E\big[\Er_{\A}(S)\mid |S|\leq t\big] \leq (1+2\epsilon) \| \A - \A_{t} \|_F^2$.
+	
+	Note that for $t \geq \frac{2}{\epsilon^2} \ln \left(2 + \frac1{\epsilon} \right)$, we have $|S| \leq t$ with probability $\frac{1+\epsilon}{1+2\epsilon}$. Using shorthand $E_t=\E\big[\Er_{\A}(S)\mid |S|\leq t\big]$ in the Markov inequality, we have,
+	
+	\[ P\big[\Er_{\A}(S) \geq \eta E_t \mid |S| \leq t \big] \leq \frac{1}{\eta}. \]
+	
+	Thus, with probability $\geq  \frac{1+\epsilon}{1+2\epsilon} (1 - \frac1{\eta})$, we have $|S| \leq t$ and  $\Er_{\A}(S) \leq \eta E_k$. Choosing $\eta = (1+\frac \epsilon {1+2\epsilon})$ ensures $\Er_{\A}(S) \leq (1+3\epsilon)E^*_k$ with probability $\geq  \frac{(1+\epsilon)\epsilon}{(1+2\epsilon)(1+3\epsilon)}$, which means on average $\frac{(1+2\epsilon)(1+3\epsilon)}{(1+\epsilon)\epsilon} = O(1/\epsilon)$ rounds of rejection sampling suffice.
+	
+	
+\end{proof}
+
+\begin{theorem}
+  For any $\A\in\R^{m\times n}$, $k\in[n]$ and $\alpha>0$, if
+  $S\sim\DPP(\frac1\alpha\A^\top\A)$, then
+  \begin{align*}
+    \E\big[\Er_\A(S)\mid |S|=k\big] \leq \E\big[\Er_\A(S)\mid |S|\leq k\big].
+  \end{align*}
+\end{theorem}
+\begin{proof}
+Let $e_k$ denote the $k$th elementary symmetric polynomial defined
+as:
+\begin{align*}
+e_k = \sum_{T:|T|=k}\det(\A_T^\top\A_T) = \sum_{T:|T|=k}\prod_{i\in T}\lambda_i.
+\end{align*}
+Also let $\bar{e}_k=e_k/{n\choose k}$ denote the $k$th
+elementary symmetric mean. Newton's inequalities imply that:
+\begin{align*}
+1\geq \frac{\bar e_{k-1}\bar e_{k+1}}{\bar e_k^2} =
+  \frac{e_{k-1}e_{k+1}}{e_k^2}\,\frac{{n\choose k}}{{n\choose
+  k-1}}\frac{{n\choose k}} {{n\choose k+1}} =
+  \frac{e_{k-1}e_{k+1}}{e_k^2}\,\frac{n+1-k}{k}\,\frac{k+1}{n-k}. 
+\end{align*}
+The results of
+\cite{pca-volume-sampling,more-efficient-volume-sampling} establish
+that $\E[\Er_\A(S)\mid |S|=k] = (k+1)\frac{e_{k+1}}{e_k}$, so it
+follows that:
+\begin{align}
+  \frac{\E[\Er_\A(S)\mid |S|=k]}{\E[\Er_\A(S)\mid|S|=k-1]}
+  = \frac{k+1}{k}\,\frac{e_{k+1}e_{k-1}}{e_k^2}\leq
+  \frac{n-k}{n+1-k}\leq 1.\label{eq:decreasing-error}
+\end{align}
+Finally, note that $\E[\Er_\A(S)\mid|S|\leq k]$ is a weighted average
+of components $\E[\Er_\A(S)\mid|S|= s]$ for $s\in[k]$, and
+\eqref{eq:decreasing-error} implies that the smallest of those components
+is associated with $s=k$. Since the weighted average is lower bounded by the
+smallest component, this completes the proof.
+\end{proof}
+\begin{remark}
+If we show that the function $f(k)=\E[\Er_\A(S)\mid |S|=k]$ is
+convex then we avoid the concentration argument, because then if
+$S\sim\DPP(\frac1{\alpha}\A^\top\A)$ satisfies
+$\E[|S|]=k$, Jensen's inequality implies:
+\begin{align*}
+  \E\big[\Er_\A(S)\mid |S|\!=\!k\big]=f\Big(\sum_{i\geq 0}\Pr(|S|\!=\!i)\,i\Big) \leq
+  \sum_{i\geq 0}\Pr(|S|\!=\!i)f(i)=\E\big[\Er_\A(S)\big].
+\end{align*}
+\end{remark}
+% \begin{theorem}
+% If $S\sim\DPP(\frac1\alpha\A^\top\A)$, then
+% $f(k)=\E[\Er_\A(S)\mid|S|=k]$ is a convex function.
+% \end{theorem}
+% \begin{proof}
+% % It suffices to show that $f(k)$ is log-convex (a stronger statement),
+% % i.e., that $f(k)^2\leq f(k-1)f(k+1)$ for all $k$. Note that
+% We can write $f(k)$ in terms of the ratios of elementary symmetric
+% means as:
+% \begin{align*}
+%   f(k) = (k+1)\frac{e_{k+1}}{e_k} = (n-k)\frac{\bar e_{k+1}}{\bar e_k}.
+% \end{align*}
+% We will first show that $g(k) = \frac{\bar e_{k+1}}{\bar e_k}$ is
+% log-convex. We use Theorem 77 p.~64 from \cite{hlp-inequalities} with
+% \begin{align*}
+%   \alpha_i'=\begin{cases}
+%     2 &\text{if }i=k-1,\\
+%     4&\text{if }i=k+1,\\
+%     1&\text{otherwise},
+%   \end{cases}\qquad
+%        \alpha_i=\begin{cases}
+%          4&\text{if }i=k,\\
+%          2&\text{if }i=k+2,\\
+%          1&\text{otherwise}.
+%          \end{cases}
+% \end{align*}
+% Verifying the condition of Theorem 77, for any $m$ we have:
+% \begin{align*}
+%   \alpha_{k-1}'(m-1)+\alpha_k'm + \alpha_{k+1}'(m+1)+\alpha_{k+2}'(m+2)
+%   &= 2(m-1)+m+4(m+1)+(m+2)\\
+%   &=8m+4\\
+%   &=(m-1)+4m+(m+1)+2(m+2)\\
+%   &=\alpha_{k-1}(m-1)+\alpha_km+\alpha_{k+1}(m+1)+\alpha_{k+2}(m+2).
+% \end{align*}
+% Therefore, Theorem 77 implies that $\prod_i \bar
+% e_i^{\alpha_i'}\leq\prod_i\bar e_i^{\alpha_i}$, which simplifies to
+% $\bar e_{k-1}\bar e_{k+1}^3\leq \bar e_k^3\bar e_{k+2}$. From this we
+% obtain that:
+% \begin{align*}
+%   g(k)^2 = \frac{\bar e_{k+1}^2}{\bar e_k^2}\leq \frac{\bar e_k}{\bar
+%   e_{k-1}}\frac{\bar e_{k+2}}{\bar e_{k+1}} = g(k-1)g(k+1),
+% \end{align*}
+% so be definition, $g(k)$ is log-convex, which also implies
+% convexity. Finally, we establish convexity of $f(k)$:
+% \begin{align*}
+%   f(k-1) + f(k+1) - 2f(k)
+%   &= (n-k+1)g(k-1) + (n-k-1)g(k+1) - 2(n-k)g(k)\\
+%   &= (n-k)\big(g(k-1) + g(k+1) - 2g(k)\big) + \big(g(k-1) -
+%     g(k+1)\big)\\
+%   &\overset{(*)}{\geq} 0,
+% \end{align*}
+% where in $(*)$ we used that $g(k)$ is convex and non-increasing.
+% \end{proof}
+%
+%\begin{theorem}\label{t:upperbounds_withdecay} For any $\A$ and let $\lambda_1, \ldots, \lambda_n$ be the eigenvalues of $\A^\top \A$. 
+%	
+%
+%	Suppose that $s+ \frac7{\epsilon^4}\ln^2\!\frac1\epsilon \leq k\leq t_s-1$,
+%	where $\epsilon\in(0,\frac12)$. Say $S$ is a volume sampled set of size
+%	$k$. We have the following approximation guarantees based on the decay of eigenvalues of $\K$.
+%	 \begin{enumerate}
+%	 		\item Exponential decay: $\lambda_i = \lambda_1(1-\delta)^i$ for $0<\delta<1$. Then,
+%	 		\[\frac{\E[\Er(S)]}{\opt} \leq (1+2\epsilon)^2 \Phi_s(k), \]
+%	 		
+%	 		where,
+%	 		
+%	 		\begin{itemize}
+%	 		\item $\Phi_s(k) \leq \frac{1}{1-2\delta k}$, if $k \leq \frac{1}{4\delta}$ 	
+%	 		\item $\Phi_s(k) \leq 8\delta k$, if $ \frac{1}{4\delta} <k \leq n-\frac{\ln 2}{\delta}$
+%	 		\item  $\Phi_s(k) \leq \frac{\delta k}{4\ln 2}$ if $k>n-\frac{\ln 2}{\delta}$
+%	 		\end{itemize}
+%	 		
+%	 		
+%	 	\item Polynomial decay: $\lambda_i = \lambda_1/i^p, p >1$. We can bound the approximation guarantee as 
+%	 	 
+%	 	 	\[\tfrac{\E[\Er(S)]}{\opt} \leq (1+2\epsilon)^2\Big(\,1+\frac{s}{k}\,\Big)\sqrt{1+\tfrac{2pk}{s-p -pk }}\]
+%	 	\end{enumerate}
+%
+%\end{theorem}
+
+\begin{theorem}\label{t:upperbounds_withdecay}
+	Let $p\geq 1$, $\delta\in(0,1)$ and $\lambda_1\!\geq\!\lambda_2\!\geq\!...$ be the eigenvalues of
+	$\A^\top\A$.
+	% If for $i\in[n]$ and $p\geq 1$ we have $\lambda_i=\Omega(\lambda_1/i^p)$,
+	% then for $k\in[n]$,
+	% A volume sampled set $S$ of size $k$ satisfies:
+	If $S$ is  a volume sampled set of size $k$, then
+	\begin{align*}
+	\frac{\E\big[\Er_\A(S)\big]}{\opt} =
+	\begin{cases}
+	1+O(p),&\text{if
+	}\lambda_i=\Omega(\lambda_1/i^p),\\
+	1+O(\delta k), &\text{if }\lambda_i=\Omega\big(\lambda_1\,(1-\delta)^i\big).
+	\end{cases}
+	\end{align*}
+\end{theorem}
+
+\begin{proof}
+	(1) Exponential decay.
+	
+	
+	 The stable rank of the matrix residual after removing top $s$ eigenvalues:
+	\[ \sr_s(\A) = \sum_{j>s} \lambda_j/\lambda_{s+1} =  \frac{\lambda_{s+1}(1-(1-\delta)^{n-s})/\delta }{\lambda_{s+1}} =  \frac{1-(1-\delta)^{n-s}}{\delta}.
+	\]
+	
+		We present the proof by considering two subcases separately : when $n \geq k +  \frac{\ln 2}{\delta}$ and $n < k+  \frac{\ln 2}{\delta}$.
+		
+	\textbf{Case 1(a):}  $n \geq k +  \frac{\ln 2}{\delta}$. From the assumption,
+	
+	\begin{align*}
+	& k \leq n -  \frac{\ln 2}{\delta}  \\
+	\implies & s \leq n - \frac{\ln 2}{\delta}  \\
+	\implies  & s \leq n - \frac{\ln 2}{\ln \frac{1}{1-\delta}} \\
+	\iff & 1 - (1-\delta)^{n-s} \geq \frac{1}{2}   \\
+	\implies & \sr_s(\K) \geq \frac{1}{2\delta},
+	\end{align*}
+	
+	where the third inequality follows because $1-\frac{1}{x} \leq \ln x$ with $x = \delta$. 
+	
+	We'll use $u=k-s$ for simplicity. From Theorem~\ref{t:upper}, using $\sr_s \geq \frac{1}{2\delta}$ we have the following upper bound:
+%	\[ \frac{\E[\Er(S)]}{\opt} \leq (1+2\epsilon)^2\Big(\,1+\frac{s}{k}\,\Big)\sqrt{1+\tfrac{2\delta k}{1-\delta k}\,} \leq (1+2\epsilon)^2\Big(\,1+\frac{s}{k}\,\Big) \left( 1+ \frac{2\delta k}{1-2\delta k}\right)
+%	\]. 
+	
+	\[ \Phi_s(k) \leq \frac{k}{u} \left(1+ \frac{2\delta u}{1 - 2\delta u}\right)  = \frac{k}{u}\cdot \frac{1}{1-2\delta u}\].
+	
+	Since $\Phi_s$ holds for any $u$, we can optimize the RHS over $u$. RHS is minimized for $\hat{u}=\frac{1}{4\delta}$. Thus,  $k  \leq \hat{u}$, increasing $u$ only tightens the upper bound. So, in this case we can set $s=0 \implies u = k = \hat{u}$ to get $\Phi_s(k) \leq \frac{1}{1- 2\delta k}\leq 2$ . On the other hand, if $k > \hat{u}$, we can set $u=\hat{u}$, which implies $\Phi_s(k) \leq 8\delta k$. 
+	
+	\bigskip
+	\textbf{Case 1(b)}:$k > n - \frac{\ln 2}{\delta}$. We make use of Theorem~\ref{t:upper_conditionnum} for the case when $k$ becomes too close to $n$. The approximation guarantee has: 
+	
+	\[\Phi_s(k) = \frac{\lambda_{s+1}}{\lambda_n} \frac{k}{k-s}\],
+	
+	which holds for all $s <k$. For our bound, we choose $s = k- \frac{\ln 2}{\delta}$. This implies $n-s < \frac{2\ln 2}{\delta}$. Consider,
+	
+	\begin{align*}
+	& \frac{\lambda_{s+1}}{\lambda_n}  = \frac{1}{(1-\delta)^{n-s}} \leq \frac{1}{(1-\delta)^{(\ln 4)/\delta}} = \left[(1-\delta)^{-\frac{1}{\delta}}\right] ^ {\ln 4} \leq e^{- \ln 4} = \frac{1}{4}. 
+	\end{align*}
+	
+	Finally, we have,
+	
+	\[\frac{k}{k-s} = \frac{\delta k}{\ln 2}\].
+	
+	Plugging in we get,
+	
+	\[\Phi_s(k) \leq \frac{\delta k}{4 \ln 2} \]
+	
+	
+	(2) Polynomial decay. We provide the proof by splitting in two cases. 
+	
+
+	\textbf{Case 2(a)}: $\left(\frac{k+1}{n}\right)^{p-1} \leq \frac{1}{2}$
+	
+	 We know that $(s+1)^{1-p} \leq (p-1)\sum_{i\geq s}\frac{1}{i^p} \leq s^{1-p} $ [CITE].
+	
+	For calculating the stable rank:
+	
+	\[ \sr_s(\A) = \frac{\sum_{i=s+1}^n \lambda_i}{\lambda_{s+1}} =\frac1{\lambda_{s+1}} \left( \sum_{i > s} \lambda_i - \sum_{i > n} \lambda_i \right).\]
+	
+	Consider,
+	 
+	\[ \frac{\sum_{i>s} \lambda_i}{\lambda_{s+1}} \geq \frac{(s+2)^{1-p}}{(p-1) (s+1)^{-p}} = \frac{s+2}{p-1} \left(\frac{s+1}{s+2}\right)^p =  \frac{s+2}{p-1} \left(1 - \frac1{s+2}\right)^p  \geq \frac{s+2}{p-1}(1 - \frac{p}{s+2}) \geq \frac{s+1}{p-1} -1 .\]
+	
+	Similarly for the second part, 
+	
+	\[\frac{\sum_{i>n} \lambda_i}{\lambda_{s+1}} \leq \frac{(n+1)^{1-p}}{(p-1) (s+1)^{-p}} = \frac{s+1}{p-1}\left(\frac{s+1}{n+1}\right)^{p-1} =\frac{s+1}{p-1}\left(\frac{s+1}{n+1}\right)^{p}\frac{n+1}{s+1} \leq \frac{1}{2} \frac{s+1}{p-1} . \] 
+	
+	Combining, we can get the following lower bound on the stable rank:
+	
+	\[\sr_s(\A) \geq \frac{1}{2} \frac{s+1}{p-1} -1  \]
+	
+	Recall we use $u = k-s$. Proceeding as before, we can call upon Theorem~\ref{t:upper} to get, 
+	\[ \Phi_s(k) \leq \frac{k}{u}\sqrt{1+\frac{2u}{ \sr_s-u }\,} \leq  \frac{k}{u} + \frac{k}{  \frac{1}{2} \frac{s+1}{p-1} - 1 - u } = \frac{k}{u} + \frac{(2p-2)k}{   s+1 -2 p +2 - (2p-2)u } \leq \frac{k}{u} + \frac{(2p-1)k}{   k+3 -2 p  - (2p-1)u } \]
+	
+	Optimizing over $u$, we see that the minima is reached for $u = \hat{u} = \frac{k+3-2p}{2(2p-1)}$ which achieves the value $ \frac{4(2p-1)k}{   k+3 -2 p}$ which is upper bounded by $\frac{8pk}{k-2p}$.
+	
+	\bigskip 
+	\textbf{Case 2(b)}: $\left(\frac{k+1}{n}\right)^{p-1} > \frac{1}{2}$
+
+	From Theorem~\ref{t:upper_conditionnum}, we know that the approximation ratio is upper bounded by $\frac{\lambda_{s+1}}{\lambda_n}.\frac{k}{k-s} = \frac{n^p}{(s+1)^p}\frac{k}{k-s} $. Consider, 
+	
+	\begin{align*}
+	&\frac{n^p}{(s+1)^p}\frac{k}{k-s} = \frac{n^p}{(k+1)^p} \frac{{(k+1)^p}}{{(s+1)^p}} \frac{k}{k-s} = \left(\frac{n}{k+1}\right)^{p-1} \frac{k+1}{n}\frac{{(k+1)^p}}{{(s+1)^p}} \frac{k}{k-s}\\ 
+	& \leq 2 \left(\frac{k+1}{s+1}\right)^p \frac{k}{k-s},
+	\end{align*}
+	
+	which holds true for all $s \leq k$. We set $s$ so that $\left(\frac{k+1}{s+1}\right)^p = 2p$, which gives the upper bound of $4p\frac{p^{1/p}2^{1/p}}{p^{1/p}2^{1/p}-1} $. Using the fact that $1 < p^{1/p}<2$, we can further refine the upper bound as $8p\frac{2^{1/p}}{2^{1/p}-1}$ which is $O(p)$.
+	
+	\emph{Note:} In proofs of both the polynomial decay and eponential decay, we have ignored the importance of $\epsilon$. In principle, our chosen $s$ may get too close to $k$ that may require adjusting $\epsilon$, but this will only change the bounds by a constant factor.
+	
+ \end{proof}
+
+Theorem~\ref{t:upperbounds_withdecay} is directly applicable for many well-known kernels. For example, $t+\frac{1}{2}$-Mat\'ern kernel has polynomially decaying eigenvalues with $p=2t+2$~\cite{Ritter1995Mattern}, and thus our obtained bounds are applicable for Mat\'ern kernels. Similarly, the squared exponential kernel has exponentially decaying eigenvalues~\cite{Zhu1997GaussianRA} with the decay factor $\delta$ governed by the hyperparameters.
+
+\section{General lower bound}
+
+\begin{lemma}\label{l:lowerbounddouble}
+	Fix $\epsilon\in(0,1)$.  Consider any $k+1$ vectors $\x_i$ ,
+        with $\|x_i\|^2=a \,\forall i,$ spanning a 
+	$k$-dimensional subspace with their centroid at $\zero$. Similarly, consider another set of $s+1$ vectors $\y_j$, with $\|y_j\|^2=b
+        \,\forall j,$ lying in the orthogonal complement of the span
+        of $\x_i$ and spanning $s$-dimensional subspace, again with
+        centroid at $\zero$. 
+	Let $\v_1$ and $\v_2$
+	be unit vectors that are orthogonal to each other and to all $\x_i$ and $\y_j$.  We construct
+	matrix $\A$ with $n=k+s+2$ columns by stacking
+	$\tilde\x_i:=\x_i + \alpha \v_1$ and $\tilde \y_j
+	:=\y_j+\alpha \v_2$. For sufficiently small
+	$\alpha>0$ and if $b < \min\{a, \frac{ \frac{\epsilon}{2} (k+1) \alpha^2}{(s+1) (1-\epsilon/2)} \} $, for any subset $S\subseteq[n]$ of size $k$,
+	\begin{align*}
+	\Er_{\A}(S)\geq (1-\epsilon)(k+1) \| \A -\A_{k}\|^2_F,
+	\end{align*}
+	and for any subset $S_2\subseteq[n]$ of size $k+s+1$,
+		\begin{align*}
+	\Er_{\A}(S_2)\geq (1-\epsilon)(s+1) \| \A -\A_{k+s+1}\|^2_F,
+	\end{align*}
+\end{lemma}
+\begin{proof}
+(a)	Say $\P^\star$ is the span of $\{\x_1, \x_2, \ldots \x_{k+1}\}$. Say $\Abh$ is the matrix obtained by stacking all the $\x_i$ and $\y_j$. Note that $\one$ is an eigenvector of $\Abh^\top\Abh$ with eigenvalue $0$. Further,
+
+\begin{align*}
+\A^\top \A =	\Abh^\top\Abh  + \alpha^2 \one \one^\top.
+\end{align*}
+
+Thus, $\A^\top\A$ has the same eigenvectors and eigenvalues as $\Abh^\top\Abh$ except the eigenvalue $0$ has been replaced with $\alpha^2$. Hence, if $\alpha^2 < \lambda_k$, where $\lambda_k$ is the second smallest eigenvalue of $\Abh^\top\Abh$ restricted to the set of vectors $\x_i$, and since $b<a$, then
+	\begin{align*}
+	E_k = \|\A- \A_k\|_F^2  = \| \A - \P^\star \A \|_F^2 = (k+1)\alpha^2 + (s+1) b
+		\end{align*}
+	
+	Since the centroid of $\{\tilde\x_1,\ldots, \tilde\x_{k+1}\}$ is $\alpha \v_1$, we can write 
+	$\tilde\x_{k+1} = (k+1)\alpha\v_1 - \sum_{i\leq k} \tilde\x_i$
+	For selecting the set $S\subset [n]$ of size $k$, since $a>b$, we can assume without loss of generality that $S = \{\x_1,\ldots,\x_k\}$.
+	\begin{align*}
+	\Er_{\A}(S) &= \| \tilde\x_{k+1}- \P_S \tilde\x_{k+1}  \|_F^2
+                      +  \sum_{i=1}^{s+1}\| \tilde\y_i - \P_S
+                      \tilde\y_i \|_F^2\\ 
+	&=\|(k+1)\alpha\v_1 - \sum_{i\leq k}\tilde\x_i- \P_S
+   ((k+1) \alpha\v_1 - \sum_{i\leq k}\tilde\x_i )\|_F^2 + (s+1)b
+          \\ 
+	&= (k+1)^2\alpha^2 \|\v_1 - \P_S\v_1\|^2_F + (k_2+1)b \\
+	& \geq (k+1) (E_k - (s+1)b) \|\v_1 - \P_S\v_1\|^2_F + (s+1)b \\
+	& = (k+1) E_k \|\v_1 - \P_S\v_1\|^2_F + (s+1)b (1 - (k+1)\|\v_1 - \P_S\v_1\|^2_F ) \\
+	& \geq (k+1) E_k \|\v_1 - \P_S\v_1\|^2_F - (s+1)kb 
+	\end{align*}	
+	Note that $\lim_{\alpha\rightarrow 0}\P_S\v_1 = \zero$ because $\v_1$
+	is orthogonal to the subspace spanned by $\{\x_i:i\in S\}$, so there is
+	$\alpha_S>0$ such that for any $\alpha\leq\alpha_S$ we have
+        $\|\v-\P_S\v\|^2\geq 1-\frac\epsilon2$.
+
+Further, given $\epsilon$ and $\alpha$ selected above, the assumption on $b$ ensures that the following is satisfied: 
+\begin{align*}
+	&(s+1)b (1-\epsilon/2) \leq \frac{\epsilon}{2}(k+1) \alpha^2 \\
+	&\implies (s+1)b \leq \epsilon/2 E_k \\
+	& \implies (s+1)bk \leq \epsilon (k+1)/2 E_k,
+\end{align*}
+
+which completes the desired result.
+
+
+%        \michal{Now, we need to ensure that $(s+1)kb\leq
+%          \frac\epsilon2(k+1)E_k$. This will require an additional
+%          assumption upper-bounding $b$ and also a lower bound on $E_k$.}
+  
+
+ (b) Let $ t = k+s+1$. Proceeding as in the proof of part (a), let $\P^\star$ be the span of $\{\x_1,\ldots,\x_{k+1}, \y_1, \ldots,\y_s\}$
+ \begin{align*}
+ E_t \leq (s+1)\alpha^2
+ \end{align*}
+
+ Further, we can write $\tilde\y_{s+1} = (s + 1)\v_2 -\sum_{j\leq s } \tilde \y_j$.
+
+ 	\begin{align*}
+ \Er_{\A}(S_2) &= \| \tilde\y_{k+1}- \P_{S_2} \tilde\y_{k+1}  \|_F^2 \\
+ & = (s+1)\alpha^2\| \v_2 - \P_{S_2} \v_2  \|_F^2 \\
+ & \geq (s + 1) E_k\| \v_2 - \P_{S_2} \v_2  \|_F^2,
+ \end{align*}
+
+ and the result follows as in part(a).
+
+\end{proof}
+
+
+
+\begin{lemma}\label{l:lowerbounddouble2}
+	Fix $\epsilon\in(0,1)$.  Consider $r$ sets of vectors. For $i\in [r]$ $i^\text{th}$ set $\Gamma_i$ has $k_i+1$ vectors $\x^{(i)}_j$ where $j\in[k_i+1]$
+	with $\|x_j^{(i)}\|^2=a_i$ spanning a 
+	$k_i$-dimensional subspace with their centroid at $\zero$. 
+	Let $\v_i, i \in [r]$ 
+	be unit vectors that are orthogonal to each other and to all $\x^{(i)}_j$. We construct
+	matrix $\A$ with $n= r + \sum_i k_i$ columns by stacking
+	$\tilde\x^{(i)}_j:=\x^{(i)}_j + \alpha \v_i$. For sufficiently small
+	$\alpha>0$ and if $\forall j,\; a_{j+1} \leq \min\left\{ a_j, \frac{\frac{\epsilon}{2} (k_j+1) \alpha^2 }{(1-\frac{\epsilon}{2}) (k_{j+1}+1)r} \right\}$ for a given $c \in [r]$, any subset $S\subseteq[n]$ of size $k = \sum_{i\leq c}k_i +c-1$,
+	\begin{align*}
+	\Er_{\A}(S)\geq (1-\epsilon)(k_c+1) \| \A -\A_{k}\|^2_F.
+	\end{align*}
+\end{lemma}
+\begin{proof}
+	(a) Say $\P^\star$ is the span of $\{\x^{(1)}_1, \x^{(2)}_2, \ldots \x^{(1)}_{k_1+1}, \x^{(2)}_{1}, \ldots, \x^{(c)}_{k_c} \}$. Say $\Abh$ is the matrix obtained by stacking all the $\x^{(i)}_j$. Note that $\one$ is an eigenvector of $\Abh^\top\Abh$ with eigenvalue $0$. Further,
+	
+	\begin{align*}
+	\A^\top \A =	\Abh^\top\Abh  + \alpha^2 \one \one^\top.
+	\end{align*}
+	
+	Thus, $\A^\top\A$ has the same eigenvectors and eigenvalues as $\Abh^\top\Abh$ except the eigenvalue $0$ has been replaced with $\alpha^2$. Hence, if $\alpha^2 < \lambda$, where $\lambda$ is the smallest non-zero eigenvalue of $\Abh^\top\Abh$, and since $a_{i+1}<a_i \;\forall i$, then
+	\begin{align*}
+	E_k = \|\A- \A_k\|_F^2  = \| \A - \P^\star \A \|_F^2 =  (k_c+1)\alpha^2 + \sum_{i>c}(k_i+1) a_i =  (k_c+1)\alpha^2 + \phi_c, 
+	\end{align*}
+	
+	where $\phi_c =\sum_{i>c}(k_i+1) a_i $ for ease of notation.
+	
+	Since the centroid of $\{\tilde\x^{(c)}_1,\ldots, \tilde\x^{(c)}_{k_c+1}\}$ is $\alpha \v_c$, we can write 
+	$\tilde\x^{(c)}_{k_c+1} = (k_c+1)\alpha\v_c - \sum_{j\leq k_c} \tilde\x^{(c)}_j$.
+	For selecting the set $S\subset [n]$ of size $k$, since $a_i>a_{i+1}$, we can assume without loss of generality that $S = \cup_{i<c} \Gamma_i \cup \{\x^{(1)}_1,\ldots,\x^{(c)}_{k_c}\}$.
+	\begin{align*}
+	\Er_{\A}(S) &= \| \tilde\x^{(c)}_{k_c+1}- \P_S \tilde\x^{(c)}_{k_c+1}  \|_F^2
+	+  \sum_{i>c}\sum_{j=1}^{k_i+1}\| \tilde\x^{(i)}_j - \P_S
+	\tilde\x^{(i)}_j \|_F^2\\ 
+	&=\|(k_c+1)\alpha\v_c - \sum_{j\leq k_c}\tilde\x^{(c)}_j- \P_S
+	((k+1) \alpha\v_c - \sum_{j\leq k_c}\tilde\x^{(c)}_j )\|_F^2 + \sum_{i>c}(k_i+1)a_i
+	\\ 
+	&= (k_c+1)^2\alpha^2 \|\v_c - \P_S\v_c\|^2_F + \sum_{i>c}(k_i+1)a_i \\
+	& = (k_c+1) (E_k - \phi_c) \|\v_c - \P_S\v_c\|^2_F + \phi_c \\
+	& = (k_c+1) E_k \|\v_c - \P_S\v_c\|^2_F + \phi_c (1 - (k_c+1)\|\v_c - \P_S\v_c\|^2_F ) \\
+	& \geq (k_c+1) E_k \|\v_c - \P_S\v_c\|^2_F - k_c \phi_c 
+	\end{align*}	
+	Note that $\lim_{\alpha\rightarrow 0}\P_S\v_1 = \zero$ because $\v_1$
+	is orthogonal to the subspace spanned by $\{\x_i:i\in S\}$, so there is
+	$\alpha_S>0$ such that for any $\alpha\leq\alpha_S$ we have
+	$\|\v-\P_S\v\|^2\geq 1-\frac\epsilon2$.
+	
+	Further, given $\epsilon$ and $\alpha$ selected above, the assumption on decreasing lengths $a_j$ for an arbitrary $j \in [r]$ is: 
+	\begin{align*}
+	&  a_{j+1} \leq \frac{\frac{\epsilon}{2} (k_j+1) \alpha^2 }{(1-\frac{\epsilon}{2}) (k_{j+1}+1)r}\\
+	\implies & (1-\frac{\epsilon}{2}) (k_{j+1}+1) a_{j+1} \leq \frac{\frac{\epsilon}{2} (k_j+1) \alpha^2 }{r}\\
+	\implies & \sum_{i>c}(1-\frac{\epsilon}{2}) (k_{i}+1) a_{i} \leq (r-c)\frac{\frac{\epsilon}{2} (k_c+1) \alpha^2 }{r} \leq \frac{\epsilon}{2} (k_c+1) \alpha^2\\
+	\implies & (1-\frac{\epsilon}{2})\phi_c  \leq  \frac{\epsilon}{2} (k_c+1) \alpha^2 \\
+	\implies & \phi_c \leq \frac{\epsilon}{2} E_k \\
+	\implies & k_c\phi_c \leq \frac{\epsilon}{2} (k_c+1) E_k,
+	\end{align*}
+	
+	which completes the desired result.
+	
+	
+	%        \michal{Now, we need to ensure that $(s+1)kb\leq
+	%          \frac\epsilon2(k+1)E_k$. This will require an additional
+	%          assumption upper-bounding $b$ and also a lower bound on $E_k$.}
+	
+
+	
+\end{proof}
+
+
+\section{Old Lower bounds}
+
+ We discuss lower bounds of two forms -- algorithmic lower bounds specific to the DPPs and algorithm indepedent lower bounds. For the former case, we obtain lower bounds for $k<r$ which are tight upto a factor of $\sqrt{\epsilon}$. For the latter case, we discuss lower bounds in two regimes $k\leq r$ and $k>r$. We show that for the case $k>r$, the known upper bound of multiplicative factor of $(k+1)$ are tight. On the other hand, for the case of $k\leq r$, however, we obtain lower bounds that are loose compared to what our newly obtained upper bounds entail. Removing this gap between the upper and lower bounds should be an interesting future direction for research.
+ 
+ \subsection{Algorithmic lower bounds for DPPs} 
+  
+  
+  \begin{lemma}
+  	\label{l:algolowerbound}
+  	For any $\epsilon>0$, $\exists$ a matrix $\A$ with stable rank $r$ such that using DPP sampling with $E(|S|) = k$ with $k \leq \frac{\epsilon}{1+\epsilon} r$, we can lower bound $\E(\Er_{\A}(S)) \geq \left(\frac1{2} + \sqrt{\epsilon}\right) \|\A -\A_k \|_F^2 $.
+  \end{lemma}
+  \begin{proof}
+  	Consider a matrix $\A \in \R^{m\times n}$ so that $\K = \A^\top \A$ has $k$ eigenvalues as $1$, while the remaining eigenvalues are all $\delta \in (0,1)$.
+  	
+  	 Say, $n$ is large enough so that $r=(1+\rho) k$ for some $\rho > 0$.  To calculate $r$, 
+  	
+  	
+  	\begin{align*}
+  	r = \sum_i \frac {\lambda_i}{ \lambda_1}= k + \delta(d-k).
+  	\end{align*}
+  	
+  	
+  	
+  	Since  $r=(1+\rho) k$, we get $\delta(d-k) = \rho k$. Furthermore, say we want $\beta$ multiplicative bound i.e. $\frac{\E(\Er_{\A}(S))}{\| \A - \A_k\|_F^2} = \beta$, which gives, 
+  	
+  	\begin{align*}
+  	&\frac{\alpha k }{\delta(d-k) } = \beta \\ & \implies \alpha k = \beta \rho k \implies \alpha = \beta \rho.
+  	\end{align*}
+  	
+  	For $k$, 
+  	
+  	\begin{align*}
+  	& k = \sum_i \frac{\lambda_i}{\lambda_i + \alpha} 
+  	= \frac{k}{1+\alpha} + \frac{\delta(d-k)}{\delta+\alpha} \\
+  	& \implies k =  \frac{k}{1+\alpha} + \frac{\rho k}{\delta+\alpha}\\
+  	&\implies 1 =  \frac{1}{1+\alpha} + \frac{\rho}{\delta+\alpha} \\
+  	&\implies \delta = \rho + \frac{\rho}{\alpha} - \alpha = \rho + \frac1 {\beta} - \beta \rho.
+  	\end{align*}
+  	
+  	For the bound, we need $0 < \delta < 1$. While $\delta < 1$ is trivially satisfied, for $\delta > 0$, we need $\rho < \frac{1}{\beta (\beta - 1)}$.
+  	
+  	With $\rho = \frac1 {\epsilon}$, we have $k = \frac{\epsilon}{1+ \epsilon}r$. And with $\beta =1+\frac{\epsilon}{1+ \epsilon} $, the condition $\rho < \frac{1}{\beta (\beta - 1)}$ is satisfied. Hence, we get for any $\epsilon>0$, with $k = \frac{\epsilon}{1+ \epsilon}r $, we are ensured that $\frac{E(\Er_{\A}(S))}{ \| \A - \A_k \|_F^2} \geq \left( 1 + \frac{\epsilon}{1+\epsilon} \right)$.                                                                                                                                                                                             
+  	
+  	We can also write the condition as $\beta (\beta -1) -\epsilon < 0$, which implies
+  	\[\beta \in \left(\frac{( 1- \sqrt(1+ 4 \epsilon)}{2}, \frac{( 1+ \sqrt(1+ 4 \epsilon)}{2} \right)\]. $\beta = (1/2 + \sqrt{\epsilon})$ satisfies this condition.
+  	
+  	
+  \end{proof}
+  
+  
+ \subsection{Algorithm independent lower bounds} 
+  \subsubsection{Case $k\leq r$}
+\begin{theorem}\label{t:lower-small-k}
+  For any $\epsilon\in(0,k^2)$ and $n,m,k,r\in\N$ such
+  that $k\leq\frac{\epsilon}{1+\epsilon}\,r\leq\min\{n,m\}$, there is
+  an $m\times n$ matrix $\X$ with stable rank  
+  $r$ such that for any subset $S$ of size $k$,
+  \begin{align*}
+    \Er_\X(S) \geq \bigg(1+\epsilon\cdot \frac{k-1}{2k^2}\bigg)\cdot \|\X-\X_k\|_F^2.
+  \end{align*}
+\end{theorem}
+
+\begin{proof}
+	Let $\x_1,...,\x_{k+1}$ be vectors forming a regular simplex centered
+	at $\zero$ which lies inside of the subspace spanned by the first $k$
+	coordinates. Denote $a=\|\x_i\|$ as the length of each vector. We
+	shift those vectors in the $(k+1)$-st coordinate by $\alpha$, getting
+	$\xbt_i=\x_i+\alpha\e_{k+1}$. Then, we add further vectors
+	$\x_{k+2},...,\x_n$ for some $n\gg k$ so that $\x_i=\delta\e_{i}$ for
+	$i>k+1$. Denote the entire $n\times d$ matrix as $\X$. The optimum
+	rank $k$ error is upper bounded as follows: 
+	\begin{align*}
+	\|\X - \X_k\|_F^2 \leq (k+1)\alpha^2 + (n-k-1)\delta^2.
+	\end{align*}
+	The top $k$ eigenvalues of $\X^\top\X$ associated with the simplex are all
+	$\lambda_i=\frac{k+1}{k}\,a^2$. This means that,
+	assuming that $\delta^2\leq(k+1)\alpha^2\leq \frac{k+1}{k}\,a^2$ (to
+	achieve the correct ordering of the eigenvalues), the
+	stable rank of $\X$ is given by:
+	\begin{align*}
+	r = \frac1{\lambda_1}\sum_{i=1}^d\lambda_i = k +
+	k\,\frac{\alpha^2}{a^2} + \frac{(n-k-1)\delta^2}{\frac{k+1}k\,a^2}.
+	\end{align*}
+	Finally, for any subset $S\subseteq[k+1]$, the loss is:
+	\begin{align*}
+	L(S) &= (k+1)^2\frac{(\frac ak)^2\alpha^2}{(\frac ak)^2+\alpha^2} +
+	(n-k-1)\delta^2\\
+	&=(k+1)^2\frac{a^2\alpha^2}{a^2+k^2\alpha^2} +
+	(n-k-1)\delta^2.
+	\end{align*}
+	Suppose that $\alpha^2=a^2/k^2$ and $(n-k-1)\delta^2 = (k+1)(\rho a^2-\alpha^2)$ for some
+	$\rho\in[\frac1{k^2},1]$. It follows that $r=(1+\rho)k$ and
+	$\|\X - \X_k\|_F^2=\rho(k+1)a^2$. Also we get:
+	\begin{align*}
+	\Er_{\X}(S)&=  (k+1)^2 \frac{a^2}{2k^2} + (k+1)\Big(\rho-\frac1{k^2}\Big) a^2\\
+	&=\rho(k+1)a^2 + a^2\frac{k+1}{k^2}\Big(\frac{k+1}{2} - 1\Big)\\
+	&=\|\X - \X_k\|_F^2\cdot\Big(1 + \frac{k-1}{2\rho k^2}\Big).
+	\end{align*}
+	By design, note that $\epsilon = \frac{1}{\rho}$, then we obtain the desired result. 
+	\end{proof}
+
+\subsubsection{Case $k >r$}
+To obtain the lower bounds for the regime where the selected subset is larger than the stable rank, we first extend the lower bound result of
+\cite{pca-volume-sampling}. Their construction uses a set of vectors that
+form a regular simplex centered at $\zero$ and than slightly
+shifts it. We show that in fact the regularity of the simplex is not
+necessary for their proof to work.
+\begin{lemma}\label{l:simplex}
+	Fix $\epsilon\in(0,1)$.  Consider any $k+1$ vectors $\x_i$ spanning a
+	$k$-dimensional subspace with their centroid at $\zero$ and let $\v$
+	be a unit vector orthogonal to that subspace. For any sufficiently small
+	$\alpha>0$, if we construct
+	matrix $\X$ with $k+1$ columns so that the $i$th column vector is $\x_i^\top+\alpha\v^\top$, 
+	then for any subset $S\subseteq[k+1]$ of size $k$,
+	\begin{align*}
+	\Er_{\X}(S)\geq (1-\epsilon)(k+1) \| \X -\X_k\|^2_F.
+	\end{align*}
+\end{lemma}
+\begin{proof}
+	Let $\P^*$ be the projection onto the span of
+	$\{\x_1,\dots,\x_{k+1}\}$. Then we have
+	\begin{align*}
+	 \| \X -\X_k\|^2_F \leq \|\X - \P^*\X\|_F^2 = (k+1)\cdot\alpha^2.
+	\end{align*}
+	We will use the shorthand $\xbt_i=\x_i+\alpha\v$. Consider any subset
+	of $k$ columns from $\X$. W.l.o.g. suppose 
+	$S=\{1,\dots,k\}$. Since the centroid of all the columns is $\alpha\v$,
+	we can rewrite the last vector as 
+	\begin{align*}
+	\xbt_{k+1} = (k+1)\alpha\v - \sum_{i\in S}\xbt_i.
+	\end{align*}
+	Since for any $i\in S$ we have $\P_S\xbt_i=\xbt_i$, it follows that:
+	\begin{align*}
+	\Er_{\X} &= \|\xbt_{k+1} - \P_S\xbt_{k+1}\|^2 \\
+	&=\bigg\| (k+1)\alpha\v - \sum_{i\in S}\xbt_i - \Big(\P_S (k+1)\alpha\v -
+	\sum_{i\in S}\xbt_i\Big)\bigg\|^2\\
+	&=(k+1)^2\alpha^2\|\v-\P_S\v\|^2.
+	\end{align*}
+	Note that $\lim_{\alpha\rightarrow 0}\P_S\v = \zero$ because $\v$
+	is orthogonal to the subspace spanned by $\{\x_i:i\in S\}$, so there is
+	$\alpha_S>0$ such that for any $\alpha\leq\alpha_S$ we have $\|\v-\P_S\v\|^2\geq 1-\epsilon$. This shows that
+	$L(S)\geq (1-\epsilon)(k+1)E_k^*$ for $\alpha=\alpha_S$. Taking
+	$\alpha = \min_{S:|S|=k}\alpha_S$ completes the proof.
+\end{proof}
+We next obtain our main hardness result which states that the lower bound
+factor $k+1$ of \cite{pca-volume-sampling} cannot be improved by constraining to matrices of a
+particular stable rank $r$ as long as $k>r$. This stands in contrast
+to our upper bound which showed that when $k<r$, then the factor $k+1$
+can be significantly improved.
+\begin{theorem}
+	\label{t:lowerboundrleqk}
+	For any $\epsilon\in(0,1)$ and $n,d,k,r\in\N$ such that  $0<r< k<\min\{n,d\}$, there is a matrix
+	$\X\in\R^{n\times d}$ with stable rank in $[r,r+1]$ such that for any subset
+	$S$ of size $k$
+	\begin{align*}
+	\Er_{\X}(S)\geq (1-\epsilon)(k+1) \|\X - \X_k \|_F^2.
+	\end{align*}
+\end{theorem}
+\begin{proof}
+	We will construct a set of vectors by gradually modifying and augmenting it while
+	preserving two invariants: (1) that the stable rank is in $[r,r+\frac23]$
+	and (2) the centroid of the vectors is  $\zero$. 
+	
+	First, construct matrix $\X_{(r+1)}$  from $r+1$ column vectors
+	$\x_1^\top,...,\x_{r+1}^\top$ that form 
+	a regular simplex centered at $\zero$, scaled so that the $r$ non-zero
+	singular values of $\X_{(r+1)}$ are all equal 1. Since all the non-zero
+	singular values of the matrix are equal, the stable rank
+	is $r$. Next, we iteratively add vectors one by one (and modify the
+	existing ones) until there is $k+1$ in the set. Let $\x_{1},...,\x_{t-1}$ and
+	$\xbt_1,...,\xbt_t$ denote the 
+	sets of vectors \emph{before} and \emph{after} adding the $t$th vector,
+	with corresponding matrices $\X_{(t-1)}$ and $\X_{(t)}$. Also, let
+	$\tilde r_{t-1}$ denote the stable rank of $\X_{(t-1)}$.
+	Adding the $i$th vector proceeds as follows:
+	\begin{enumerate}
+		\item shift all $t-1$ vectors along a normal direction $\v_t$
+		(orthogonal to their span) by some $\delta_t$,
+		\item let the new vector be $\xbt_{t}=- (t-1)\,\delta_t\v_t$.
+	\end{enumerate}
+	After the transformation and adding the $i$th vector, the centroid
+	stays at $\zero$, and moreover:
+	\begin{align*}
+	\X_{(t)}^\top\X_{(t)} &=
+	\sum_{i=1}^{t-1}(\x_i+\delta_t\v_t)(\x_i+\delta_t\v_t)^\top +
+	(t-1)^2\delta_t^2\v_t\v_t^\top\\
+	&=\sum_{i=1}^{t-1}\x_i\x_i^\top +
+	\delta_t\v_t\Big(\sum_{i=1}^{t-1}\x_i^\top\Big) +
+	\Big(\sum_{i=1}^{t-1}\x_i\Big)\delta_t\v_t^\top +
+	(t-1)\delta_t^2\v_t\v_t^\top+        (t-1)^2\delta_t^2\v_t\v_t^\top\\
+	&=\X_{(t-1)}^\top\X_{(t-1)}+((t-1)^2+t-1)\delta_t^2\v_t\v_t^\top.
+	\end{align*}
+	
+q
+	
+	Therefore, since $\v_i$ is orthogonal to the span of $\{\x_{1},...,\x_{t-1}\}$,
+	it becomes a new eigenvector of $\X_{(t)}^\top\X_{(t)}$, while the old
+	eigenvectors from $\X_{(t-1)}^\top\X_{(t-1)}$ remain the same in the
+	new matrix. Thus, as long as $\delta_t$ is sufficiently small (so that
+	the new eigenvalue does not become the largest), we have:
+	\begin{align*}
+	\tilde r_{t} = \tilde r_{t-1} + \|\X_{(t)}\|_F^2
+	-\|\X_{(t-1)}\|_F^2=\tilde r_{t-1} + \delta_t^2((t-1)^2+t-1) = \tilde r_{t-1} + \delta_t^2((t-1)^2+t-1).
+	\end{align*}
+	To make sure that stable rank remains less than $r+\frac23$, we
+	assume that $\delta_t\leq\frac1{t2^{t}}$ and bound the stable rank of the final set:
+	\begin{align*}
+	\tilde r_{k+1} = r + \sum_{t=r+2}^{k+1} \delta_t^2 (t^2-t) \leq r +
+	\sum_{t=1}^{k+1}\frac2{4^t}\leq r + \frac23.
+	\end{align*}
+	Now, it remains to apply Lemma \ref{l:simplex} to the set
+	of $k+1$ vectors, obtaining matrix $\Xt_{(k+1)}$ that satisfies the
+	desired lower bound. When choosing
+	$\alpha$, we have to again ensure that it 
+	is sufficiently small so that stable rank does not change by
+	more than $\frac13$. Naturally, this can be done just as we did it
+	in the construction of the set. We construct the final matrix $\X$
+	from $\Xt_{(k+1)}$ by padding with zeros to get the shape right,
+	which does not affect the loss $\Er_{\X}(\cdot)$ or the stable rank. 
+\end{proof}
+
+
+  \bibliographystyle{sty/icml2020/icml2020}
+  \bibliography{pap}
+
+  \end{document}

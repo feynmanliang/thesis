@@ -1,0 +1,243 @@
+\documentclass[10pt]{beamer}
+%\beamertemplateshadingbackground{brown!70}{yellow!10}
+\mode<presentation>
+{
+  %\usetheme{Warsaw}
+  \usecolortheme{crane}
+  % or ...
+
+%  \setbeamercovered{transparent}
+  % or whatever (possibly just delete it)
+}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]{}
+\usepackage{tikz,pgfplots}
+\pgfplotsset{compat=newest}
+\usepackage[utf8]{inputenc}
+\usetikzlibrary{patterns}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{colortbl}
+%\usepackage{multicol}
+\usepackage{cancel}
+\usepackage{ulem}
+\usepackage{multirow}
+\usepackage{relsize}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{forloop}% http://ctan.org/pkg/forloop
+\newcounter{loopcntr}
+\newcommand{\rpt}[2][1]{%
+  \forloop{loopcntr}{0}{\value{loopcntr}<#1}{#2}%
+}
+%\pagestyle{plain}
+%\input{defs2}
+\input{../shortdefs}
+
+\edef\polishl{\l}
+\setlength{\columnsep}{0.7em}
+\setlength{\columnseprule}{0mm}
+\setlength{\arrayrulewidth}{1pt} 
+
+\newcommand{\svr}[1]{{\textcolor{darkSilver}{#1}}}
+\definecolor{brightyellow}{cmyk}{0,0,0.7,0.0}
+\definecolor{lightyellow}{cmyk}{0,0,0.3,0.0}
+\definecolor{lighteryellow}{cmyk}{0,0,0.1,0.0}
+\definecolor{lightestyellow}{cmyk}{0,0,0.05,0.0}
+\AtBeginSection[]
+{
+\begin{frame}<beamer>
+\frametitle{Outline}
+\tableofcontents[currentsection]
+\end{frame}
+}
+\def\layersep{2.5cm}
+
+
+%  \fboxsep=3pt
+% %\fboxsep=0mm%padding thickness
+% \fboxrule=2pt%border thickness
+
+\setkeys{Gin}{width=0.7\textwidth}
+
+\title[]{Random Projections in Hilbert Spaces}
+
+\author[]{Micha{\l} Derezi\'{n}ski\\
+UC Berkeley}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\linespread{1.3}
+
+\begin{frame}
+  \frametitle{Quadrature in RKHS}
+
+  Let $\Fc\subseteq L^2(\Xc,\mu)$ be a reproducing kernel Hilbert space (RKHS) with a
+  positive definite kernel $k:\Xc\times\Xc\rightarrow \R$
+  and probability measure $\mu$ on $\Xc$. \\
+  Define the integral covariance operator $\Sigma:\Fc\rightarrow \Fc$
+as follows:
+  \begin{align*}
+        \Sigma f(\cdot) = \int_xk(\cdot,x)f(x)\mu(dx) = \E_{x\sim\mu}[k(\cdot,x)f(x)].
+  \end{align*}  
+  Consider a set of inducing points $X=\{x_1,...,x_n\}\subseteq \Xc$.
+A quadrature of $g\in \Fc$ induced by $X$ and
+weights $(w_i)_{i=1}^n$  is given by:
+  \begin{align*}
+    \tilde g_w(\cdot) = \sum_{i=1}^nw_ik(\cdot,x_i).
+  \end{align*}
+Optimizing the weights of the quadrature w.r.t. the norm in $\Fc$, we
+get:
+\begin{align*}
+  \inf_w \|g - \tilde g_w\|_{\Fc} = \|g - \hat g_X\|_{\Fc},\quad
+ \text{for } \hat g_X := P_Xg,
+\end{align*}
+where $P_X$ is the orthogonal projection in $\Fc$ onto the span of $X$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Quadrature error and expected projections}
+  Suppose that the inducing points are drawn i.i.d.\ from the measure
+  $\mu$.\\
+  Then, we can write the expected quadrature error as follows:
+  \begin{align*}
+    \E_{X\sim\mu^n}\big[\|g-\hat g_X\|_{\Fc}^2\big]
+    &=\E_{X\sim\mu^n}\big[\|(I-P_X)g\|_{\Fc}^2\big]
+    \\
+    &= \big\langle\,
+      g,\E_{X\sim\mu^n}[I-P_X]\,g\,\big\rangle_{\Fc}
+    \\
+    &=\|g\|_{\Fc}^2 -  \big\langle\,
+      g,\E_{X\sim\mu^n}[P_X]\,g\,\big\rangle_{\Fc}
+  \end{align*}
+Random matrix theory suggests the following deterministic equivalents:
+  \begin{align*}
+    \E_{X\sim\mu^n}[I-P_X] \simeq (\tfrac1\lambda\Sigma+I)^{-1},\quad
+    \E_{X\sim\mu^n}[P_X]\simeq \Sigma(\Sigma + \lambda I)^{-1},
+  \end{align*}
+  where $\lambda>0$ is defined so that $\tr\,\Sigma(\Sigma+\lambda
+  I)^{-1}=n$.\\[5mm]
+
+ \emph{Note}: If $\Sigma$ is trace-class, then so is
+ $\Sigma(\Sigma+\lambda I)^{-1}$,  but not $(\frac1\lambda\Sigma+I)^{-1}$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Motivations and related work}
+  The above (or closely related) setup arises in many related works, e.g.:
+  \begin{itemize}
+  \item \cite{bach2017equivalence} (random feature models)
+  \item \cite{smola2007hilbert} (property testing and density estimation)
+  \item \cite{sparse-variational-gp} (Gaussian processes)
+  \item \cite{muandet2017kernel} (kernel mean embeddings)
+  \item \cite{belhadji2019kernel} (numerical integration)
+  \item \cite{BLLT19_TR} (linear regression)
+  \end{itemize}
+  \vspace{5mm}
+  
+We borrow the notation of \cite{bach2017equivalence}, and use
+observations from \cite{belhadji2019kernel}
+\end{frame}
+
+\begin{frame}
+  \frametitle{ Direct extension of the current result}
+  \emph{Recall}: $P_X$ denotes the projection onto the span of $X$
+  with respect to the norm induced by the RKHS $\Fc$ with kernel $k$
+  and covariance operator $\Sigma$.\\[5mm]
+
+ \emph{Notation}: We use $A\simeq_{\epsilon}B$ to denote
+ $(1-\epsilon)B\leq A\leq(1+\epsilon)B$
+ \\[5mm]
+
+  \textbf{Conjecture}.
+Let $\mu$ be sub-gaussian,
+  $r=\tr\,\Sigma/\|\Sigma\|$ and fix $\rho=r/n>1$. Then:
+  \begin{align*}
+\E_{X\sim\mu^n}[I-P_X]\ \simeq_{O(1/\sqrt r)}\ (\tfrac1\lambda\Sigma+ I)^{-1}.
+  \end{align*}
+  \vspace{5mm}
+  
+Slightly stronger claim that may require additional
+  assumptions:
+  \begin{align*}
+\E_{X\sim\mu^n}[P_X]\ \simeq_{O(1/\sqrt r)}\ \Sigma(\Sigma+ \lambda I)^{-1}.
+  \end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Conjecture: Extension to $\rho<1$}
+ \emph{Definition}. Let $\lambda_1,\lambda_2,...$ be the eigenvalues
+ of $\Sigma$.
+ For any $s\geq 0$, define
+ \begin{align*}
+   r_s = \frac1{\lambda_{s+1}}\sum_{i>s}\lambda_i.
+ \end{align*}
+\emph{Note}. The effective dimension of $\Sigma$ is recovered as $r_0=\tr\,\Sigma/\|\Sigma\|$.
+\\[10mm]
+
+  \textbf{Conjecture}.
+Let $\mu$ be sub-gaussian, and $s<n<s+r_s$ for some $s\geq 0$. Then:
+\begin{align*}
+\E_{X\sim\mu^n}[I-P_X]\ \simeq_{O(1/\sqrt{r_s})}\ (\tfrac1\lambda\Sigma+ I)^{-1},
+\end{align*}
+where the constant may depend on $n/s$ and $r_s/n$.\\[5mm]
+
+
+\emph{Intuition}: The error should not depend on the magnitude of the
+top $s$ eigenvalues when $s$ is sufficiently smaller than $n$, because
+those directions are accurately captured by the projection.
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Implications for exponential decay}
+  Suppose that $\lambda_i\asymp \alpha^i$ for $\alpha<1$. Then:
+  \begin{align*}
+    r_s \simeq_{O(1)}  \tr\,\Sigma / \|\Sigma\|\quad\text{for all $n$.}
+  \end{align*}
+  So, we may be able to show that if the eigenvalues of $\Sigma$
+  exhibit exponential decay, then with $r=\tr\,\Sigma / \|\Sigma\|$:
+  \begin{align*}
+    \E_{X\sim\mu^n}[I-P_X]\ \simeq_{O(1/\sqrt{r})}\
+    (\tfrac1\lambda\Sigma+ I)^{-1}\quad\text{for all $n$.}
+    \end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Implications for polynomial decay}
+  Suppose that $\lambda_i\asymp i^{-\beta}$ for $\beta>1$. Then:
+  \begin{align*}
+    r_s \simeq_{O(1)}  s/\beta\quad\text{for all $n$.}
+  \end{align*}
+  So, we may be able to show that if the eigenvalues of $\Sigma$
+  exhibit polynomial decay, then:
+  \begin{align*}
+    \E_{X\sim\mu^n}[I-P_X]\ \simeq_{O(1/\sqrt{n})}\
+    (\tfrac1\lambda\Sigma+ I)^{-1}\quad\text{for all $n$.}
+    \end{align*}
+
+\emph{Note}: This would imply that the deterministic equivalent is
+asymptotically consistent for $n\rightarrow\infty$, with a fixed
+covariance operator $\Sigma$.
+\vspace{5mm}
+
+\emph{Remark}: This claim also implies that the quadrature
+error of $X\sim\mu^n$ is
+within a constant factor of the best $n$-dimensional quadrature (following the analysis of
+\cite{nystrom-multiple-descent}), and we can precisely characterize
+that factor. 
+    
+\end{frame}
+
+\begin{frame}[allowframebreaks]
+  \frametitle{References}
+  \tiny
+  \bibliographystyle{alpha}
+  \bibliography{../pap}
+\end{frame}
+
+
+\end{document}

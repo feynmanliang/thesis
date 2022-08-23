@@ -1,0 +1,168 @@
+\documentclass[10pt]{beamer}
+%\beamertemplateshadingbackground{brown!70}{yellow!10}
+\mode<presentation>
+{
+  %\usetheme{Warsaw}
+  \usecolortheme{crane}
+  % or ...
+
+%  \setbeamercovered{transparent}
+  % or whatever (possibly just delete it)
+}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]{}
+\usepackage{tikz,pgfplots}
+\pgfplotsset{compat=newest}
+\usepackage[utf8]{inputenc}
+\usetikzlibrary{patterns}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{colortbl}
+%\usepackage{multicol}
+\usepackage{cancel}
+\usepackage{ulem}
+\usepackage{multirow}
+\usepackage{relsize}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{forloop}% http://ctan.org/pkg/forloop
+\newcounter{loopcntr}
+\newcommand{\rpt}[2][1]{%
+  \forloop{loopcntr}{0}{\value{loopcntr}<#1}{#2}%
+}
+%\pagestyle{plain}
+%\input{defs2}
+\input{../shortdefs}
+
+\edef\polishl{\l}
+\setlength{\columnsep}{0.7em}
+\setlength{\columnseprule}{0mm}
+\setlength{\arrayrulewidth}{1pt} 
+
+\newcommand{\svr}[1]{{\textcolor{darkSilver}{#1}}}
+\definecolor{brightyellow}{cmyk}{0,0,0.7,0.0}
+\definecolor{lightyellow}{cmyk}{0,0,0.3,0.0}
+\definecolor{lighteryellow}{cmyk}{0,0,0.1,0.0}
+\definecolor{lightestyellow}{cmyk}{0,0,0.05,0.0}
+\AtBeginSection[]
+{
+\begin{frame}<beamer>
+\frametitle{Outline}
+\tableofcontents[currentsection]
+\end{frame}
+}
+\def\layersep{2.5cm}
+
+
+%  \fboxsep=3pt
+% %\fboxsep=0mm%padding thickness
+% \fboxrule=2pt%border thickness
+
+\setkeys{Gin}{width=0.7\textwidth}
+
+\title[]{Convergence analysis of Sketched Newton-Raphson}
+
+\author[]{Micha{\l} Derezi\'{n}ski\\
+UC Berkeley}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\linespread{1.3}
+
+
+\begin{frame}
+  \frametitle{Setup}
+  We consider a differentiable function $F:\R^d\rightarrow\R^d$, and
+  let $DF(x)$ denote its Jacobian at $x$. For a random $d\times \tau$
+  sketching matrix $\S$, we define:
+
+  \begin{align*}
+    \H_S(x) = \S(\S^\top DF(x)^\top DF(x)\S)^\dagger\S^\top.
+  \end{align*}
+
+  Sketched Newton-Raphson algorithm achieves the following convergence guarantee:
+  \begin{align*}
+    \min_{t=0,..,k-1}\E\Big[\|F(x^t)\|^2_{\E[\H_S(x^t)]}\Big]\ \leq\ \frac {4\|x^0-x^*\|^2}{k}.
+  \end{align*}
+\emph{Goal}: Describe the convergence of the Euclidean norm $\|F(x^t)\|$
+\end{frame}
+
+\begin{frame}
+  \frametitle{Sketching with a determinantal point process (DPP)}
+  Sketching matrix $\S$ performs coordinate sampling\\
+  We allow any coordinate set, i.e., the sketch size $\tau_S$ is random.
+  We define $\S\sim \DPP(\L)$ so that
+  \begin{align*}
+    \Pr\Bigg\{\S = \begin{bmatrix}&|\\ ...\!\!&
+      \e_i&\!\!...\\&|&\end{bmatrix}_{i\in S}\Bigg\} \propto
+                        \det(\L_{S,S}).
+  \end{align*}
+  Define \[\bar\H_\tau(x) = (DF(x)^\top DF(x) +\lambda_\tau(x)\I)^{-1},\]
+  for $\lambda_\tau(x)$ such that
+  $\tau = \tr\big(DF(x)^\top DF(x)  (DF(x)^\top DF(x) +\lambda_\tau(x)\I)^{-1}\big)$.
+
+  \begin{theorem}[\cite{randomized-newton}]
+    If $\S\sim\DPP(\frac1\lambda DF(x)^\top DF(x))$, then we have:
+    \begin{align*}
+      \E\big[\H_S(x)\big] &=\bar\H_{\E[\tau_S]}(x)
+    \end{align*}
+  \end{theorem}
+  \emph{Cost of sampling}: $O(d^2\cdot\poly(\tau))$ for
+  $\tau=\E[\tau_S]$, given $DF(x)$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Sub-gaussian sketches}
+  Sketching matrix $\S$ is $d\times \tau$ and has i.i.d. sub-gaussian
+  entries.\\
+  For a matrix $\A$ we define its stable rank as $\|\A\|_F^2/\|\A\|$
+  
+  \begin{theorem}[\cite{precise-expressions}]
+    If $DF(x)$ has stable rank $r\ge 2\tau$, then we have:
+    \begin{align*}
+      \big(1-O(\tfrac1{\sqrt r})\big) \bar\H_\tau(x)
+      \preceq \E\big[\H_S(x)\big] \preceq
+      \big(1+O(\tfrac1{\sqrt r})\big) \bar\H_\tau(x).
+    \end{align*} 
+  \end{theorem}
+
+  \emph{Cost of sketching}: $O(d^2\tau)$, from the multiplication of $DF(x)\S$
+\end{frame}
+
+\begin{frame}
+  \frametitle{Convergence analysis}
+  For simplicity we will assume that $\E\big[\H_S(x)\big]
+  =\bar\H_\tau(x)$.\\
+  Furthermore, assume that $\sup_x \|DF(x)\|\leq L$ and
+  $\sup_x\lambda_\tau(x)\leq \lambda_\tau^*$
+  \begin{lemma}
+    For any vector $\v\in\R^d$, we have:
+    \begin{align*}
+    \frac1{L^2+\lambda_\tau^*}\|\v\|^2  \leq \|\v\|^2_{\E[\H_S(x)]}\leq \frac1{\lambda_\tau(x)}\|\v\|^2
+    \end{align*}
+  \end{lemma}
+  It follows that for Sketched Newton-Raphson we get:
+   \begin{align*}
+    \min_{t=0,..,k-1}\E\Big[\|F(x^t)\|^2\Big]\ \leq\ 4(L^2+\lambda_\tau^*) \frac{\|x^0-x^*\|^2}{k}.
+   \end{align*}
+Let $r(x)$ be the stable rank of $DF(x)$. Then:
+$\lambda_\tau(x)\leq r(x) \|DF(x)\|^2/\tau$.
+So letting $r^*=\sup_x r(x)$, the convergence rate becomes:
+   \begin{align*}
+    4 L^2(1+ r^*/\tau)\frac{\|x^0-x^*\|^2}{k}.
+   \end{align*}
+ \end{frame}
+
+
+\begin{frame}[allowframebreaks]
+  \frametitle{References}
+  \small
+  \bibliographystyle{alpha}
+  \bibliography{../pap}
+\end{frame}
+
+
+\end{document}

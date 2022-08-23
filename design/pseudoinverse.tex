@@ -1,0 +1,105 @@
+\documentclass[12pt]{sty/colt2019/colt2018-arxiv}
+% \else
+% \documentclass[anon,12pt]{sty/colt2019/colt2019} % Anonymized submission
+% \documentclass[12pt]{colt2019} % Include author names
+% \fi
+
+% The following packages will be automatically loaded:
+% amsmath, amssymb, natbib, graphicx, url, algorithm2e
+
+% \title[Short Title]{Full Title of Article}
+\title{Averaging subsampled pseudoinverses}
+\usepackage{times}
+ 
+\usepackage{color}
+\usepackage{cancel}
+\usepackage{wrapfig}
+\usepackage{caption}
+\usepackage{algorithm}
+\usepackage{xfrac}
+\usepackage{algorithmic}
+\input{shortdefs}
+
+\coltauthor{\Name{Micha{\l } Derezi\'{n}ski}
+  \Email{mderezin@berkeley.edu}\\
+  \addr Department of Statistics, UC Berkeley 
+} 
+
+\begin{document}
+
+\maketitle
+For a square $n\times n$ matrix $\A$, we use $\adj(\A)$ to denote its adjugate, defined as an $n\times n$ matrix whose $(i,j)$th entry is $(-1)^{i+j}\det(\A_{-j,-i})$, where $\A_{-j,-i}$ denotes $\A$ without $j$th row and $i$th column. 
+The adjugate matrix provides a key connection between the inverse and
+the determinant because for any invertible matrix $\A$, we have
+$\adj(\A) = \det(\A)\A^{-1}$. Also let $\pdet(\A)$ denote the pseudo-determinant.
+
+Given a sequence of matrices $(\Z_i)_{i=1}^n$, we will use $\Z_{[S]}$ to
+denote $\sum_{i\in S}\Z_i$ and let $\Z_{[n]}=\sum_{i=1}^n\Z_i$. 
+Consider the following assumption, which is an
+extension of the traditional \emph{general position} assumption.
+\begin{assumption}
+We say that a sequence of square rank-1 matrices $(\Z_i)_{i=1}^n$ is in
+$r$-general position if for any subset $S\subseteq[n]$ of size at
+least $r$ we have $\rank(\Z_{[S]}) = r$.
+\end{assumption}
+
+The fundamental result we use does not require the above assumption.
+\begin{theorem}\label{t:adj}
+  If $(\Z_i)_{i=1}^n$ are $d\times d$ matrices then for any $k\geq
+  d-1$,
+  \begin{align*}
+    \sum_{S:|S|=k}\adj(\Z_{[S]})=   {n-d+1\choose k-d+1}\adj(\Z_{[n]}).
+  \end{align*}
+\end{theorem}
+
+The following Theorem is a straightforward extension of the result
+from \cite{unbiased-estimates-journal}, and follows as a corollary of
+Theorem \ref{t:adj}.
+   \begin{theorem}\label{t:sqinv}
+Suppose that $(\Z_i)_{i=1}^n$ are $d\times d$ and in $d$-general
+position. Then for any $k\geq d$, 
+     \begin{align*}
+\sum_{S:|S|=k} w_S \,\Z_{[S]}^{-1} =
+       \tfrac{n-d+1}{k-d+1}\,\Z_{[n]}^{-1}\quad\text{and}\quad 
+     \sum_{S:|S|=k}\!w_S = 1,\quad \text{for}\quad w_S=
+\tfrac{\det(\Z_{[S]})}{{n-d\choose k-d}\det(\Z_{[n]})}.
+     \end{align*}
+   \end{theorem}
+Note that we do not require that any matrices be psd, but we do
+require invertibility. If the matrices are not psd, then some of the
+weights $w_S$ will be negative, but they will still sum to 1.
+Next, we relax the invertiblity assumption.
+
+   \begin{theorem}\label{t:sqinv}
+Suppose that $(\Z_i)_{i=1}^n$ are square and in $r$-general
+position. Then for any $k\geq r$, 
+     \begin{align*}
+\sum_{S:|S|=k} w_S \,\tr(\Z_{[S]}^{\dagger}) =
+       \tfrac{n-r+1}{k-r+1}\,\tr(\Z_{[n]}^{\dagger})\quad\text{and}\quad 
+     \sum_{S:|S|=k}\!w_S = 1,\quad \text{for}\quad w_S=
+\tfrac{\pdet(\Z_{[S]})}{{n-r\choose k-r}\pdet(\Z_{[n]})}.
+     \end{align*}
+   \end{theorem}
+Note that trace could be replaced by any linear function of the eigenvalues
+of the matrix. 
+     \begin{proof}
+Let $\X,\Y$ be $n\times d$ matrices such that
+$\Z_{[S]}=\X_S^\top\Y_S$, where $\X_S$ selects out the rows of
+$\X$. Note that $\L=\X\Y^\top$ has rank $r$, so there are $n\times r$
+matrices $\A,\B$ such that $\Y\X^\top=\B\A^\top$. Moreover, since
+       $\Y_S\X_S^\top=\L_{S,S}=\B_S\A_S^\top$ for any $S\subseteq [n]$, we have
+       \begin{align*}
+         \tr\big(\Z_{[S]}^\dagger\big) =
+         \tr\big((\Y_S\X_S^\top)^\dagger\big) =
+         \tr\big((\B_S\A_S^\top)^\dagger\big) = \tr\big((\A_S^\top\B_S)^{-1}\big).
+       \end{align*}
+       In particular, we also have $\tr\big((\X^\top\Y)^\dagger\big) =
+       \tr\big((\A^\top\B)^{-1}\big)$. The result now follows by
+       applying Theorem \ref{t:sqinv} to matrices $\tilde{\Z}_{[S]}=\A_S^\top\B_S$.
+     \end{proof}
+
+%\bibliographystyle{alpha}
+\bibliography{pap}
+
+   
+\end{document}
