@@ -1,32 +1,32 @@
  \newif\ifisarxiv
  \isarxivfalse
 
- \ifisarxiv
- \documentclass[11pt]{article}
- \usepackage[round]{natbib}
- \usepackage{fullpage}
- \usepackage{amsmath}
- \usepackage{amssymb}
- \usepackage{amsthm}
- \usepackage{mathabx}
- \usepackage{color}
- \usepackage{cancel}
- \usepackage{wrapfig}
- \usepackage{subfigure}
- \usepackage{caption}
- \usepackage{xfrac}
- \usepackage{algorithm}
- \usepackage{algorithmic}
- \usepackage{mdframed}
- \usepackage{hyperref}
- \usepackage{xcolor}
- \hypersetup{
- 	colorlinks,
- 	linkcolor={red!40!gray},
- 	citecolor={blue!40!gray},
- 	urlcolor={blue!70!gray}
- }
- \usepackage{cleveref}
+%  \ifisarxiv
+ \documentclass[thesis.tex]{subfiles}
+%  \usepackage[round]{natbib}
+%  \usepackage{fullpage}
+%  \usepackage{amsmath}
+%  \usepackage{amssymb}
+%  \usepackage{amsthm}
+%  \usepackage{mathabx}
+%  \usepackage{color}
+%  \usepackage{cancel}
+%  \usepackage{wrapfig}
+%  \usepackage{subfigure}
+%  \usepackage{caption}
+%  \usepackage{xfrac}
+%  \usepackage{algorithm}
+%  \usepackage{algorithmic}
+%  \usepackage{mdframed}
+%  \usepackage{hyperref}
+%  \usepackage{xcolor}
+%  \hypersetup{
+%  	colorlinks,
+%  	linkcolor={red!40!gray},
+%  	citecolor={blue!40!gray},
+%  	urlcolor={blue!70!gray}
+%  }
+%  \usepackage{cleveref}
 
 
  \title{Exact expressions for double descent
@@ -60,85 +60,85 @@
  {\hfill\BlackBox\par\bigskip}
 
 
-\else
+% \else
 
-\documentclass{article}
-\usepackage[final]{neurips_2020}
+% \documentclass{article}
+% \usepackage[final]{neurips_2020}
 
-\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
-\usepackage{hyperref}       % hyperlinks
-\usepackage{url}            % simple URL typesetting
-\usepackage{booktabs}       % professional-quality tables
-\usepackage{amsfonts}       % blackboard math symbols
-\usepackage{nicefrac}       % compact symbols for 1/2, etc.
-\usepackage{microtype}      % microtypography
+% \usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+% \usepackage{hyperref}       % hyperlinks
+% \usepackage{url}            % simple URL typesetting
+% \usepackage{booktabs}       % professional-quality tables
+% \usepackage{amsfonts}       % blackboard math symbols
+% \usepackage{nicefrac}       % compact symbols for 1/2, etc.
+% \usepackage{microtype}      % microtypography
 
-\usepackage{amsmath}
-\usepackage{cancel}
-\usepackage{cleveref}
-\usepackage{subfigure}
-\usepackage{todonotes}
- \usepackage{wrapfig}
-\usepackage{xcolor}
-\usepackage{xfrac}
-\hypersetup{
-	colorlinks,
-	linkcolor={red!40!gray},
-	citecolor={blue!40!gray},
-	urlcolor={blue!70!gray}
-}
-
-\title{Exact expressions for double descent and implicit regularization via
-surrogate random design}
-  \author{%
-Micha{\l } Derezi\'{n}ski \\
-  Department of Statistics\\
-  University of California, Berkeley\\
-  \texttt{mderezin@berkeley.edu}\\
-  \And
-Feynman Liang \\
-  Department of Statistics\\
-  University of California, Berkeley\\
-  \texttt{feynman@berkeley.edu}
-  \And
-Michael W. Mahoney\\
-  ICSI and Department of Statistics\\
-  University of California, Berkeley\\
-  \texttt{mmahoney@stat.berkeley.edu}
-}
-% \usepackage{times}
-
-% \coltauthor{%
-%   \Name{Micha{\l } Derezi\'{n}ski} \Email{mderezin@berkeley.edu}\\
-%   \addr Department of Statistics\\
-%   University of California, Berkeley\\
-%   \AND
-%   \Name{Feynman Liang} \Email{feynman@berkeley.edu}\\
-%   \addr Department of Statistics\\
-%   University of California, Berkeley\\
-%   \AND
-%   \Name{Zhenyu Liao} \Email{TODO}\\
-%   \addr Department of Statistics\\
-%   University of California, Berkeley\\
-%   \AND
-%   \Name{Michael W. Mahoney} \Email{mmahoney@stat.berkeley.edu}\\
-%   \addr ICSI and Department of Statistics\\
-%   University of California, Berkeley
+% \usepackage{amsmath}
+% \usepackage{cancel}
+% \usepackage{cleveref}
+% \usepackage{subfigure}
+% \usepackage{todonotes}
+%  \usepackage{wrapfig}
+% \usepackage{xcolor}
+% \usepackage{xfrac}
+% \hypersetup{
+% 	colorlinks,
+% 	linkcolor={red!40!gray},
+% 	citecolor={blue!40!gray},
+% 	urlcolor={blue!70!gray}
 % }
 
-% \usepackage{float}
-% \usepackage{wrapfig}
+% \title{Exact expressions for double descent and implicit regularization via
+% surrogate random design}
+%   \author{%
+% Micha{\l } Derezi\'{n}ski \\
+%   Department of Statistics\\
+%   University of California, Berkeley\\
+%   \texttt{mderezin@berkeley.edu}\\
+%   \And
+% Feynman Liang \\
+%   Department of Statistics\\
+%   University of California, Berkeley\\
+%   \texttt{feynman@berkeley.edu}
+%   \And
+% Michael W. Mahoney\\
+%   ICSI and Department of Statistics\\
+%   University of California, Berkeley\\
+%   \texttt{mmahoney@stat.berkeley.edu}
+% }
+% % \usepackage{times}
 
-\fi
+% % \coltauthor{%
+% %   \Name{Micha{\l } Derezi\'{n}ski} \Email{mderezin@berkeley.edu}\\
+% %   \addr Department of Statistics\\
+% %   University of California, Berkeley\\
+% %   \AND
+% %   \Name{Feynman Liang} \Email{feynman@berkeley.edu}\\
+% %   \addr Department of Statistics\\
+% %   University of California, Berkeley\\
+% %   \AND
+% %   \Name{Zhenyu Liao} \Email{TODO}\\
+% %   \addr Department of Statistics\\
+% %   University of California, Berkeley\\
+% %   \AND
+% %   \Name{Michael W. Mahoney} \Email{mmahoney@stat.berkeley.edu}\\
+% %   \addr ICSI and Department of Statistics\\
+% %   University of California, Berkeley
+% % }
 
-\input{../shortdefs}
+% % \usepackage{float}
+% % \usepackage{wrapfig}
 
-\newcommand{\RED}{\color[rgb]{0.70,0,0}}
+% \fi
+
+% \input{../shortdefs}
+
+% \newcommand{\RED}{\color[rgb]{0.70,0,0}}
 
 \begin{document}
-\maketitle
+% \maketitle
 
-\begin{abstract}
+% \begin{abstract}
   Double descent refers to the phase transition that is exhibited by
   the generalization error of unregularized learning models when varying the ratio
   between the number of parameters and the number of training
@@ -161,7 +161,7 @@ Michael W. Mahoney\\
   distribution. In our analysis we introduce a new mathematical tool of
   independent interest: the class of random matrices for which
   determinant commutes with expectation.
-\end{abstract}
+% \end{abstract}
 
 
 \section{Introduction}
@@ -321,21 +321,21 @@ we use $\X^\dagger$ to denote the Moore-Penrose inverse of $\X$.
 
 \begin{figure}[t]
   \centering
-  \subfigure[%
-    Surrogate MSE expressions (Theorem \ref{t:mse}) closely match
+  \begin{subfigure}{0.49\textwidth}%
+    \subcaption{Surrogate MSE expressions (Theorem \ref{t:mse}) closely match
     numerical estimates even for non-isotropic
     features. Eigenvalue decay leads to a steeper
-    descent curve in the under-determined regime ($n<d$).]{%
-    \includegraphics[width=0.48\textwidth]{figs/descent-intro}
-  }
+    descent curve in the under-determined regime ($n<d$).}
+    \includegraphics[width=0.48\textwidth]{../figs/descent-intro}
+  \end{subfigure}
   \hfill
-  \subfigure[%
-    The mean of the estimator $\X^\dagger\y$ exhibits
+  \begin{subfigure}{0.49\textwidth}
+    \subcaption{The mean of the estimator $\X^\dagger\y$ exhibits
     shrinkage which closely matches the shrinkage of a
     ridge-regularized least squares optimum (theory lines), as characterized by
-    Theorem \ref{t:unbiased}.]{%
-    \includegraphics[width=0.48\textwidth]{figs/descent-shrinkage}
-  }
+    Theorem \ref{t:unbiased}.}
+    \includegraphics[width=0.48\textwidth]{../figs/descent-shrinkage}
+  \end{subfigure}
   \caption{Illustration of the main results for $d=100$ and
     $\mu=\Nc(\zero,\Sigmab)$ where $\Sigmab$ is diagonal with
     eigenvalues decaying exponentially and scaled so that
@@ -612,7 +612,7 @@ population.
 \begin{wrapfigure}{r}{\ifisarxiv 0.5\else 0.44\fi\textwidth}
   \ifisarxiv\else \vspace{-.2cm}\fi
   \centering
-  \includegraphics[width=.43\textwidth]{figs/descent-model-log}
+  \includegraphics[width=.43\textwidth]{../figs/descent-model-log}
   \ifisarxiv\else \vspace{-3mm}\fi
   \caption{
     Surrogate MSE as a function of $d/n$, with $n$
@@ -1064,17 +1064,17 @@ partial support of this work. We also thank Zhenyu Liao for pointing
 out fruitful connections between our results and the asymptotic
 analysis of random matrix resolvents.
 
-\ifisarxiv
-  \bibliographystyle{plainnat}
-\else
-  \bibliographystyle{alpha}
-\fi
+% \ifisarxiv
+%   \bibliographystyle{plainnat}
+% \else
+%   \bibliographystyle{alpha}
+% \fi
 
-\bibliography{../pap}
+% \bibliography{../pap}
 
-\ifisarxiv\else\newpage\fi
+% \ifisarxiv\else\newpage\fi
 
-\appendix
+% \appendix
 
 \input{appendix}
 

@@ -4,9 +4,115 @@
 %
 % The Current Maintainer of this work is Paul Vojta.
 
-\documentclass{ucbthesis}
-\usepackage{biblatex}
+\documentclass[oldfontcommands]{ucbthesis}
+\usepackage[natbib=true]{biblatex}
 \usepackage{rotating} % provides sidewaystable and sidewaysfigure
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{caption,tabularx,booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{xfrac}
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{wrapfig}
+% \usepackage{algorithm}
+% \usepackage{algorithmic}
+\usepackage{caption}
+\usepackage{subcaption}
+\input{design/shortdefs}
+\newcommand{\mub}{\bm{\mu}}
+\usepackage{grffile}
+\usepackage{cancel}
+% \usepackage{subfigure}
+\usepackage{todonotes}
+% \input{ic/aistats2021/macros}
+\usepackage[export]{adjustbox}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[bold]{hhtensor}
+\usepackage{mathtools}
+% \definecolor{codegreen}{rgb}{0,0.6,0}
+% \definecolor{codegray}{rgb}{0.5,0.5,0.5}
+% \definecolor{codepurple}{rgb}{0.58,0,0.82}
+% \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+% \lstdefinestyle{mystyle}{
+%   backgroundcolor=\color{backcolour},
+%   commentstyle=\color{codegreen},
+%   keywordstyle=\color{magenta},
+%   numberstyle=\tiny\color{codegray},
+%   stringstyle=\color{codepurple},
+%   basicstyle=\ttfamily\footnotesize,
+%   breakatwhitespace=false,
+%   breaklines=true,
+%   captionpos=b,
+%   keepspaces=true,
+%   numbersep=5pt,
+%   showspaces=false,
+%   showstringspaces=false,
+%   showtabs=false,
+%   tabsize=2
+% }
+% \lstset{style=mystyle}
+\usepackage{hyperref}
+\usepackage{cleveref}
+% \hypersetup{
+% 	colorlinks,
+% 	linkcolor={red!40!gray},
+% 	citecolor={blue!40!gray},
+% 	urlcolor={blue!70!gray}
+% }
+\crefname{lstlisting}{listing}{listings}
+\Crefname{lstlisting}{Listing}{Listings}
+\DeclarePairedDelimiterX{\infdivx}[2]{(}{)}{%
+  #1\;\delimsize\|\;#2%
+}
+\newcommand{\infdiv}{D\infdivx}
+\DeclareMathOperator{\MB}{MB}
+\DeclareMathOperator{\Pa}{Pa}
+\newcommand{\bE}{\mathbb{E}}
+\newcommand{\cN}{\mathcal{N}}
+\newcommand{\vx}{\vec{x}}
+\newcommand{\vy}{\vec{y}}
+\newcommand{\mI}{\matr{I}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\cE}{\mathcal{E}}
+\newcommand{\cL}{\mathcal{L}}
+\newcommand{\cO}{\mathcal{O}}
+\newcommand{\cQ}{\mathcal{Q}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\pd}{\partial}
+\newcommand{\dist}{\mathrm{dist}}
+\newcommand{\vb}{\vec{b}}
+\newcommand{\vv}{\vec{v}}
+\newcommand{\veta}{\vec{\eta}}
+\newcommand{\mM}{\matr{M}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\EE}{\mathbb{E}}
+\newcommand{\PP}{\mathbb{P}}
+\newcommand{\liam}[1]{{\color{green}{(Liam: {#1})}}}
+\usepackage{dsfont}
+\usepackage{braket}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+% \usepackage[ruled]{algorithm2e}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{enumerate}
+\usepackage{enumitem}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+\usepackage{siunitx}
+
 
 \usepackage{subfiles} % best loaded last
 
@@ -24,9 +130,11 @@
 
 \addtolength{\abovecaptionskip}{\baselineskip}
 
-\newtheorem{theorem}{Jibberish}
-
 \bibliography{references}
+\bibliography{design/pap}
+\bibliography{ic/aistats2021/refs}
+\bibliography{ftvi/refs_ftvi}
+\bibliography{hta/refs}
 
 \hyphenation{mar-gin-al-ia}
 \hyphenation{bra-va-do}
@@ -91,11 +199,11 @@ transcript alike. Washable an acre. To canned, silence in foreign.
 % You can delete the \clearpage lines if you don't want these to start on
 % separate pages.
 
-\tableofcontents
-\clearpage
-\listoffigures
-\clearpage
-\listoftables
+% \tableofcontents
+% \clearpage
+% \listoffigures
+% \clearpage
+% \listoftables
 
 \begin{acknowledgements}
 Bovinely invasive brag; cerulean forebearance.
@@ -123,15 +231,14 @@ And exposition? Of go. No upstairs do fingering.
 \subfile{design/continuous_nips/continuous}
 
 \chapter{Sub-gaussian random projections}
-\subfile{design/equivalents_nips/equivalents}
+\subfile{design/equivalents_nips/neurips_2020}
+\subfile{design/equivalents_nips/appendix}
 
 \chapter{LIC}
-\subfile{ic/paper}
-\subfile{ic/supplement}
+\subfile{ic/aistats2021/paper}
 
 \chapter{FTVI}
 \subfile{ftvi/ftvi_icml/ftvi_icml}
-
 
 \chapter{HTA}
 \subfile{hta/neurips_2022}
@@ -142,3 +249,4 @@ And exposition? Of go. No upstairs do fingering.
 % \chapter{More Monticello Candidates}
 
 \end{document}
+

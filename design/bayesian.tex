@@ -3,135 +3,137 @@
 
 
 % ready for submission
-\ifisarxiv
-  \documentclass[11pt]{article}
-  \usepackage{fullpage}
+% \ifisarxiv
+%   \documentclass[11pt]{article}
+%   \usepackage{fullpage}
 
-  \usepackage{natbib}
-\else
-  \documentclass[twoside]{article}
-  \usepackage{aistats2020}
+%   \usepackage{natbib}
+% \else
+%   \documentclass[twoside]{article}
+%   \usepackage{aistats2020}
 
-  \usepackage{natbib}
-  \renewcommand{\bibname}{References}
-  \renewcommand{\bibsection}{\subsubsection*{\bibname}}
-\fi
+%   \usepackage{natbib}
+%   \renewcommand{\bibname}{References}
+%   \renewcommand{\bibsection}{\subsubsection*{\bibname}}
+% \fi
 
-\usepackage[utf8]{inputenc} % allow utf-8 input
-\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
-\usepackage{hyperref}       % hyperlinks
-\usepackage{url}            % simple URL typesetting
-\usepackage{booktabs}       % professional-quality tables
-\usepackage{amsfonts}       % blackboard math symbols
-\usepackage{amsmath}
-\usepackage{bm}
-\usepackage{nicefrac}       % compact symbols for 1/2, etc.
-\usepackage{xfrac}
-\usepackage{microtype}      % microtypography
-\usepackage{color}
-\usepackage{graphicx}
-\usepackage{tikz}
-\usepackage{wrapfig}
-\usepackage{algorithm}
-\usepackage{algorithmic}
-\usepackage{caption}
+% \usepackage[utf8]{inputenc} % allow utf-8 input
+% \usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+% \usepackage{hyperref}       % hyperlinks
+% \usepackage{url}            % simple URL typesetting
+% \usepackage{booktabs}       % professional-quality tables
+% \usepackage{amsfonts}       % blackboard math symbols
+% \usepackage{amsmath}
+% \usepackage{bm}
+% \usepackage{nicefrac}       % compact symbols for 1/2, etc.
+% \usepackage{xfrac}
+% \usepackage{microtype}      % microtypography
+% \usepackage{color}
+% \usepackage{graphicx}
+% \usepackage{tikz}
+% \usepackage{wrapfig}
+% \usepackage{algorithm}
+% \usepackage{algorithmic}
+% \usepackage{caption}
 
-\input{shortdefs}
-\newcommand{\mub}{\bm{\mu}}
+% \input{shortdefs}
+% \newcommand{\mub}{\bm{\mu}}
 
 
 
-\usepackage{grffile}
+% \usepackage{grffile}
+
+\documentclass[thesis.tex]{subfiles}
 
 \begin{document}
-\ifisarxiv
-  \title{Bayesian experimental design using regularized \\
-    determinantal point processes}
-  \author{%
-          Micha{\l } Derezi\'{n}ski \\
-  Department of Statistics\\
-  University of California, Berkeley\\
-  \texttt{mderezin@berkeley.edu}\\
-  \And
-  Feynman Liang \\
-  Department of Statistics\\
-  University of California, Berkeley\\
-  \texttt{feynman@berkeley.edu}
-  \And
-   Michael W. Mahoney\\
-  ICSI and Department of Statistics\\
-  University of California, Berkeley\\
-  \texttt{mmahoney@stat.berkeley.edu}
-    % examples of more authors
-    % \And
-    % Coauthor \\
-    % Affiliation \\
-    % Address \\
-    % \texttt{email} \\
-    % \AND
-    % Coauthor \\
-    % Affiliation \\
-    % Address \\
-    % \texttt{email} \\
-    % \And
-    % Coauthor \\
-    % Affiliation \\
-    % Address \\
-    % \texttt{email} \\
-    % \And
-    % Coauthor \\
-    % Affiliation \\
-    % Address \\
-    % \texttt{email} \\
-  }
-\else
-  \twocolumn[
-  \aistatstitle{Bayesian experimental design \\using regularized 
-    determinantal point processes}
-\aistatsauthor{ Author 1 \And Author 2 \And  Author 3 }
-\aistatsaddress{ Institution 1 \And  Institution 2 \And Institution 3
-}
-  % \aistatsauthor{%
-  %   Micha{\l } Derezi\'{n}ski
-  %   \And
-  %   Feynman Liang
-  %   \And
-  %   Michael W. Mahoney
-  % }
-  % \aistatsaddress {
-  %   Department of Statistics\\
-  %   University of California, Berkeley\\
-  %   \texttt{mderezin@berkeley.edu}
-  %   \And
-  %   Department of Statistics\\
-  %   University of California, Berkeley\\
-  %   \texttt{feynman@berkeley.edu}
-  %   \And
-  %   ICSI and Department of Statistics\\
-  %   University of California, Berkeley\\
-  %   \texttt{mmahoney@stat.berkeley.edu}
-  % } 
-  ]
-\fi
+% \ifisarxiv
+%   \title{Bayesian experimental design using regularized \\
+%     determinantal point processes}
+%   \author{%
+%           Micha{\l } Derezi\'{n}ski \\
+%   Department of Statistics\\
+%   University of California, Berkeley\\
+%   \texttt{mderezin@berkeley.edu}\\
+%   \And
+%   Feynman Liang \\
+%   Department of Statistics\\
+%   University of California, Berkeley\\
+%   \texttt{feynman@berkeley.edu}
+%   \And
+%   Michael W. Mahoney\\
+%   ICSI and Department of Statistics\\
+%   University of California, Berkeley\\
+%   \texttt{mmahoney@stat.berkeley.edu}
+%     % examples of more authors
+%     % \And
+%     % Coauthor \\
+%     % Affiliation \\
+%     % Address \\
+%     % \texttt{email} \\
+%     % \AND
+%     % Coauthor \\
+%     % Affiliation \\
+%     % Address \\
+%     % \texttt{email} \\
+%     % \And
+%     % Coauthor \\
+%     % Affiliation \\
+%     % Address \\
+%     % \texttt{email} \\
+%     % \And
+%     % Coauthor \\
+%     % Affiliation \\
+%     % Address \\
+%     % \texttt{email} \\
+%   }
+% \else
+%   \twocolumn[
+%   \aistatstitle{Bayesian experimental design \\using regularized 
+%     determinantal point processes}
+% \aistatsauthor{ Author 1 \And Author 2 \And  Author 3 }
+% \aistatsaddress{ Institution 1 \And  Institution 2 \And Institution 3
+% }
+%   % \aistatsauthor{%
+%   %   Micha{\l } Derezi\'{n}ski
+%   %   \And
+%   %   Feynman Liang
+%   %   \And
+%   %   Michael W. Mahoney
+%   % }
+%   % \aistatsaddress {
+%   %   Department of Statistics\\
+%   %   University of California, Berkeley\\
+%   %   \texttt{mderezin@berkeley.edu}
+%   %   \And
+%   %   Department of Statistics\\
+%   %   University of California, Berkeley\\
+%   %   \texttt{feynman@berkeley.edu}
+%   %   \And
+%   %   ICSI and Department of Statistics\\
+%   %   University of California, Berkeley\\
+%   %   \texttt{mmahoney@stat.berkeley.edu}
+%   % } 
+%   ]
+% \fi
 
-% The \author macro works with any number of authors. There are two commands
-% used to separate the names and addresses of multiple authors: \And and \AND.
-%
-% Using \And between authors leaves it to LaTeX to determine where to break the
-% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
-% authors names on the first line, and the last on the second line, try using
-% \AND instead of \And before the third author name.
+% % The \author macro works with any number of authors. There are two commands
+% % used to separate the names and addresses of multiple authors: \And and \AND.
+% %
+% % Using \And between authors leaves it to LaTeX to determine where to break the
+% % lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% % authors names on the first line, and the last on the second line, try using
+% % \AND instead of \And before the third author name.
 
-\ifisarxiv
-  \date{}
-  \def\And{\and}
-\fi
+% \ifisarxiv
+%   \date{}
+%   \def\And{\and}
+% \fi
 
-\ifisarxiv
-  \maketitle
-\fi
+% \ifisarxiv
+%   \maketitle
+% \fi
 
-\begin{abstract}
+% \begin{abstract}
 We establish a fundamental connection between Bayesian
 experimental design and determinantal point processes
 (DPPs). Experimental design is a classical task in combinatorial
@@ -152,7 +154,7 @@ approximation guarantee where the dependence on $d$ is
 replaced by an effective dimension. Moreover, the time complexity
 of our algorithm significantly improves on existing approaches
 with comparable guarantees. 
-\end{abstract}
+% \end{abstract}
 
 
 \section{Introduction}
@@ -1000,8 +1002,8 @@ are used in practice.
 %   T.~Tantipongpipat for valuable discussions.
 
 
-\bibliographystyle{apalike}
-\bibliography{pap}
+% \bibliographystyle{apalike}
+% \bibliography{pap}
 
 \newpage
 \appendix

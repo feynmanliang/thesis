@@ -1,7 +1,8 @@
 \newif\ifisarxiv
 \isarxivtrue
 
-\documentclass{article}
+% \documentclass{article}
+\documentclass[thesis.tex]{subfiles}
 
 % if you need to pass options to natbib, use, e.g.:
 %     \PassOptionsToPackage{numbers, compress}{natbib}
@@ -19,37 +20,37 @@
 
 % to avoid loading the natbib package, add option nonatbib:
 \ifisarxiv
-\usepackage{fullpage}
-\usepackage{natbib}
-\else
-\usepackage[final]{neurips_2020}
-\fi
-\usepackage[utf8]{inputenc} % allow utf-8 input
-\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
-\usepackage{hyperref}       % hyperlinks
-\usepackage{url}            % simple URL typesetting
-\usepackage{booktabs}       % professional-quality tables
-\usepackage{amsfonts}       % blackboard math symbols
-\usepackage{nicefrac}       % compact symbols for 1/2, etc.
-\usepackage{microtype}      % microtypography
- \usepackage{subfigure}
-\usepackage{amsmath,amsthm}
-\usepackage{cancel}
-\usepackage{cleveref}
-\usepackage{mathtools}
-\usepackage{enumitem}
-\usepackage{todonotes}
-\usepackage{xcolor}
-\usepackage{xfrac}
-\usepackage{caption}
-\hypersetup{
-	colorlinks,
-	linkcolor={red!40!gray},
-	citecolor={blue!40!gray},
-	urlcolor={blue!70!gray}
-}
-\newcommand{\BLUE}{\color[rgb]{0,0,0.69}}
-\input{../shortdefs}
+% \usepackage{fullpage}
+% \usepackage{natbib}
+% \else
+% \usepackage[final]{neurips_2020}
+% \fi
+% \usepackage[utf8]{inputenc} % allow utf-8 input
+% \usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+% \usepackage{hyperref}       % hyperlinks
+% \usepackage{url}            % simple URL typesetting
+% \usepackage{booktabs}       % professional-quality tables
+% \usepackage{amsfonts}       % blackboard math symbols
+% \usepackage{nicefrac}       % compact symbols for 1/2, etc.
+% \usepackage{microtype}      % microtypography
+%  \usepackage{subfigure}
+% \usepackage{amsmath,amsthm}
+% \usepackage{cancel}
+% \usepackage{cleveref}
+% \usepackage{mathtools}
+% \usepackage{enumitem}
+% \usepackage{todonotes}
+% \usepackage{xcolor}
+% \usepackage{xfrac}
+% \usepackage{caption}
+% \hypersetup{
+% 	colorlinks,
+% 	linkcolor={red!40!gray},
+% 	citecolor={blue!40!gray},
+% 	urlcolor={blue!70!gray}
+% }
+% \newcommand{\BLUE}{\color[rgb]{0,0,0.69}}
+% \input{../shortdefs}
 
 \title{Precise expressions for random projections: \\
   Low-rank approximation and randomized Newton}
@@ -137,9 +138,9 @@
 \fi
 
 \begin{document}
-\maketitle
+% \maketitle
 
-\begin{abstract}
+% \begin{abstract}
 It is often desirable to reduce the dimensionality of a large dataset
 by projecting it onto a low-dimensional subspace.  Matrix sketching
 has emerged as a powerful technique for performing such dimensionality
@@ -158,7 +159,7 @@ and they enable precise analysis of these methods in terms of spectral
 properties of the data.  Empirical results show that the expressions
 we derive reflect the practical performance of these sketching
 methods, down to lower-order effects and even constant factors. 
-\end{abstract}
+% \end{abstract}
 
 \section{Introduction}
 Many settings in modern machine learning, optimization and scientific
@@ -754,16 +755,15 @@ the kernel setting in our analysis, it suffices to replace the squared singular
 values $\sigma_i^2$ of $\A$ with the eigenvalues of $\K$.
 \begin{figure}[t]
 \centering
-\subfigure[%
-Singular values are given by $\sigma_i^2=C\cdot \alpha^{i-1}$.]{%
+    \begin{subfigure}{0.49\textwidth}%
+\subcaption{Singular values are given by $\sigma_i^2=C\cdot \alpha^{i-1}$.}
     \includegraphics[width=0.48\textwidth]{explicit_exp}
-  }
+    \end{subfigure}
 \hfill
-\subfigure[%
-Singular values are given by $\sigma_i^2=C\cdot i^{-\beta}$.
-]{%
+    \begin{subfigure}{0.49\textwidth}%
+\subcaption{Singular values are given by $\sigma_i^2=C\cdot i^{-\beta}$.}
       \includegraphics[width=0.48\textwidth]{explicit_poly}
-    }
+    \end{subfigure}
 \caption{
 Theoretical predictions of low-rank approximation error of a Gaussian
 sketch under known spectral decays, compared to the empirical results.
@@ -988,8 +988,8 @@ negative societal consequence.
 We would like to acknowledge DARPA, NSF, and ONR for providing partial support of this work.
 
 
-\bibliographystyle{alpha}
-\bibliography{../pap}
+% \bibliographystyle{alpha}
+% \bibliography{../pap}
 
 
 % In this section, we report experimental evidence illustrating our results
@@ -1081,8 +1081,8 @@ We would like to acknowledge DARPA, NSF, and ONR for providing partial support o
 % \appendix
 % \input{appendix}
 
-\ifisarxiv\else\newpage\fi
-\appendix
+% \ifisarxiv\else\newpage\fi
+% \appendix
 
 \section{Proof of Theorem~\ref{t:main-tech}}
 \label{sec:proof-of-theo-main-tech}

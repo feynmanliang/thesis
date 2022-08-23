@@ -1,7 +1,8 @@
-\documentclass[twoside]{article}
+% \documentclass[twoside]{article}
+\documentclass[thesis.tex]{subfiles}
 
 %\usepackage{aistats2021}
-\usepackage[accepted]{aistats2021}
+% \usepackage[accepted]{aistats2021}
 % If your paper is accepted, change the options for the package
 % aistats2021 as follows:
 %
@@ -12,19 +13,19 @@
 % the first column of the first page.
 
 % If you set papersize explicitly, activate the following three lines:
-\special{papersize = 8.5in, 11in}
-\setlength{\pdfpageheight}{11in}
-\setlength{\pdfpagewidth}{8.5in}
+% \special{papersize = 8.5in, 11in}
+% \setlength{\pdfpageheight}{11in}
+% \setlength{\pdfpagewidth}{8.5in}
 
 % If you use natbib package, activate the following three lines:
-\usepackage[round]{natbib}
-\renewcommand{\bibname}{References}
-\renewcommand{\bibsection}{\subsubsection*{\bibname}}
+% \usepackage[round]{natbib}
+% \renewcommand{\bibname}{References}
+% \renewcommand{\bibsection}{\subsubsection*{\bibname}}
 
 % If you use BibTeX in apalike style, activate the following line:
-\bibliographystyle{apalike}
+% \bibliographystyle{apalike}
 
-\input{macros.tex}
+% \input{macros.tex}
 
 \begin{document}
 
@@ -42,23 +43,23 @@
 %
 %\runningauthor{Surname 1, Surname 2, Surname 3, ...., Surname n}
 
-\twocolumn[
+% \twocolumn[
 
-  \aistatstitle{Accelerating Metropolis-Hastings with Lightweight Inference Compilation}
+%   \aistatstitle{Accelerating Metropolis-Hastings with Lightweight Inference Compilation}
 
-  \aistatsauthor{ Feynman Liang \And Nimar Arora \And Nazanin Tehrani \\ \\
-    \AND Yucen Li \And Michael Tingley \And Erik Meijer }
-  \vspace{-0.60in}
-  \aistatsaddress{ UC Berkeley \\ feynman@berkeley.edu
-    \And Facebook \\ nimarora@fb.com
-    \And Facebook \\ nazaninkt@fb.com
-    \AND Facebook \\ yucenli@fb.com
-    \And Facebook \\ tingley@fb.com
-    \And Facebook \\ erikm@fb.com}
-]
+%   \aistatsauthor{ Feynman Liang \And Nimar Arora \And Nazanin Tehrani \\ \\
+%     \AND Yucen Li \And Michael Tingley \And Erik Meijer }
+%   \vspace{-0.60in}
+%   \aistatsaddress{ UC Berkeley \\ feynman@berkeley.edu
+%     \And Facebook \\ nimarora@fb.com
+%     \And Facebook \\ nazaninkt@fb.com
+%     \AND Facebook \\ yucenli@fb.com
+%     \And Facebook \\ tingley@fb.com
+%     \And Facebook \\ erikm@fb.com}
+% ]
 
-\runningauthor{Liang, Arora, Tehrani, Li, Tingley, Meijer}
-\begin{abstract}
+% \runningauthor{Liang, Arora, Tehrani, Li, Tingley, Meijer}
+% \begin{abstract}
   In order to construct accurate proposers for Metropolis-Hastings Markov
   Chain Monte Carlo, we integrate ideas from probabilistic graphical models
   and neural networks in a framework we call Lightweight
@@ -74,7 +75,7 @@
   results show LIC can produce proposers which have less parameters, greater
   robustness to nuisance random variables, and improved posterior sampling in
   a Bayesian logistic regression and $n$-schools inference application.
-\end{abstract}
+% \end{abstract}
 
 \section{Background}
 
@@ -722,6 +723,6 @@ adaptive RWMH.
 Feynman Liang is supported by a NPSC Graduate Fellowship.
 This work was completed during an internship at Facebook.
 
-\bibliography{refs.bib}
+% \bibliography{refs.bib}
 
 \end{document}

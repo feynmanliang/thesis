@@ -1,139 +1,140 @@
 %%%%%%%% ICML 2022 EXAMPLE LATEX SUBMISSION FILE %%%%%%%%%%%%%%%%%
 
-\documentclass[nohyperref]{article}
+% \documentclass[nohyperref]{article}
+\documentclass[thesis.tex]{subfiles}
 
 % Recommended, but optional, packages for figures and better typesetting:
-\usepackage{microtype}
-\usepackage{graphicx}
-%\usepackage{subfigure}
-\usepackage{booktabs} % for professional tables
+% \usepackage{microtype}
+% \usepackage{graphicx}
+% %\usepackage{subfigure}
+% \usepackage{booktabs} % for professional tables
 
-% hyperref makes hyperlinks in the resulting PDF.
-% If your build breaks (sometimes temporarily if a hyperlink spans a page)
-% please comment out the following usepackage line and replace
-% \usepackage{icml2022} with \usepackage[nohyperref]{icml2022} above.
-\usepackage{hyperref}
-
-
-% Attempt to make hyperref and algorithmic work together better:
-\newcommand{\theHalgorithm}{\arabic{algorithm}}
-
-% Use the following line for the initial blind version submitted for review:
-% \usepackage{icml2022}
-
-% If accepted, instead use the following line for the camera-ready submission:
-\usepackage[accepted]{icml2022}
-
-% For theorems and such
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{mathtools}
-    \usepackage{amsthm}
-
-% if you use cleveref..
-\usepackage[capitalize,noabbrev]{cleveref}
+% % hyperref makes hyperlinks in the resulting PDF.
+% % If your build breaks (sometimes temporarily if a hyperlink spans a page)
+% % please comment out the following usepackage line and replace
+% % \usepackage{icml2022} with \usepackage[nohyperref]{icml2022} above.
+% \usepackage{hyperref}
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% THEOREMS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\theoremstyle{plain}
-\newtheorem{theorem}{Theorem}[section]
-\newtheorem{proposition}[theorem]{Proposition}
-\newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{corollary}[theorem]{Corollary}
-\theoremstyle{definition}
-\newtheorem{definition}[theorem]{Definition}
-\newtheorem{assumption}[theorem]{Assumption}
-\theoremstyle{remark}
-\newtheorem{remark}[theorem]{Remark}
+% % Attempt to make hyperref and algorithmic work together better:
+% \newcommand{\theHalgorithm}{\arabic{algorithm}}
 
-% Todonotes is useful during development; simply uncomment the next line
-%    and comment out the line below the next line to turn off comments
-%\usepackage[disable,textsize=tiny]{todonotes}
-\usepackage[textsize=tiny]{todonotes}
+% % Use the following line for the initial blind version submitted for review:
+% % \usepackage{icml2022}
 
-% The \icmltitle you define below is probably too long as a header.
-% Therefore, a short form for the running title is supplied here:
-\icmltitlerunning{Fat--Tailed VI with Anisotropic Tail Adaptive Flows}
+% % If accepted, instead use the following line for the camera-ready submission:
+% \usepackage[accepted]{icml2022}
 
-% custom stuff
-\usepackage[bold]{hhtensor}
-\usepackage{mathtools}
-\usepackage{float}
-\usepackage{braket}
-\usepackage{dsfont}
-\usepackage{graphbox}
-\usepackage{pgf}
-\usepackage{comment}
-\usepackage{subcaption}
-\usepackage{enumitem}
-\input{../macros}
+% % For theorems and such
+% \usepackage{amsmath}
+% \usepackage{amssymb}
+% \usepackage{mathtools}
+%     \usepackage{amsthm}
+
+% % if you use cleveref..
+% \usepackage[capitalize,noabbrev]{cleveref}
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % THEOREMS
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \theoremstyle{plain}
+% \newtheorem{theorem}{Theorem}[section]
+% \newtheorem{proposition}[theorem]{Proposition}
+% \newtheorem{lemma}[theorem]{Lemma}
+% \newtheorem{corollary}[theorem]{Corollary}
+% \theoremstyle{definition}
+% \newtheorem{definition}[theorem]{Definition}
+% \newtheorem{assumption}[theorem]{Assumption}
+% \theoremstyle{remark}
+% \newtheorem{remark}[theorem]{Remark}
+
+% % Todonotes is useful during development; simply uncomment the next line
+% %    and comment out the line below the next line to turn off comments
+% %\usepackage[disable,textsize=tiny]{todonotes}
+% \usepackage[textsize=tiny]{todonotes}
+
+% % The \icmltitle you define below is probably too long as a header.
+% % Therefore, a short form for the running title is supplied here:
+% \icmltitlerunning{Fat--Tailed VI with Anisotropic Tail Adaptive Flows}
+
+% % custom stuff
+% \usepackage[bold]{hhtensor}
+% \usepackage{mathtools}
+% \usepackage{float}
+% \usepackage{braket}
+% \usepackage{dsfont}
+% \usepackage{graphbox}
+% \usepackage{pgf}
+% \usepackage{comment}
+% \usepackage{subcaption}
+% \usepackage{enumitem}
+% \input{../macros}
 
 \begin{document}
 
-\twocolumn[
-\icmltitle{Fat--Tailed Variational Inference with Anisotropic Tail Adaptive Flows}
+% \twocolumn[
+% \icmltitle{Fat--Tailed Variational Inference with Anisotropic Tail Adaptive Flows}
 
-% It is OKAY to include author information, even for blind
-% submissions: the style file will automatically remove it for you
-% unless you've provided the [accepted] option to the icml2022
-% package.
+% % It is OKAY to include author information, even for blind
+% % submissions: the style file will automatically remove it for you
+% % unless you've provided the [accepted] option to the icml2022
+% % package.
 
-% List of affiliations: The first argument should be a (short)
-% identifier you will use later to specify author affiliations
-% Academic affiliations should list Department, University, City, Region, Country
-% Industry affiliations should list Company, City, Region, Country
+% % List of affiliations: The first argument should be a (short)
+% % identifier you will use later to specify author affiliations
+% % Academic affiliations should list Department, University, City, Region, Country
+% % Industry affiliations should list Company, City, Region, Country
 
-% You can specify symbols, otherwise they are numbered in order.
-% Ideally, you should not use this facility. Affiliations will be numbered
-% in order of appearance and this is the preferred way.
-\icmlsetsymbol{equal}{*}
+% % You can specify symbols, otherwise they are numbered in order.
+% % Ideally, you should not use this facility. Affiliations will be numbered
+% % in order of appearance and this is the preferred way.
+% \icmlsetsymbol{equal}{*}
 
-\begin{icmlauthorlist}
-\icmlauthor{Feynman Liang}{yyy,fb}
-\icmlauthor{Liam Hodgkinson}{yyy,zzz}
-\icmlauthor{Michael W. Mahoney}{yyy,zzz}
-% \icmlauthor{Firstname4 Lastname4}{sch}
-% \icmlauthor{Firstname5 Lastname5}{yyy}
-% \icmlauthor{Firstname6 Lastname6}{sch,yyy,comp}
-% \icmlauthor{Firstname7 Lastname7}{comp}
-% %\icmlauthor{}{sch}
-% \icmlauthor{Firstname8 Lastname8}{sch}
-% \icmlauthor{Firstname8 Lastname8}{yyy,comp}
-% %\icmlauthor{}{sch}
-% %\icmlauthor{}{sch}
-\end{icmlauthorlist}
+% \begin{icmlauthorlist}
+% \icmlauthor{Feynman Liang}{yyy,fb}
+% \icmlauthor{Liam Hodgkinson}{yyy,zzz}
+% \icmlauthor{Michael W. Mahoney}{yyy,zzz}
+% % \icmlauthor{Firstname4 Lastname4}{sch}
+% % \icmlauthor{Firstname5 Lastname5}{yyy}
+% % \icmlauthor{Firstname6 Lastname6}{sch,yyy,comp}
+% % \icmlauthor{Firstname7 Lastname7}{comp}
+% % %\icmlauthor{}{sch}
+% % \icmlauthor{Firstname8 Lastname8}{sch}
+% % \icmlauthor{Firstname8 Lastname8}{yyy,comp}
+% % %\icmlauthor{}{sch}
+% % %\icmlauthor{}{sch}
+% \end{icmlauthorlist}
 
-\icmlaffiliation{fb}{Meta, Menlo Park, CA}
-\icmlaffiliation{yyy}{Department of Statistics, University of California, Berkeley, CA}
-\icmlaffiliation{zzz}{International Computer Science Institute, Berkeley, CA}
-% \icmlaffiliation{comp}{Company Name, Location, Country}
-% \icmlaffiliation{sch}{School of ZZZ, Institute of WWW, Location, Country}
+% \icmlaffiliation{fb}{Meta, Menlo Park, CA}
+% \icmlaffiliation{yyy}{Department of Statistics, University of California, Berkeley, CA}
+% \icmlaffiliation{zzz}{International Computer Science Institute, Berkeley, CA}
+% % \icmlaffiliation{comp}{Company Name, Location, Country}
+% % \icmlaffiliation{sch}{School of ZZZ, Institute of WWW, Location, Country}
 
-\icmlcorrespondingauthor{Feynman Liang}{feynman@berkeley.edu}
-%\icmlcorrespondingauthor{Firstname2 Lastname2}{first2.last2@www.uk}
+% \icmlcorrespondingauthor{Feynman Liang}{feynman@berkeley.edu}
+% %\icmlcorrespondingauthor{Firstname2 Lastname2}{first2.last2@www.uk}
 
-% You may provide any keywords that you
-% find helpful for describing your paper; these are used to populate
-% the "keywords" metadata in the PDF but will not be shown in the document
-\icmlkeywords{Machine Learning, ICML}
+% % You may provide any keywords that you
+% % find helpful for describing your paper; these are used to populate
+% % the "keywords" metadata in the PDF but will not be shown in the document
+% \icmlkeywords{Machine Learning, ICML}
 
-\vskip 0.3in
-]
+% \vskip 0.3in
+% ]
 
-% this must go after the closing bracket ] following \twocolumn[ ...
+% % this must go after the closing bracket ] following \twocolumn[ ...
 
-% This command actually creates the footnote in the first column
-% listing the affiliations and the copyright notice.
-% The command takes one argument, which is text to display at the start of the footnote.
-% The \icmlEqualContribution command is standard text for equal contribution.
-% Remove it (just {}) if you do not need this facility.
+% % This command actually creates the footnote in the first column
+% % listing the affiliations and the copyright notice.
+% % The command takes one argument, which is text to display at the start of the footnote.
+% % The \icmlEqualContribution command is standard text for equal contribution.
+% % Remove it (just {}) if you do not need this facility.
 
-\printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
-%\printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
+% \printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
+% %\printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
 
-\begin{abstract}
+% \begin{abstract}
     While fat-tailed densities commonly arise as posterior and marginal distributions in
     robust models and scale mixtures, they present challenges when Gaussian-based 
     variational inference fails to capture tail decay accurately. 
@@ -150,7 +151,7 @@
     anisotropic tail-adaptive flows (ATAF).
     Experimental results on both synthetic and real-world targets confirm that ATAF 
     is competitive with prior work while also exhibiting appropriate tail-anisotropy.
-\end{abstract}
+% \end{abstract}
 
 \section{Introduction}
 \label{sec:intro}
@@ -1153,8 +1154,8 @@ L.H. and M.M's contributions were supported in part by DARPA, NSF, and ONR.
 F.L.’s research while at the University of California, Berkeley was supported in part by a GFSD fellowship.
 
 
-\bibliography{refs_ftvi}
-\bibliographystyle{icml2022}
+% \bibliography{refs_ftvi}
+% \bibliographystyle{icml2022}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \section*{Checklist}
@@ -1241,9 +1242,9 @@ F.L.’s research while at the University of California, Berkeley was supported 
 % \end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newpage
-\appendix
-\onecolumn
+% \newpage
+% \appendix
+% \onecolumn
 
 \section{Experiments Performing VI Against a Fat-tailed Cauchy Target}
 \label{sec:cauchy_normal_student}
@@ -1441,7 +1442,7 @@ oscillations, $\alpha_X(v)$ is not well defined for all $v \in \cS^{1}$.
 \begin{figure*}[htbp]
     \centering
     \vspace{-.5in}
-    \includegraphics[scale=0.8]{Figures/spiral.pdf}
+    \includegraphics[scale=0.8]{../Figures/spiral.pdf}
     % \includegraphics[trim={0 0 9cm 0},clip]{Figures/spiral.pdf}\\
     % \includegraphics[trim={5cm 0 4.9cm 0},clip]{Figures/spiral.pdf}\\
     % \includegraphics[trim={9.3cm 0 0cm 0},clip]{Figures/spiral.pdf}\\
