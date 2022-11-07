@@ -5,16 +5,20 @@
 % The Current Maintainer of this work is Paul Vojta.
 
 \documentclass[oldfontcommands]{ucbthesis}
-\usepackage[natbib=true]{biblatex}
-\usepackage{rotating} % provides sidewaystable and sidewaysfigure
+\usepackage[style=authoryear,natbib=true,maxcitenames=2]{biblatex}
+\addbibresource{references.bib}
+\addbibresource{design/pap.bib}
+\addbibresource{ic/aistats2021/refs.bib}
+\addbibresource{ftvi/refs_ftvi.bib}
+\addbibresource{hta/refs.bib}
 
-\usepackage[utf8]{inputenc} % allow utf-8 input
-\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
-\usepackage{hyperref}       % hyperlinks
-\usepackage{url}            % simple URL typesetting
-\usepackage{caption,tabularx,booktabs}       % professional-quality tables
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{amsmath}
+
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{cleveref}
+
 \usepackage{bm}
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{xfrac}
@@ -22,54 +26,65 @@
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{tikz}
-\usepackage{wrapfig}
-% \usepackage{algorithm}
-% \usepackage{algorithmic}
+
+\usepackage{float}
 \usepackage{caption}
 \usepackage{subcaption}
-\input{design/shortdefs}
-\newcommand{\mub}{\bm{\mu}}
+\usepackage{wrapfig}
+\usepackage{tabularx,booktabs}       % professional-quality tables
+
 \usepackage{grffile}
 \usepackage{cancel}
-% \usepackage{subfigure}
-\usepackage{todonotes}
-% \input{ic/aistats2021/macros}
+
 \usepackage[export]{adjustbox}
 \usepackage{booktabs}
 \usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily,
+  mathescape
+}
 \usepackage{xcolor}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\usepackage[colorinlistoftodos]{todonotes}
+\lstset{frame=tb,
+  language=Python,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
 \usepackage[bold]{hhtensor}
 \usepackage{mathtools}
-% \definecolor{codegreen}{rgb}{0,0.6,0}
-% \definecolor{codegray}{rgb}{0.5,0.5,0.5}
-% \definecolor{codepurple}{rgb}{0.58,0,0.82}
-% \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
-% \lstdefinestyle{mystyle}{
-%   backgroundcolor=\color{backcolour},
-%   commentstyle=\color{codegreen},
-%   keywordstyle=\color{magenta},
-%   numberstyle=\tiny\color{codegray},
-%   stringstyle=\color{codepurple},
-%   basicstyle=\ttfamily\footnotesize,
-%   breakatwhitespace=false,
-%   breaklines=true,
-%   captionpos=b,
-%   keepspaces=true,
-%   numbersep=5pt,
-%   showspaces=false,
-%   showstringspaces=false,
-%   showtabs=false,
-%   tabsize=2
-% }
-% \lstset{style=mystyle}
-\usepackage{hyperref}
-\usepackage{cleveref}
-% \hypersetup{
-% 	colorlinks,
-% 	linkcolor={red!40!gray},
-% 	citecolor={blue!40!gray},
-% 	urlcolor={blue!70!gray}
-% }
+
+
+\usepackage{rotating} % provides sidewaystable and sidewaysfigure
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+
+\usepackage{dsfont}
+\usepackage{braket}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{enumerate}
+\usepackage{enumitem}
+\usepackage{siunitx}
+
+\input{design/shortdefs}
+\newcommand{\mub}{\bm{\mu}}
 \crefname{lstlisting}{listing}{listings}
 \Crefname{lstlisting}{Listing}{Listings}
 \DeclarePairedDelimiterX{\infdivx}[2]{(}{)}{%
@@ -99,20 +114,19 @@
 \newcommand{\EE}{\mathbb{E}}
 \newcommand{\PP}{\mathbb{P}}
 \newcommand{\liam}[1]{{\color{green}{(Liam: {#1})}}}
-\usepackage{dsfont}
-\usepackage{braket}
-\usepackage{algorithm}
-\usepackage{algorithmic}
-% \usepackage[ruled]{algorithm2e}
-\usepackage{longtable}
-\usepackage{float}
-\usepackage{multirow}
-\usepackage{enumerate}
-\usepackage{enumitem}
 \newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
 \newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
-\usepackage{siunitx}
 
+%%% Default start and end for each subfile
+\AtBeginDocument{%
+}
+\AtEndDocument{%
+    \printbibliography
+    % \listoffigures
+    % \listoftables
+    % \newpage
+    % \printacronyms[include-classes=abbrev,name=Acronyms]
+}
 
 \usepackage{subfiles} % best loaded last
 
@@ -130,12 +144,6 @@
 
 \addtolength{\abovecaptionskip}{\baselineskip}
 
-\bibliography{references}
-\bibliography{design/pap}
-\bibliography{ic/aistats2021/refs}
-\bibliography{ftvi/refs_ftvi}
-\bibliography{hta/refs}
-
 \hyphenation{mar-gin-al-ia}
 \hyphenation{bra-va-do}
 
@@ -143,9 +151,9 @@
 
 % Declarations for Front Matter
 
-\title{Probabilistic methods and Bayesian inference}
+\title{Randomized methods and Bayesian inference}
 \author{Feynman Liang}
-\degreesemester{Summer}
+\degreesemester{Fall}
 \degreeyear{2022}
 \degree{Doctor of Philosophy}
 \chair{Associate Professor Alan Hammond}
@@ -161,7 +169,7 @@
 % Previous degrees are no longer to be listed on the title page.
 % \prevdegrees{B.A. (University of Northern South Dakota at Hoople) 1978 \\
 %   M.S. (Ed's School of Quantum Mechanics and Muffler Repair) 1989}
-\field{Mathematics}
+\field{Statistics}
 % Designated Emphasis -- this is optional, and rare
 % \emphasis{Colloidal Telemetry}
 % This is optional, and rare
@@ -192,6 +200,7 @@ In the glitter. For so talented. Which is confines cocoa accomplished.
 Masterpiece as devoted. My primal the narcotic. For cine? To by recollection
 bleeding. That calf are infant. In clause. Be a popularly. A as midnight
 transcript alike. Washable an acre. To canned, silence in foreign.
+\todo{DO THIS}
 \end{center}
 \vfil\null
 \end{dedication}
@@ -199,7 +208,7 @@ transcript alike. Washable an acre. To canned, silence in foreign.
 % You can delete the \clearpage lines if you don't want these to start on
 % separate pages.
 
-% \tableofcontents
+\tableofcontents
 % \clearpage
 % \listoffigures
 % \clearpage
@@ -215,38 +224,32 @@ Masterpiece as devoted. My primal the narcotic. For cine?
 In the glitter. For so talented. Which is confines cocoa accomplished.
 Or obstructive, or purposeful.
 And exposition? Of go. No upstairs do fingering.
-
 \end{acknowledgements}
 
 \end{frontmatter}
 
 \pagestyle{headings}
 
-% (Optional) \part{First Part}
+\include{intro}
 
-\chapter{R-DPPs}
+\chapter{Bayesian experimental design with regularized determinantal point processes}
 \subfile{design/aistats/bayesian}
 
-\chapter{Double Descent}
+\chapter{Exact expressions for double descent in determinantal random designs}
 \subfile{design/continuous_nips/continuous}
 
-\chapter{Sub-gaussian random projections}
+\chapter{Exact expressions for sub-Gaussian random projections}
 \subfile{design/equivalents_nips/neurips_2020}
 \subfile{design/equivalents_nips/appendix}
 
-\chapter{LIC}
+\chapter{Accelerating Metropolis-hastings with lightweight inference compilation}
 \subfile{ic/aistats2021/paper}
 
-\chapter{FTVI}
+\chapter{Fat-tailed variational inference}
 \subfile{ftvi/ftvi_icml/ftvi_icml}
 
-\chapter{HTA}
+\chapter{The generalized gamma tail algebra}
 \subfile{hta/neurips_2022}
-
-\printbibliography
-
-% \appendix
-% \chapter{More Monticello Candidates}
 
 \end{document}
 

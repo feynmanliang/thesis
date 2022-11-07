@@ -330,9 +330,9 @@ $\pi(x) = p(x \mid y) = \frac{p(x, y)}{p(y)}$ is typically intractable but
 $\bar\pi(x) = p(x,y)$ is computable (i.e., represented by the probabilistic program's
 generative / forward execution).
 
-
 \begin{table*}
   \centering
+  {\tiny
   \begin{tabular}{ccc}
     \toprule
     Model                                  & Autoregressive transform                                                                              & Suff. cond. for Lipschitz-continuity        \\
@@ -348,6 +348,7 @@ generative / forward execution).
     ResFlow\citep{chen2019residual} & n/a (not autoregressive)                                                                              & Always \par (required for invertibility)    \\
     \bottomrule
   \end{tabular}
+  }
   \caption{Some popular / recently developed flows, the autoregressive transform used in the flow (if applicable),
   and sufficient conditions conditions for Lipschitz-continuity. A subset of this table was first presented
   in \citet{jaini2020tails}. $M(\cdot)$ denotes monotonic rational quadratic splines \citep{durkan2019neural}.
@@ -355,7 +356,6 @@ generative / forward execution).
   }
   \label{tab:flows}
 \end{table*}
-
 
 While it is possible to construct a variational family $\cQ$ tailored to a specific task, we are interested in VI methods which are more broadly applicable and convenient to use: $\cQ$ should be automatically constructed from introspection of a given probabilistic model/program.
 Automatic differentiation variational inference (ADVI, \citet{kucukelbir2017automatic}) is an early implementation of automatic VI and it is still the default in certain probabilistic programming languages \citep{carpenter2017stan}.

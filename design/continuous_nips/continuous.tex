@@ -1,8 +1,4 @@
- \newif\ifisarxiv
- \isarxivfalse
-
-%  \ifisarxiv
- \documentclass[thesis.tex]{subfiles}
+  \documentclass[thesis.tex]{subfiles}
 %  \usepackage[round]{natbib}
 %  \usepackage{fullpage}
 %  \usepackage{amsmath}
@@ -29,35 +25,35 @@
 %  \usepackage{cleveref}
 
 
- \title{Exact expressions for double descent
- and implicit regularization
- \\
- via surrogate random design}
-   \author{%
-           \textbf{Micha{\l } Derezi\'{n}ski} \\
-   Department of Statistics\\
-   University of California, Berkeley\\
-   \texttt{mderezin@berkeley.edu}\\
-   \and
-   \textbf{Feynman Liang} \\
-   Department of Statistics\\
-   University of California, Berkeley\\
-   \texttt{feynman@berkeley.edu}
-   \and
-    \textbf{Michael W. Mahoney}\\
-   ICSI and Department of Statistics\\
-   University of California, Berkeley\\
-   \texttt{mmahoney@stat.berkeley.edu}
- }
+%  \title{Exact expressions for double descent
+%  and implicit regularization
+%  \\
+%  via surrogate random design}
+%   \author{%
+%           \textbf{Micha{\l } Derezi\'{n}ski} \\
+%   Department of Statistics\\
+%   University of California, Berkeley\\
+%   \texttt{mderezin@berkeley.edu}\\
+%   \and
+%   \textbf{Feynman Liang} \\
+%   Department of Statistics\\
+%   University of California, Berkeley\\
+%   \texttt{feynman@berkeley.edu}
+%   \and
+%     \textbf{Michael W. Mahoney}\\
+%   ICSI and Department of Statistics\\
+%   University of California, Berkeley\\
+%   \texttt{mmahoney@stat.berkeley.edu}
+%  }
 
- %  \newcommand{\jmlrBlackBox}{\rule{1.5ex}{1.5ex}}
-   \providecommand{\BlackBox}{\rule{1.5ex}{1.5ex}}
- %  \newcommand{\jmlrQED}{\hfill\jmlrBlackBox\par\bigskip}
-   \renewenvironment{proof}%
-   {%
-    \par\noindent{\bfseries\upshape Proof\ }%
-   }%
- {\hfill\BlackBox\par\bigskip}
+%  %  \newcommand{\jmlrBlackBox}{\rule{1.5ex}{1.5ex}}
+%   \providecommand{\BlackBox}{\rule{1.5ex}{1.5ex}}
+%  %  \newcommand{\jmlrQED}{\hfill\jmlrBlackBox\par\bigskip}
+%   \renewenvironment{proof}%
+%   {%
+%     \par\noindent{\bfseries\upshape Proof\ }%
+%   }%
+%  {\hfill\BlackBox\par\bigskip}
 
 
 % \else
@@ -326,7 +322,7 @@ we use $\X^\dagger$ to denote the Moore-Penrose inverse of $\X$.
     numerical estimates even for non-isotropic
     features. Eigenvalue decay leads to a steeper
     descent curve in the under-determined regime ($n<d$).}
-    \includegraphics[width=0.48\textwidth]{../figs/descent-intro}
+    \includegraphics[width=\textwidth]{../figs/descent-intro}
   \end{subfigure}
   \hfill
   \begin{subfigure}{0.49\textwidth}
@@ -334,7 +330,7 @@ we use $\X^\dagger$ to denote the Moore-Penrose inverse of $\X$.
     shrinkage which closely matches the shrinkage of a
     ridge-regularized least squares optimum (theory lines), as characterized by
     Theorem \ref{t:unbiased}.}
-    \includegraphics[width=0.48\textwidth]{../figs/descent-shrinkage}
+    \includegraphics[width=\textwidth]{../figs/descent-shrinkage}
   \end{subfigure}
   \caption{Illustration of the main results for $d=100$ and
     $\mu=\Nc(\zero,\Sigmab)$ where $\Sigmab$ is diagonal with
@@ -609,18 +605,15 @@ which the response model is linear
 learner observes a random subset of $d$ features from a larger
 population.
 
-\begin{wrapfigure}{r}{\ifisarxiv 0.5\else 0.44\fi\textwidth}
-  \ifisarxiv\else \vspace{-.2cm}\fi
+\begin{figure}[h]
   \centering
-  \includegraphics[width=.43\textwidth]{../figs/descent-model-log}
-  \ifisarxiv\else \vspace{-3mm}\fi
+  \includegraphics[width=.5\textwidth]{../figs/descent-model-log}
   \caption{
     Surrogate MSE as a function of $d/n$, with $n$
     fixed to $100$ and varying dimension $d$ and condition number
     $\kappa$, for signal-to-noise ratio $\mathrm{SNR}=1$.}
   \label{f:model}
-  \ifisarxiv\else  \vspace{-.5cm}\fi
-\end{wrapfigure}
+\end{figure}
 
 The most directly comparable to our setting is the recent work of
 \cite{HMRT19_TR}. They study how
@@ -1032,37 +1025,37 @@ implicit regularization resulting from over-parameterization.
 % \I$). We break down our analysis into verifying two
 % conjectures which are of independent interest to multivariate
 % Gaussian analysis.
-\ifisarxiv\else
-  \section*{Broader Impact}
+% \ifisarxiv\else
+%   \section*{Broader Impact}
 
-  While the double descent phenomenon has been empirically observed in a variety
-  of applications, mathematical descriptions of it are oftentimes complex and
-  inaccesible to non-experts. In contrast, our surrogate design and the
-  accompanying closed-form expressions provide an easily computable rule of thumb
-  for estimating the generalization error. One important application is
-  the high-dimensional (i.e. underdetermined, $n < d$) regime
-  experienced by modern machine learning systems where the number of
-  parameters vastly exceeds the quantity of
-  available data. Our research can be applied here to provide a theoretical
-  understanding of the surprising phenomenon where without proper
-  regularization \citep{nakkiran2020optimal} more data (i.e. increasing $n$)
-  may lead to worse generalization performance.
+%   While the double descent phenomenon has been empirically observed in a variety
+%   of applications, mathematical descriptions of it are oftentimes complex and
+%   inaccesible to non-experts. In contrast, our surrogate design and the
+%   accompanying closed-form expressions provide an easily computable rule of thumb
+%   for estimating the generalization error. One important application is
+%   the high-dimensional (i.e. underdetermined, $n < d$) regime
+%   experienced by modern machine learning systems where the number of
+%   parameters vastly exceeds the quantity of
+%   available data. Our research can be applied here to provide a theoretical
+%   understanding of the surprising phenomenon where without proper
+%   regularization \citep{nakkiran2020optimal} more data (i.e. increasing $n$)
+%   may lead to worse generalization performance.
 
-  Better theoretical understanding of generalization error in the small data
-  regime has important societal impact. Through theoretically modeling a system's
-  performance, we can build safer systems by better understanding how badly an
-  estimator fails and accounting for these failure modes in the system's design.
-  Furthermore, the improved understanding of minimum norm solutions performing
-  worse with more data offers an appealing trade-off where certain systems can
-  both improve their performance and respect the privacy of its users by
-  collecting less data.
-\fi
+%   Better theoretical understanding of generalization error in the small data
+%   regime has important societal impact. Through theoretically modeling a system's
+%   performance, we can build safer systems by better understanding how badly an
+%   estimator fails and accounting for these failure modes in the system's design.
+%   Furthermore, the improved understanding of minimum norm solutions performing
+%   worse with more data offers an appealing trade-off where certain systems can
+%   both improve their performance and respect the privacy of its users by
+%   collecting less data.
+% \fi
 
-\paragraph{Acknowledgements.}
-We would like to acknowledge ARO, DARPA, NSF, ONR, and GFSD for providing
-partial support of this work. We also thank Zhenyu Liao for pointing
-out fruitful connections between our results and the asymptotic
-analysis of random matrix resolvents.
+% \paragraph{Acknowledgements.}
+% We would like to acknowledge ARO, DARPA, NSF, ONR, and GFSD for providing
+% partial support of this work. We also thank Zhenyu Liao for pointing
+% out fruitful connections between our results and the asymptotic
+% analysis of random matrix resolvents.
 
 % \ifisarxiv
 %   \bibliographystyle{plainnat}

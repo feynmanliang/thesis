@@ -488,7 +488,7 @@ conjugate model with closed-form posterior given by:
 \end{align}
 \begin{figure}
   \centering
-  \includegraphics[width=0.8\linewidth]{Figures/normal_normal_mean_type1.pdf}
+  \includegraphics[width=0.6\linewidth]{Figures/normal_normal_mean_type1.pdf}
   \caption{In a conjugate normal-normal model, LIC's proposal distribution
     mean (dashed orange line) closely follows the closed-form posterior mean
     (blue solid line) across a wide range of observed values $y$.}\label{fig:normal-normal}
@@ -614,7 +614,7 @@ an effective sample size almost $5\times$ smaller than that produced by LIC.
 \label{ssec:blr}
 
 Consider a Bayesian logistic regression model over $d$ covariates
-with prior
+with prior distribution 
 $\vec{\beta} \sim \cN_{d+1}(\vec{0}_{d+1}, \diag(10, 2.5\vec{1}_{d}))$
 and likelihood $y_i \mid \vx_i \simiid \text{Bernoulli}(\sigma(\vec{\beta}^\top \vx_i))$
 where $\sigma(t) = (1 + e^{-t})^{-1}$ is the logistic function.
@@ -631,18 +631,11 @@ yield significantly higher ESS and $\widehat{R}$s closer to $1.0$ suggesting
 better mixing and more effective sampling.
 
 \begin{figure*}
-  \centering
   \caption{
-    Results drawing 100 samples across 10 chains (after 1,000 burn-in / adaptation / compilation samples)
-    on two Bayesian inference problems.
-    The top row of each subfigure aggregates over the 10 chains the (left to
-    right) compilation time (time to instantiate the Python class, includes
-    neural network training for LIC and Stan's C\texttt{++} codegen and compilation
-    for NUTS), inference time (time from invoking \texttt{infer()} to when
-    sampling terminates), and the predictive log-likelihood (PLL) on held-out
-    test data.
-    The bottom row aggregates over both the 10 chains as well as over all
-    latent variables the (left to right) estimated expected sample size (ESS,
+    Results of MCMC on two Bayesian inference tasks where we compare
+    the compilation time (neural network training for LIC and Stan's C\texttt{++} codegen / compilation
+    for NUTS), inference time, predictive log-likelihood (PLL) on
+    hold-out data, expected sample size (ESS,
     higher is better, \cite{geyer2011introduction}) and the rank normalized
     $\widehat{R}$ diagnostic (Rhat, closer to $1$ is better, \cite{vehtari2020rank}).
   }\label{fig:blr_nschools}
@@ -719,9 +712,9 @@ sampling comparable to state-of-the-art MCMC samplers such as NUTS and
 adaptive RWMH.
 
 % TODO: include in camera ready
-\subsubsection*{Acknowledgements}
-Feynman Liang is supported by a NPSC Graduate Fellowship.
-This work was completed during an internship at Facebook.
+% \subsubsection*{Acknowledgements}
+% Feynman Liang is supported by a NPSC Graduate Fellowship.
+% This work was completed during an internship at Facebook.
 
 % \bibliography{refs.bib}
 

@@ -1,6 +1,6 @@
 \documentclass[thesis.tex]{subfiles}
 % \documentclass{article}
-\csname remappendix\endcsname
+% \csname remappendix\endcsname
 
 % if you need to pass options to natbib, use, e.g.:
 %     \PassOptionsToPackage{numbers, compress}{natbib}
@@ -77,39 +77,39 @@
 % \AND instead of \And before the third author name.
 
 
-\author{%
-  David S.~Hippocampus\thanks{Use footnote for providing further information
-    about author (webpage, alternative address)---\emph{not} for acknowledging
-    funding agencies.} \\
-  Department of Computer Science\\
-  Cranberry-Lemon University\\
-  Pittsburgh, PA 15213 \\
-  \texttt{hippo@cs.cranberry-lemon.edu} \\
-  % examples of more authors
-  % \And
-  % Coauthor \\
-  % Affiliation \\
-  % Address \\
-  % \texttt{email} \\
-  % \AND
-  % Coauthor \\
-  % Affiliation \\
-  % Address \\
-  % \texttt{email} \\
-  % \And
-  % Coauthor \\
-  % Affiliation \\
-  % Address \\
-  % \texttt{email} \\
-  % \And
-  % Coauthor \\
-  % Affiliation \\
-  % Address \\
-  % \texttt{email} \\
-}
+% \author{%
+%   David S.~Hippocampus\thanks{Use footnote for providing further information
+%     about author (webpage, alternative address)---\emph{not} for acknowledging
+%     funding agencies.} \\
+%   Department of Computer Science\\
+%   Cranberry-Lemon University\\
+%   Pittsburgh, PA 15213 \\
+%   \texttt{hippo@cs.cranberry-lemon.edu} \\
+%   % examples of more authors
+%   % \And
+%   % Coauthor \\
+%   % Affiliation \\
+%   % Address \\
+%   % \texttt{email} \\
+%   % \AND
+%   % Coauthor \\
+%   % Affiliation \\
+%   % Address \\
+%   % \texttt{email} \\
+%   % \And
+%   % Coauthor \\
+%   % Affiliation \\
+%   % Address \\
+%   % \texttt{email} \\
+%   % \And
+%   % Coauthor \\
+%   % Affiliation \\
+%   % Address \\
+%   % \texttt{email} \\
+% }
 
 
-\sisetup{detect-all = true}
+% \sisetup{detect-all = true}
 
 \begin{document}
 
@@ -250,11 +250,7 @@ Consider the following equivalence relation on $\mathcal{G}$: $X \equiv Y$ if an
 \begin{table}[t]
     \centering
     \bgroup
-\def\arraystretch{2.5}
-\tolerance=1
-\emergencystretch=\maxdimen
-\hyphenpenalty=10000
-\hbadness=10000
+{\small
 \begin{tabular}{|M{0.15\linewidth} | p{0.75\linewidth}|}
 \hline
 \centering \multirow{2}{*}{\textbf{Ordering}} & 
@@ -291,6 +287,7 @@ $\max\{(\nu_1,\sigma_1,\rho_1),(\nu_2,\sigma_2,\rho_2)\}$ \\ & $\qquad \equiv \b
 \centering \textbf{Functions ($L$-Lipschitz)} & 
 $f(X_1,\dots,X_n) \equiv L \max\{X_1,\dots,X_n\}$ \\ \hline
     \end{tabular}
+}
     \vspace{.25cm}
     \caption{\label{tab:gga_operations}Operations on random variables (e.g.$X_1 + X_2$) are 
     viewed as actions on density functions
@@ -462,7 +459,11 @@ for distributions such as Chi1 which possess tails heavier than Gaussian.
 	\input{experiments/de_table.tex}
 \end{table}
 
-\textbf{Variational Inference} The optimization objective is the ELBO $E_q \log \frac{p(X)}{q(X)} \approx \frac{1}{N} \sum_{i=1}^N \log \frac{p(x_i)}{q(x_i)},\quad x_i \sim q$. Here, the density $p$ must also be evaluated so for simplicity
+\textbf{Variational Inference} The optimization objective is the ELBO
+\[
+    E_q \log \frac{p(X)}{q(X)} \approx \frac{1}{N} \sum_{i=1}^N \log \frac{p(x_i)}{q(x_i)},\quad x_i \sim q
+\]
+Here, the density $p$ must also be evaluated so for simplicity
 experiments in \cref{tab:vi} use closed-form marginalized densities for targets.
 The overall trends also show that GGA yields consistent improvements as measured by both ELBO and importance-weighted
 estimates of marginal likelihood and that the difference was greater when the tails of $p(z)$ were heavier.
@@ -768,8 +769,8 @@ and recover some common probability identities.
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.48\textwidth]{figures/LogNormal_Bulk.png}
-	\includegraphics[width=0.48\textwidth]{figures/LogNormal_Tail.png}
+	\includegraphics[width=0.4\textwidth]{figures/LogNormal_Bulk.png}
+	\includegraphics[width=0.4\textwidth]{figures/LogNormal_Tail.png}
 	\caption{Estimation of the log-normal density by tail algebra applied to $V_k$.}
 	\label{fig:lognormal}
 \end{figure}
@@ -797,13 +798,13 @@ Consider the toy example of a Normal target. This case is trivial for
 Gaussian based methods and is oftentimes the initialization.
 This lack of approximation gap in ADVI is seen in \Cref{fig:normal},
 where we also see that GGA achieves similar approximation quality.
-This is unsurprising as the GGA approximation in \cref{tab:dist_list}
+This is unsurprising as the GGA approximation in \Cref{tab:dist_list}
 is also a Normal distribution.
 
-\begin{figure}[H]
+\begin{figure}
 	\centering
-	\includegraphics[width=.6\textwidth]{figures/de_normal_sum.png}
-	\includegraphics[width=.6\textwidth]{figures/vi_normal_sum.png}
+	\includegraphics[width=1.0\textwidth]{figures/de_normal_sum.png}
+	\includegraphics[width=.4\textwidth]{figures/vi_normal_sum.png}
 	\caption{Density estimation and VI against a known normal target}
 	\label{fig:normal}
 \end{figure}
@@ -814,7 +815,7 @@ is also a Normal distribution.
 Now let $X_{ij} \sim N(0,1)$ and consider $tr X^\top X$.
 Such quantities arise in the analysis of random projections.
 It is important here to recognize that the power operation $X \mapsto X^2$ is not equivalent to the multiplication operation $X \mapsto X \otimes X$, as multiplication assumes independence.
-\begin{figure}[H]
+\begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{figures/jl-chi2.png}
 	\caption{$5000$ samples of JL matrix trace (blue) vs GGA prediction (yellow)}
@@ -918,7 +919,7 @@ For any Lipschitz continuous function $f:\mathbb{R}^d \to \mathbb{R}$ satisfying
 \section{List of univariate distributions}
 
 
-
+{\small
 \bgroup
 \def\arraystretch{2}
 \begin{longtable}{|c|c|c|c|}
@@ -955,9 +956,9 @@ Gamma distribution & $(0,\infty)$ & $\frac{\beta^{\alpha}}{\Gamma(\alpha)}x^{\al
 \hline 
 Gamma/Gompertz distribution & $(0,\infty)$ & $bse^{bx}\beta^{s}/(\beta-1+e^{bx})^{s+1}$ & $(0,bs,1)$\tabularnewline
 \hline 
-Generalized hyperbolic distribution & $(-\infty,\infty)$ & $\propto e^{\beta(x-\mu)}\frac{K_{\lambda-1/2}(\alpha\sqrt{\delta^{2}+(x-\mu)^{2}})}{(\delta^{2}+(x-\mu)^{2})^{1/4-\lambda/2}}$ & $(\lambda-1,\alpha-\beta,1)$\tabularnewline
+Gen. hyperbolic distribution & $(-\infty,\infty)$ & $\propto e^{\beta(x-\mu)}\frac{K_{\lambda-1/2}(\alpha\sqrt{\delta^{2}+(x-\mu)^{2}})}{(\delta^{2}+(x-\mu)^{2})^{1/4-\lambda/2}}$ & $(\lambda-1,\alpha-\beta,1)$\tabularnewline
 \hline 
-Generalized Normal distribution & $(-\infty,\infty)$ & $\frac{\beta}{2\alpha\Gamma(1/\beta)}\exp\left(-\left(\frac{|x-\mu|}{\alpha}\right)^{\beta}\right)$ & $(0,\alpha^{-\beta},\beta)$\tabularnewline
+Gen. Normal distribution & $(-\infty,\infty)$ & $\frac{\beta}{2\alpha\Gamma(1/\beta)}\exp\left(-\left(\frac{|x-\mu|}{\alpha}\right)^{\beta}\right)$ & $(0,\alpha^{-\beta},\beta)$\tabularnewline
 \hline 
 Geometric stable distribution & $(-\infty,\infty)$ & no closed form & $\mathcal{R}_{\alpha+1}$\tabularnewline
 \hline 
@@ -971,9 +972,9 @@ Holtsmark distribution & $(-\infty,\infty)$ & no closed form & $\mathcal{R}_{5/2
 \hline 
 Hyperbolic secant distribution & $(-\infty,\infty)$ & $\frac{1}{2}\text{sech}\left(\frac{\pi x}{2}\right)$ & $(0,\frac{\pi}{2},1)$\tabularnewline
 \hline 
-Inverse chi-squared distribution & $(0,\infty)$ & $\frac{2^{-k/2}}{\Gamma(k/2)}x^{-k/2-1}e^{-1/(2x)}$ & $(-\frac{k}{2}-1,\frac{1}{2},-1)$\tabularnewline
+Inv. chi-squared distribution & $(0,\infty)$ & $\frac{2^{-k/2}}{\Gamma(k/2)}x^{-k/2-1}e^{-1/(2x)}$ & $(-\frac{k}{2}-1,\frac{1}{2},-1)$\tabularnewline
 \hline 
-Inverse gamma distribution & $(0,\infty)$ & $\frac{\beta^{\alpha}}{\Gamma(\alpha)}x^{-\alpha-1}e^{-\beta/x}$ & $(-\alpha-1,\beta,-1)$\tabularnewline
+Inv. gamma distribution & $(0,\infty)$ & $\frac{\beta^{\alpha}}{\Gamma(\alpha)}x^{-\alpha-1}e^{-\beta/x}$ & $(-\alpha-1,\beta,-1)$\tabularnewline
 \hline 
 Levy distribution & $(0,\infty)$ & $\sqrt{\frac{c}{2\pi}}(x-\mu)^{-3/2}e^{-\frac{c}{2(x-\mu)}}$ & $(-\frac{3}{2},\frac{c}{2},-1)$\tabularnewline
 \hline 
@@ -1020,6 +1021,7 @@ Weibull distribution & $(0,\infty)$ & $\frac{\rho}{\lambda}\left(\frac{x}{\lambd
 \hline 
 \end{longtable}
 \egroup
+}
 
 The following densities are not supported by our algebra: Benini distribution; Benktander Type I distribution; Johnson's $S_U$-distribution; and the log-normal distribution. All of these densities exhibit log-normal tails.
 

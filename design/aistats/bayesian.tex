@@ -304,9 +304,7 @@ fast convergence and can run in $O(nd^2T)$ time, where $T$ is the
 number of iterations. 
 
 \begin{figure*}[htbp]
-  \vspace{-2mm}
   \centering
-  \renewcommand{\arraystretch}{1.5}
 \begin{tabular}{r||c|c|l|l}
   &Criteria&Bayesian& $k$ %& dep.~on $d$ & dep.~on $1/\epsilon$
   & Cost after SDP\\%of rounding\\
@@ -330,7 +328,6 @@ number of iterations.
     % &\Green{none}& \Orange{linear}
   & $n\cdot kd + k^2d^2$
 \end{tabular}
-%\vspace{2mm}
 \captionof{table}{Comparison of SDP-based $(1+\epsilon)$-approximation algorithms for
   classical and Bayesian experimental design (X-mark means that only
   the classical setting applies).
@@ -340,7 +337,6 @@ terms and assume that $\epsilon = \Omega(\frac1{d_{\A}})$. Our
 approach beats other methods both in terms of the
 runtime and the dependence of $k$ on $d$ (when $d_\A=o(d)$).} 
 \label{tab:comp}
-\vspace{-3mm}
 \end{figure*}
 
 
