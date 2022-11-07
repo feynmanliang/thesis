@@ -1,31 +1,32 @@
+% !TeX root = thesis.tex
 \chapter{Introduction}
 
-In \todo{Chapter design}, we consider approximately optimal Bayesian experimental design
+In \cref{ch:design}, we consider approximately optimal Bayesian experimental design
 using an adaptive row sampling algorithm based on DPPs and show that it provides
 good approximations. Through generalizing the proof techniques \todo{Determinant preserving random matrices}
-applied here, in \todo{Chapter double descent} an extension of the DPP-based design is analyzed in
+applied here, in \cref{ch:double_descent} an extension of the DPP-based design is analyzed in
 closed-form for the over-parameterized $n < d$ regime and predicts a double-descent phenomenon in
 linear regression which closely matches empirical experiments.
-In \todo{Chapter random projections} we isolate the part of the proof involving concentration
+In \cref{ch:projections} we isolate the part of the proof involving concentration
 of bilinear forms of matrix resolvents away from the DPP-based design in order to obtain bounds on
 expected projections $X_S^\dag X_S$ when $X_S = S X$ is obtained by sub-Gaussian sketching matrix $S$.
 
 The second three chapters concern the setting of probabilistic programming, a computational tool
-for specifying probabilistic models and automating inference through MCMC and VI. In particular, we  
+for specifying probabilistic models and automating inference through MCMC and VI. In particular, we
 study approximating a target density $p(x)$ with approximations $q(x)$ for the purposes of
 importance sampling and variational inference.
-In \todo{Chapter LIC}, we consider parameterizing $q(x)$ by graph neural networks which condition each
+In \cref{ch:lic}, we consider parameterizing $q(x)$ by graph neural networks which condition each
 node on its Markov blanket. This reduces the conditioning sets for a node, resulting in improvements over
 \cite{le2017inference} and run-times which depend on sparsity in the graphical model rather than
 the length of execution traces.
-When the target $p(x)$ is both multivariate and heavy tailed, \todo{Chapter FTVI}
+When the target $p(x)$ is both multivariate and heavy tailed, \cref{ch:ftvi}
 considers the problem of tail anisotropy through both a theoretical and practical perspective.
 We establish that prior fat-tailed estimators \citep{jaini2020tails} are tail isotropic, propose
 an anisotropic approximation (fat-tailed variational inference, FTVI) where
 an anisotropic product base measures is pushed forwards through a bijective neural network,
 and confirm that in practice FTVI improves both density estimation as well as variational inference.
 However, we find in practice FTVI and other tail-adaptive approximations often have trouble optimizing
-the tail parameter. In \todo{Chapter HTA}, we consider addressing this issue during static analysis of a
+the tail parameter. In \cref{ch:hta}, we consider addressing this issue during static analysis of a
 probabilistic program's source code. We define generalized Gamma tail asymptotics for a number of
 elementary distributions and establish how the tail asymptotics are transformed under algebraic transformations
 such as sums and products. This enables a priori computation of tail parameters, which we show

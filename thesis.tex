@@ -5,6 +5,8 @@
 % The Current Maintainer of this work is Paul Vojta.
 
 \documentclass[oldfontcommands]{ucbthesis}
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
 \usepackage[style=authoryear,natbib=true,maxcitenames=2]{biblatex}
 \addbibresource{references.bib}
 \addbibresource{design/pap.bib}
@@ -70,8 +72,6 @@
 
 
 \usepackage{rotating} % provides sidewaystable and sidewaysfigure
-\usepackage[utf8]{inputenc} % allow utf-8 input
-\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
 
 \usepackage{dsfont}
 \usepackage{braket}
@@ -157,10 +157,10 @@
 \degreeyear{2022}
 \degree{Doctor of Philosophy}
 \chair{Associate Professor Alan Hammond}
+\cochair{Associate Adjunct Professor Michael Mahoney}
 \othermembers{Professor Fraydoun Rezakhanlou \\
-  Assistant Professor Shirsendu Ganguly\\
-  Associate Adjunct Professor Michael Mahoney
-  }
+  Assistant Professor Shirsendu Ganguly
+}
 % For a co-chair who is subordinate to the \chair listed above
 % \cochair{Professor Benedict Francis Pope}
 % For two co-chairs of equal standing (do not use \chair with this one)
@@ -191,40 +191,40 @@
 
 \begin{frontmatter}
 
-\begin{dedication}
-\null\vfil
-\begin{center}
-To Ossie Bernosky\\\vspace{12pt}
-And exposition? Of go. No upstairs do fingering. Or obstructive, or purposeful.
-In the glitter. For so talented. Which is confines cocoa accomplished.
-Masterpiece as devoted. My primal the narcotic. For cine? To by recollection
-bleeding. That calf are infant. In clause. Be a popularly. A as midnight
-transcript alike. Washable an acre. To canned, silence in foreign.
-\todo{DO THIS}
-\end{center}
-\vfil\null
-\end{dedication}
+  \begin{dedication}
+    \null\vfil
+    \begin{center}
+      To Ossie Bernosky\\\vspace{12pt}
+      And exposition? Of go. No upstairs do fingering. Or obstructive, or purposeful.
+      In the glitter. For so talented. Which is confines cocoa accomplished.
+      Masterpiece as devoted. My primal the narcotic. For cine? To by recollection
+      bleeding. That calf are infant. In clause. Be a popularly. A as midnight
+      transcript alike. Washable an acre. To canned, silence in foreign.
+      \todo{DO THIS}
+    \end{center}
+    \vfil\null
+  \end{dedication}
 
-% You can delete the \clearpage lines if you don't want these to start on
-% separate pages.
+  % You can delete the \clearpage lines if you don't want these to start on
+  % separate pages.
 
-\tableofcontents
-% \clearpage
-% \listoffigures
-% \clearpage
-% \listoftables
+  \tableofcontents
+  % \clearpage
+  % \listoffigures
+  % \clearpage
+  % \listoftables
 
-\begin{acknowledgements}
-Bovinely invasive brag; cerulean forebearance.
-Washable an acre. To canned, silence in foreign.
-Be a popularly. A as midnight transcript alike.
-To by recollection bleeding. That calf are infant. In clause.
-Buckaroo loquaciousness?  Aristotelian!
-Masterpiece as devoted. My primal the narcotic. For cine?
-In the glitter. For so talented. Which is confines cocoa accomplished.
-Or obstructive, or purposeful.
-And exposition? Of go. No upstairs do fingering.
-\end{acknowledgements}
+  \begin{acknowledgements}
+    Bovinely invasive brag; cerulean forebearance.
+    Washable an acre. To canned, silence in foreign.
+    Be a popularly. A as midnight transcript alike.
+    To by recollection bleeding. That calf are infant. In clause.
+    Buckaroo loquaciousness?  Aristotelian!
+    Masterpiece as devoted. My primal the narcotic. For cine?
+    In the glitter. For so talented. Which is confines cocoa accomplished.
+    Or obstructive, or purposeful.
+    And exposition? Of go. No upstairs do fingering.
+  \end{acknowledgements}
 
 \end{frontmatter}
 
@@ -233,22 +233,28 @@ And exposition? Of go. No upstairs do fingering.
 \include{intro}
 
 \chapter{Bayesian experimental design with regularized determinantal point processes}
+\label{ch:design}
 \subfile{design/aistats/bayesian}
 
 \chapter{Exact expressions for double descent in determinantal random designs}
+\label{ch:double_descent}
 \subfile{design/continuous_nips/continuous}
 
 \chapter{Exact expressions for sub-Gaussian random projections}
+\label{ch:projections}
 \subfile{design/equivalents_nips/neurips_2020}
 \subfile{design/equivalents_nips/appendix}
 
 \chapter{Accelerating Metropolis-hastings with lightweight inference compilation}
+\label{ch:lic}
 \subfile{ic/aistats2021/paper}
 
 \chapter{Fat-tailed variational inference}
+\label{ch:ftvi}
 \subfile{ftvi/ftvi_icml/ftvi_icml}
 
 \chapter{The generalized gamma tail algebra}
+\label{ch:hta}
 \subfile{hta/neurips_2022}
 
 \end{document}
