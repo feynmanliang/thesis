@@ -1,16 +1,40 @@
-% !TeX root = thesis.tex
-\chapter{Introduction}
+\documentclass[thesis.tex]{subfiles}
 
+\begin{document}
+
+\chapter{Introduction}
+\label{ch:intro}
+
+When faced with difficult problems, randomized approximations are a tool
+commonly employed by quantitative scientists which can offer algernative
+algorithms and analyses. In this dissertation, we consider a range of problems
+at the intersection of randomized methods and statistics.
+Throughout our work, randomized methods are a unifying theme used in the first section to
+construct tractable approximations and later as tools for automating computational Bayesian statistics.
+
+Initially in the first three chapters, we develop novel analyses to recent problems
+in experimental design, double descent, and random projections by using determinantal
+point processes (DPP).
 In \cref{ch:design}, we consider approximately optimal Bayesian experimental design
 using an adaptive row sampling algorithm based on DPPs and show that it provides
-good approximations. Through generalizing the proof techniques \todo{Determinant preserving random matrices}
-applied here, in \cref{ch:double_descent} an extension of the DPP-based design is analyzed in
+good approximations. Through generalizing the previous chapter's proof techniques,
+in \cref{ch:double_descent} an extension of the DPP-based design is analyzed in
 closed-form for the over-parameterized $n < d$ regime and predicts a double-descent phenomenon in
 linear regression which closely matches empirical experiments.
 In \cref{ch:projections} we isolate the part of the proof involving concentration
 of bilinear forms of matrix resolvents away from the DPP-based design in order to obtain bounds on
 expected projections $X_S^\dag X_S$ when $X_S = S X$ is obtained by sub-Gaussian sketching matrix $S$.
+These chapters correspond to the following publications:
+\begin{itemize}
+    \item \fullcite{bayesian-experimental-design}
+    \item \fullcite{surrogate-design}
+    \item \fullcite{precise-expressions}
+\end{itemize}
 
+
+In the later chapters we focus on probabilistic programming and developing theory and tools
+to automate statistical inference using randomized algorithms based on
+Monte Carlo Markoc chain (MCMC) and variational inference (VI).
 The second three chapters concern the setting of probabilistic programming, a computational tool
 for specifying probabilistic models and automating inference through MCMC and VI. In particular, we
 study approximating a target density $p(x)$ with approximations $q(x)$ for the purposes of
@@ -31,3 +55,11 @@ probabilistic program's source code. We define generalized Gamma tail asymptotic
 elementary distributions and establish how the tail asymptotics are transformed under algebraic transformations
 such as sums and products. This enables a priori computation of tail parameters, which we show
 improves the stability and convergence of a number of inference tasks.
+These chapters correspond to the following publications:
+\begin{itemize}
+    \item \fullcite{lic}
+    \item \fullcite{ftvi}
+    \item \fullcite{gga}
+\end{itemize}
+
+\end{document}

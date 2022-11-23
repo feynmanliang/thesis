@@ -5,22 +5,40 @@
 % The Current Maintainer of this work is Paul Vojta.
 
 \documentclass[oldfontcommands]{ucbthesis}
-\usepackage[utf8]{inputenc} % allow utf-8 input
-\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
-\usepackage[style=authoryear,natbib=true,maxcitenames=2]{biblatex}
+\usepackage{fontspec}
+
+
+\usepackage[style=alphabetic,natbib=true,maxbibnames=99,maxcitenames=1]{biblatex}
 \addbibresource{references.bib}
 \addbibresource{design/pap.bib}
 \addbibresource{ic/aistats2021/refs.bib}
 \addbibresource{ftvi/refs_ftvi.bib}
 \addbibresource{hta/refs.bib}
+\makeatletter
+\DeclareCiteCommand{\fullcite}
+  {\defcounter{maxnames}{\blx@maxbibnames}%
+    \usebibmacro{prenote}}
+  {\usedriver
+     {\DeclareNameAlias{sortname}{default}}
+     {\thefield{entrytype}}}
+  {\multicitedelim}
+  {\usebibmacro{postnote}}
+\DeclareCiteCommand{\footfullcite}[\mkbibfootnote]
+  {\defcounter{maxnames}{\blx@maxbibnames}%
+    \usebibmacro{prenote}}
+  {\usedriver
+     {\DeclareNameAlias{sortname}{default}}
+     {\thefield{entrytype}}}
+  {\multicitedelim}
+  {\usebibmacro{postnote}}
+\makeatother
+
 
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{amsmath}
-
 \usepackage{hyperref}       % hyperlinks
 \usepackage{url}            % simple URL typesetting
 \usepackage{cleveref}
-
 \usepackage{bm}
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{xfrac}
@@ -28,16 +46,13 @@
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{tikz}
-
 \usepackage{float}
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{wrapfig}
 \usepackage{tabularx,booktabs}       % professional-quality tables
-
 \usepackage{grffile}
 \usepackage{cancel}
-
 \usepackage[export]{adjustbox}
 \usepackage{booktabs}
 \usepackage{listings}
@@ -69,10 +84,7 @@
 
 \usepackage[bold]{hhtensor}
 \usepackage{mathtools}
-
-
 \usepackage{rotating} % provides sidewaystable and sidewaysfigure
-
 \usepackage{dsfont}
 \usepackage{braket}
 \usepackage{algorithm}
@@ -82,8 +94,26 @@
 \usepackage{enumerate}
 \usepackage{enumitem}
 \usepackage{siunitx}
+\usepackage{bibentry}
 
 \input{design/shortdefs}
+
+\numberwithin{theorem}{chapter}
+\numberwithin{example}{chapter}
+\numberwithin{condition}{chapter}
+\numberwithin{property}{chapter}
+\numberwithin{lemma}{chapter}
+\numberwithin{proposition}{chapter}
+\numberwithin{remark}{chapter}
+\numberwithin{corollary}{chapter}
+\numberwithin{definition}{chapter}
+\numberwithin{conjecture}{chapter}
+\numberwithin{axiom}{chapter}
+\numberwithin{claim}{chapter}
+\numberwithin{assumption}{chapter}
+\numberwithin{condition}{chapter}
+\numberwithin{question}{chapter}
+
 \newcommand{\mub}{\bm{\mu}}
 \crefname{lstlisting}{listing}{listings}
 \Crefname{lstlisting}{Listing}{Listings}
@@ -151,13 +181,12 @@
 
 % Declarations for Front Matter
 
-\title{Randomized methods and Bayesian inference}
+\title{Randomized methods in statistics}
 \author{Feynman Liang}
 \degreesemester{Fall}
 \degreeyear{2022}
 \degree{Doctor of Philosophy}
-\chair{Associate Professor Alan Hammond}
-\cochair{Associate Adjunct Professor Michael Mahoney}
+\cochairs{Associate Professor Alan Hammond}{Associate Adjunct Professor Michael Mahoney}
 \othermembers{Professor Fraydoun Rezakhanlou \\
   Assistant Professor Shirsendu Ganguly
 }
@@ -165,7 +194,7 @@
 % \cochair{Professor Benedict Francis Pope}
 % For two co-chairs of equal standing (do not use \chair with this one)
 % \cochairs{Professor Richard Francis Sony}{Professor Benedict Francis Pope}
-\numberofmembers{3}
+\numberofmembers{4}
 % Previous degrees are no longer to be listed on the title page.
 % \prevdegrees{B.A. (University of Northern South Dakota at Hoople) 1978 \\
 %   M.S. (Ed's School of Quantum Mechanics and Muffler Repair) 1989}
@@ -184,23 +213,23 @@
 
 \maketitle
 % Delete (or comment out) the \approvalpage line for the final version.
-\approvalpage
+% \approvalpage
 \copyrightpage
 
-\include{abstract}
+% \include{abstract}
 
 \begin{frontmatter}
 
   \begin{dedication}
     \null\vfil
     \begin{center}
-      To Ossie Bernosky\\\vspace{12pt}
-      And exposition? Of go. No upstairs do fingering. Or obstructive, or purposeful.
-      In the glitter. For so talented. Which is confines cocoa accomplished.
-      Masterpiece as devoted. My primal the narcotic. For cine? To by recollection
-      bleeding. That calf are infant. In clause. Be a popularly. A as midnight
-      transcript alike. Washable an acre. To canned, silence in foreign.
-      \todo{DO THIS}
+      Thanks to my advisor Michael Mahoney, to whom I owe the past half decade
+      of mentorship and research opportunities. In addition, I am grateful for my colleagues and mentors who have supported me along the way. In no particular order:
+      Liam Hodgkinson, Zhenyu Liao, Micha{\l} Derezi\'{n}ski, Nimar Arora, Michael Tingley,
+      Erik Meijer, Preben Thor\o , Alexy Khrabrov, Reilly Bodycomb, Ryan Moody, Cassidee Moyer, Armin Eghdami, Xiangrui Meng, Joseph Bradley,
+      Ameet Talwalkar, Ion Stoica, James Koo, Ben Searchinger, Debo Olaosebikan, Dennis Jiang, Emin Arakelian, Andrew Tsai, YB Cho, Dan Rasmusson. And last but not least,
+      thanks to my family and especially my loving
+      wife. You all helped push this over the finish line.
     \end{center}
     \vfil\null
   \end{dedication}
@@ -215,46 +244,18 @@
   % \listoftables
 
   \begin{acknowledgements}
-    Bovinely invasive brag; cerulean forebearance.
-    Washable an acre. To canned, silence in foreign.
-    Be a popularly. A as midnight transcript alike.
-    To by recollection bleeding. That calf are infant. In clause.
-    Buckaroo loquaciousness?  Aristotelian!
-    Masterpiece as devoted. My primal the narcotic. For cine?
-    In the glitter. For so talented. Which is confines cocoa accomplished.
-    Or obstructive, or purposeful.
-    And exposition? Of go. No upstairs do fingering.
+    Feynman Liang was supported by a PhD fellowship from the Graduate Fellowship for STEM Diversity (GFSD).
   \end{acknowledgements}
-
 \end{frontmatter}
 
 \pagestyle{headings}
 
-\include{intro}
-
-\chapter{Bayesian experimental design with regularized determinantal point processes}
-\label{ch:design}
+\subfile{intro}
 \subfile{design/aistats/bayesian}
-
-\chapter{Exact expressions for double descent in determinantal random designs}
-\label{ch:double_descent}
 \subfile{design/continuous_nips/continuous}
-
-\chapter{Exact expressions for sub-Gaussian random projections}
-\label{ch:projections}
 \subfile{design/equivalents_nips/neurips_2020}
-\subfile{design/equivalents_nips/appendix}
-
-\chapter{Accelerating Metropolis-hastings with lightweight inference compilation}
-\label{ch:lic}
 \subfile{ic/aistats2021/paper}
-
-\chapter{Fat-tailed variational inference}
-\label{ch:ftvi}
 \subfile{ftvi/ftvi_icml/ftvi_icml}
-
-\chapter{The generalized gamma tail algebra}
-\label{ch:hta}
 \subfile{hta/neurips_2022}
 
 \end{document}

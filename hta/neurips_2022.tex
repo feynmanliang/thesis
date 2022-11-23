@@ -1,4 +1,4 @@
-\documentclass[thesis.tex]{subfiles}
+\documentclass[../thesis.tex]{subfiles}
 % \documentclass{article}
 % \csname remappendix\endcsname
 
@@ -113,31 +113,34 @@
 
 \begin{document}
 
+\chapter{The generalized gamma tail algebra}
+\label{ch:hta}
+
 % \maketitle
 
 % \begin{abstract}
-	Despite the successes of probabilistic models based on passing noise through
-	neural networks, recent work has identified that such methods often fail to
-	capture tail behavior accurately unless the tails of the base distribution
-	are appropriately calibrated. To overcome this deficiency, we propose a
-	systematic approach for analyzing the tails of random variables during the
-	static analysis (before drawing samples) pass of a probabilistic programming
-	language (PPL) compiler. To characterize how the tails change under
-	algebraic operations, we develop an algebra acting on a three-parameter
-	family of tail asymptotics based on the generalized Gamma distribution. Our
-	algebraic operations are closed under addition and multiplication, capable
-	of distinguishing sub-Gaussians with differing scales, and handle ratios
-	sufficiently well to reproduce the tails of most important statistical
-	distributions directly from their definitions. Our experiments confirm that
-	inference algorithms leveraging generalized Gamma algebra metadata attain
-	superior performance across a number of density modeling and variational
-	inference tasks.
+Whereas previous chapters considered adaptive methods which learn an
+approximation's bulk (\cref{ch:lic}) and tail (\cref{ch:ftvi}) from
+samples, in this chapter we develop a
+systematic approach for analyzing the tails of random variables during the
+static analysis (before drawing samples) pass of a probabilistic programming
+language (PPL) compiler. To characterize how the tails change under
+algebraic operations, we develop an algebra acting on a three-parameter
+family of tail asymptotics based on the generalized Gamma distribution. Our
+algebraic operations are closed under addition and multiplication, capable
+of distinguishing sub-Gaussians with differing scales, and handle ratios
+sufficiently well to reproduce the tails of most important statistical
+distributions directly from their definitions. Our experiments confirm that
+inference algorithms leveraging generalized Gamma algebra metadata attain
+superior performance across a number of density modeling and variational
+inference tasks. Parts of this chapter have been submitted for peer review
+as \fullcite{gga}.
 % \end{abstract}
 
 \section{Introduction}
 
 To facilitate efficient probabilistic modelling and inference, modern probabilistic programming languages (PPLs) draw upon recent developments in functional programming \citep{tolpin2016design},
-programming languages \citep{bernstein2019static}, 
+programming languages \citep{bernstein2019static},
 and deep variational inference \citep{bingham2019pyro}.
 Despite their broadening appeal, common pitfalls such as mismatched
 distribution supports \citep{lee2019towards} and non-integrable expectations
@@ -147,10 +150,10 @@ Recent innovations aiming to improve PPLs have automated verification of
 distribution constraints \citep{lee2019towards}, tamed noisy gradient estimates
 \citep{eslami2016attend} and unruly density ratios
 \citep{vehtari2015pareto,wang2018variational}, and approximated high-dimensional
-distributions with non-trivial bulks \citep{papamakarios2021normalizing} and non-Gaussian tails \cite{jaini2020tails}. 
+distributions with non-trivial bulks \citep{papamakarios2021normalizing} and non-Gaussian tails \cite{jaini2020tails}.
 
-Continuing this line of work, here we 
-we consider how to statically analyze a probabilistic program in order to automate the inference of 
+Continuing this line of work, here we
+we consider how to statically analyze a probabilistic program in order to automate the inference of
 tail behavior for any
 random variables present. At present, correct inference of tail behaviour for target distributions remains an outstanding issue \citep{yao2018yes,wang2018variational}, which causes challenges for downstream Monte Carlo tasks. For example, importance sampling estimators can exhibit infinite variance if the tail of the approximating density is lighter than the target. Most prominant black-box variational inference methods are incapable of changing their tail behaviour from an initial proposal distribution \citep{jaini2020tails,ftvi}. MCMC algorithms may also lose ergodicity when the tail of the target density falls outside of a particular family \citep{roberts1996exponential}. All of these issues could be avoided if the tail of the target is known before runtime.
 
@@ -163,7 +166,7 @@ can be lifted to computations on the tail parameters resulting in what we call t
 Through analyzing operations like $X + Y$, $X^2$, and $X / Y$ at the level of densities (e.g.\ additive convolution $p_X \oplus p_Y$), the tail parameters of a target density can be estimated from the parameters of any input distributions using \Cref{tab:gga_operations}.
 
 Operationalizing the GGA, we propose \emph{tail inferential} static analysis analogous to traditional \emph{type inference} and provide a reference implementation using the \texttt{beanmachine graph} \citep{tehrani2020bean}
-PPL compiler. 
+PPL compiler.
 GGA tail metadata can be used to diagnose and address tail-related problems in downstream tasks, such as
 employing Riemannian-manifold methods \citep{girolami2011riemann} to sample heavy tails
 or pre-emptively detect unbounded expectations.
@@ -183,13 +186,13 @@ the resulting combination is a flexible density approximator with provably calib
 %found that GGA yielded greater gains on targets with heavier tails.
 
 \begin{figure}
-	\includegraphics[width=\textwidth]{./figures/schematic.pdf}
-	\caption{Our overall approach for density approximations with calibrated tails.
-		A generative model expressed in a PPL (1) and analyzed using the GGA (2) to
-		compute the tail parameters of the target. A representative distribution
-		with calibrated tails is chosen for the initial approximation (3) and a learnable
-		Lipschitz pushforward (see \Cref{lem:lipschitz}) is optimized (4) to correct the
-		bulk approximation.}
+  \includegraphics[width=\textwidth]{hta/figures/schematic.pdf}
+  \caption{Our overall approach for density approximations with calibrated tails.
+    A generative model expressed in a PPL (1) and analyzed using the GGA (2) to
+    compute the tail parameters of the target. A representative distribution
+    with calibrated tails is chosen for the initial approximation (3) and a learnable
+    Lipschitz pushforward (see \Cref{lem:lipschitz}) is optimized (4) to correct the
+    bulk approximation.}
 \end{figure}
 
 
@@ -223,278 +226,15 @@ the resulting combination is a flexible density approximator with provably calib
 \textbf{Contributions}
 
 \begin{itemize}[leftmargin=*]
-	\item The GGA is introduced, generalizing prior work on classifying tail asymptotics
-	      while including both sub-Gaussian / sub-exponentials \citep{ledoux2001concentration} as well as power-law / Pareto-based tail indices \citep{clauset2009power}. Composing operations outlined in \cref{tab:gga_operations}, one can compute the
-	      GGA tail class for downstream random variables of interest.
-	\item The GGA is implemented in the static analysis phase of a PPL compiler.
-	      This unlocks the ability to leverage GGA metadata in order to
-	      better tailor the emitted inference algorithm.
-	\item Finally, we propose and evaluate a density estimator which combines GGA tails with normalizing flows
-	      in order to simultaneously achieve good bulk approximation as well as correct tails.
+  \item The GGA is introduced, generalizing prior work on classifying tail asymptotics
+        while including both sub-Gaussian / sub-exponentials \citep{ledoux2001concentration} as well as power-law / Pareto-based tail indices \citep{clauset2009power}. Composing operations outlined in \cref{tab:gga_operations}, one can compute the
+        GGA tail class for downstream random variables of interest.
+  \item The GGA is implemented in the static analysis phase of a PPL compiler.
+        This unlocks the ability to leverage GGA metadata in order to
+        better tailor the emitted inference algorithm.
+  \item Finally, we propose and evaluate a density estimator which combines GGA tails with normalizing flows
+        in order to simultaneously achieve good bulk approximation as well as correct tails.
 \end{itemize}
-
-\section{The Generalized Gamma Algebra}\label{sec:gga}
-
-Here we formulate an algebra of random variables that is closed under most standard elementary operations (addition, multiplication, powers) which forms the foundation for our static analysis.
-
-\begin{definition}\label{def:gg_tail}
-A random variable $X$ is said to have a \emph{generalized Gamma tail} if the Lebesgue density of $|X|$ satisfies
-\begin{equation}
-\label{eq:GenGammaTails}
-p_{|X|}(x) \sim c x^\nu e^{-\sigma x^\rho}, \qquad \text{as } x \to \infty,
-\end{equation}
-for some $c > 0$, $\nu \in \mathbb{R}$, $\sigma > 0$ and $\rho \in \mathbb{R}$. Denote the set of all such random variables by $\mathcal{G}$.
-\end{definition}
-Consider the following equivalence relation on $\mathcal{G}$: $X \equiv Y$ if and only if $0 < p_{|X|}(x) / p_{|Y|}(x) < +\infty$ for all sufficiently large $x$. The resulting equivalence classes can be represented by their corresponding parameters $\nu, \sigma, \rho$, and hence, we denote the class of random variables $X$ satisfying \cref{eq:GenGammaTails} by $(\nu,\sigma,\rho)$. In the special case where $\rho = 0$, for a fixed $\nu < -1$, each class $(\nu,\sigma,0)$ for $\sigma > 0$ is equivalent, and is denoted by $\mathcal{R}_{|\nu|}$, representing \emph{regularly varying} tails. Our algebra operates on these equivalence classes of $\mathcal{G}$, characterizing the change in tail behaviour under various operations.
-
-\begin{table}[t]
-    \centering
-    \bgroup
-{\small
-\begin{tabular}{|M{0.15\linewidth} | p{0.75\linewidth}|}
-\hline
-\centering \multirow{2}{*}{\textbf{Ordering}} & 
-$\max\{(\nu_1,\sigma_1,\rho_1),(\nu_2,\sigma_2,\rho_2)\}$ \\ & $\qquad \equiv \begin{cases}
-(\nu_1,\sigma_1,\rho_1) & \text{ if } \limsup_{x\to\infty} \frac{x^\nu_1 e^{-\sigma_1 x^{\rho_1}}}{x^\nu_2 e^{-\sigma_2 x^{\rho_2}}} < +\infty \\
-(\nu_2,\sigma_2,\rho_2) & \text{ otherwise.}
-\end{cases}$ \\ \hline
-\centering \multirow{2}{*}{\textbf{Addition}} &  $(\nu_{1},\sigma_{1},\rho_{1})\oplus(\nu_{2},\sigma_{2},\rho_{2})$ \\
- & $\equiv \begin{cases}
-\max\{(\nu_{1},\sigma_{1},\rho_{1}),(\nu_{2},\sigma_{2},\rho_{2})\} & \text{ if }\rho_{1}\neq\rho_{2}\text{ or }\rho_{1},\rho_{2}<1\\
-\left(\nu_{1}+\nu_{2}+1,\min\{\sigma_{1},\sigma_{2}\},1\right) & \text{ if }\rho_{1}=\rho_{2}=1\\
-(\nu_{1}+\nu_{2}+\frac{2-\rho}{2},(\sigma_{1}^{-\frac{1}{\rho-1}}+\sigma_{2}^{-\frac{1}{\rho-1}})^{1-\rho},\rho) & \text{ if }\rho=\rho_{1}=\rho_{2}>1.
-\end{cases}$ 
-\\ \hline
-\centering \textbf{Powers} & $(\nu,\sigma,\rho)^\beta \equiv (\frac{\nu+1}{\beta} - 1,\sigma,\frac{\rho}{\beta})$ for $\beta > 0$ \\\hline
-\centering \textbf{Reciprocal*} & $(\nu,\sigma,\rho)^{-1} \equiv \begin{cases} (-\nu-2,\sigma,-\rho) & \text{ if } (\nu + 1)/\rho > 0 \text{ and } \rho \neq 0 \\
-\mathcal{R}_2 & \text{ otherwise}
-\end{cases}$ \\ \hline
-\centering \textbf{Scalar \linebreak Multiplication} & $c(\nu,\sigma,\rho) \equiv (\nu,\sigma/|c|^\rho,\rho)$\\\hline
-\multirow{3}{*}{\centering \textbf{Multiplication}} & $(\nu_{1},\sigma_{1},\rho_{1})\otimes(\nu_{2},\sigma_{2},\rho_{2})$ \\
-&$\qquad \equiv\begin{cases}
-\left(\frac{1}{\mu}\left(\frac{\nu_{1}}{|\rho_{1}|}+\frac{\nu_{2}}{|\rho_{2}|}+\frac{1}{2}\right),\sigma,-\frac{1}{\mu}\right) & \text{ if }\rho_{1},\rho_{2}<0\\
-\left(\frac{1}{\mu}\left(\frac{\nu_{1}}{\rho_{1}}+\frac{\nu_{2}}{\rho_{2}}-\frac{1}{2}\right),\sigma,\frac{1}{\mu}\right) & \text{ if }\rho_{1},\rho_{2}>0\\
-\mathcal{R}_{|\nu_1|} & \mbox{ if }\rho_{1}\leq0,\rho_{2}>0 \\
-\mathcal{R}_{\min\{|\nu_1|,|\nu_2|\}} & \mbox{ if }\rho_{1}=0,\rho_{2}=0
-\end{cases}$ \\
-&where $\mu=\frac{1}{|\rho_{1}|}+\frac{1}{|\rho_{2}|}=\frac{|\rho_{1}|+|\rho_{2}|}{|\rho_{1}\rho_{2}|}$, $\sigma=\mu(\sigma_{1}|\rho_{1}|)^{\frac{1}{\mu|\rho_{1}|}}(\sigma_{2}|\rho_{2}|)^{\frac{1}{\mu|\rho_{2}|}}$.\\ \hline
-\centering \textbf{Product of Densities} & $(\nu_1,\sigma_1,\rho_1)\&(\nu_2,\sigma_2,\rho_2) 
-\equiv \begin{cases}
-(\nu_{1}+\nu_{2},\sigma_{1},\rho_{1}) & \text{ if }\rho_{1}<\rho_{2}\\
-(\nu_{1}+\nu_{2},\sigma_{1}+\sigma_{2},\rho) & \text{ if }\rho=\rho_{1}=\rho_{2}\\
-(\nu_{1}+\nu_{2},\sigma_{2},\rho_{2}) & \text{ otherwise.}
-\end{cases}$ \\ \hline
-\centering \textbf{Functions ($L$-Lipschitz)} & 
-$f(X_1,\dots,X_n) \equiv L \max\{X_1,\dots,X_n\}$ \\ \hline
-    \end{tabular}
-}
-    \vspace{.25cm}
-    \caption{\label{tab:gga_operations}Operations on random variables (e.g.$X_1 + X_2$) are 
-    viewed as actions on density functions
-    (e.g. convolution $(\nu_1, \sigma_1, \rho_1)\oplus (\nu_2, \sigma_2, \rho_2)$) and the tail parameters of the result are analyzed and reported.}
-\egroup
-\end{table}
-
-The form of \cref{eq:GenGammaTails} and the name of the algebra is derived from the generalized Gamma distribution. 
-\begin{definition}
-Let $\nu \in \mathbb{R}$, $\sigma > 0$, and $\rho \in \mathbb{R} \backslash \{0\}$ be such that $(\nu+1)/ \rho > 0$.
-A non-negative random variable $X$ is \emph{generalized Gamma distributed} with parameters $\nu,\sigma,\rho$ if it has Lebesgue density
-\begin{equation}
-\label{eq:GenGammaDensity}
-p_{\nu,\sigma,\rho}(x) = c_{\nu,\sigma,\rho} x^\nu e^{-\sigma x^\rho},\qquad x > 0,
-\end{equation}
-where $c_{\nu,\sigma,\rho} = \rho \sigma^{(\nu+1)/\rho} / \Gamma((\nu+1)/\rho)$ is the normalizing constant. %The generalized Gamma density incorporates many other well-known densities, including that of the Gamma distribution ($\rho = 1$), and the Frechet/Weibull distribution ($\nu = \rho - 1$). 
-\end{definition}
-The importance of the generalized Gamma form arises due to a combination of two factors:
-\begin{enumerate}[label={(\roman*)},leftmargin=*]
-    \item The majority of interesting continuous univariate distributions with infinite support satisfy \cref{eq:GenGammaTails}, including
-    Gaussians ($\nu=0$, $\rho=2$),
-    gamma/exponential/chi-squared ($\nu > -1$, $\rho=1$), Weibull/Frechet ($\rho = \nu + 1$), and
-    Student $T$/Cauchy/Pareto ($\mathcal{R}_\nu$).
-    However, some notable exceptions include the log-normal distributions. 
-    \item The set $\mathcal{G}$ is known to be closed under additive convolution, positive powers, and Lipschitz functions --- we will show it is closed under multiplicative convolution as well. This covers the majority of elementary operations on independent random variables, with reciprocals, exponentials and logarithms the only exceptions. However, we will introduce a few ``tricks'' to handle these cases as well. 
-\end{enumerate}
-The full list of operations in GGA is compiled in \cref{tab:gga_operations}. All operations in the GGA can be proven to exhibit identical behaviour with their corresponding operations on random variables, with the sole exception of reciprocals (marked by asterisk), where additional assumptions are required. For further details, refer to the Supplementary Material.
-
-%To incorporate tails which lie outside of $\mathcal{G}$, we let $\mathcal{R}_1$ incorporate \emph{super-heavy tails}, which denote random variables with tails heavier than any random variable in $\mathcal{G}$. All operations remain consistent with this notation. Likewise, we let $\mathcal{L}$ denote \emph{super-light tails}, which are treated in our algebra as a class where $\rho = +\infty$ (effectively constants).
-
-% \paragraph{Exponential and Logarithm.} Tails of the generalized Gamma form are not closed under exponentiation or logarithms. Indeed, if both $X$ and $\exp X$ have generalized Gamma tails, then $X$ is exponentially distributed (and $\exp X$ has power law tails). As a workaround, we can consider an upper bound on the tail by projecting onto the nearest possible exponentially distributed / power law tail. If $\rho > 1$, then a change of variables shows the density of $\exp X$ satisfies
-% \[
-% p_{\exp X}(x) \sim \frac{c}{x}(\log x)^{\nu}\exp\left(-\sigma(\log x)^{\rho}\right)\leq\frac{\tilde{c}}{x}\exp\left(-\sigma(\log x)\right)=cx^{-\sigma-1},\,\mbox{ as }x \to \infty.
-% \]
-% The inverse of this operation sends $\mathcal{R}_{\sigma+1}$ to $(0,\sigma,1)$. With this in mind, we define the exponential and logarithmic operations according to the following: $\exp (\nu, \sigma, \rho) \equiv \mathcal{R}_{\sigma+1}$ if $\rho \geq 1$, otherwise $\mathcal{R}_1$; $\log (\nu, \sigma, \rho) \equiv (0, |\nu|-1, 1)$ if $\nu < -1$ and $\rho \leq 0$, otherwise $\mathcal{L}$.
-
-
-\section{Implementation}\label{sec:impl}
-
-\subsection{Compile-time static analysis}
-
-To illustrate an implementation of GGA for static analysis, we sketch the operation of the PPL compiler at a high-level
-and defer to the supplementary code for details.
-A probabilistic program is first inspected using Python's built-in \texttt{ast} module
-and transformed to static single assignment (SSA) form \citep{rosen1988global}.
-Next, standard compiler optimizations (e.g. dead code elimination, constant propagation)
-are applied and an execution of the optimized program is traced \citep{wingate2011lightweight,bingham2019pyro}
-and accumulated in a directed acyclic graph representation. A breadth-first type checking pass, as seen in Algorithm~\ref{alg:bfs_typecheck}, completes in linear time, and GGA results may be applied to implement \texttt{computeGGA()} using the following steps:
-\begin{itemize}[leftmargin=*]
-	\item If a node has no parents, then it is an atomic distribution and its tail parameters are known (\Cref{tab:dist_list})
- 	\item Otherwise, the node is an operation taking its potentially stochastic inputs (parents) to its output. Consult \Cref{tab:gga_operations} for the output GGA tails.
-\end{itemize}
-
-%% This declares a command \Comment
-%% The argument will be surrounded by /* ... */
-% \SetKwComment{Comment}{/* }{ */}
-
-\begin{algorithm}
-	\caption{Pseudocode for a GGA tails static analysis pass}\label{alg:bfs_typecheck}
-	\begin{algorithmic}
-	\REQUIRE{Abstract syntax tree for a PPL program}
-	
-	
-	\STATE{frontier $\gets$ [rv : Parents(rv) = $\emptyset$]}\\
-	\STATE{GGAs $\gets \{\}$}
-	
-	\WHILE{\text{frontier} $\neq \emptyset$} 
-	\STATE{next $\gets$ frontier.popLeft()}\\
-	\STATE{GGAs[next] $\gets$ computeGGA(next.op, next.parent)}\\
-	\STATE{frontier $\gets$ frontier + next.children()}
-	\ENDWHILE
-	
-	\RETURN{GGA parameter estimates for all random variables}
-	\end{algorithmic}
-\end{algorithm}
-
-
-\subsection{Representative distributions}\label{ssec:repr_dist}
-
-For each $(\nu,\sigma,\rho)$ we make a carefully defined choice of $p$ on $\mathbb{R}$ such that if $X \sim p$, then $X \equiv (\nu,\sigma,\rho)$. This way, any random variable $f(X)$, where $f$ is $1$-Lipschitz, will exhibit the correct tail, and so approximations of this form may be used for variational inference or density estimation. Let $X \equiv (\nu,\sigma,\rho)$ and $0 < \epsilon \ll 1$ denote a small parameter such that tails $e^{-x^\epsilon}$ are deemed to be ``very heavy'' (we chose $\epsilon = 0.1$). %We also let $X\equiv(\nu,\sigma,\rho)$ and $\zeta$ denote an independent Rademacher random variable with $\mathbb{P}(\zeta=1)=\mathbb{P}(\zeta=-1)=\frac12$.
-
-\begin{itemize}
-    \item[($\rho \leq 0$)] If $\rho \leq -1$, then $p_X(x) \sim c x^{-|\nu|}$. A prominent distribution on $\mathbb{R}$ with power law tails is the \emph{Student $t$ distribution}, in this case, with $|\nu|-1$ degrees of freedom if $\nu < -1$ (generate $X \sim t_{|\nu|-1})$.
-    \item[($\rho > \epsilon$)] For moderately sized $\rho > 0$, we consider a symmetrized variant of the generalized Gamma density (\Cref{eq:GenGammaDensity}). 
-    \item[($\rho \leq \epsilon$)] If $X \equiv (\nu,\sigma,\rho)$ where $\rho$ is small, then $X$ will exhibit much heavier tails, and the generalized Gamma distribution in Case 1 will become challenging to sample from. In these cases, we expect that the tail of $X$ should be well represented by a power law. 
-    %Letting $\alpha = \sigma \rho - \nu - 1$, using an approximation to the logarithm, $p_{|X}(x) \approx c x^{-\alpha - 1}$ (see the Supplementary Material for more details). Therefore, we represent tails of this form by the Student $t$ distribution with $\alpha$ degrees  
-    The generalized Gamma density (\Cref{eq:GenGammaDensity}) satisfies $\mathbb{E}X^r = \sigma^{-r/\rho} \Gamma(\frac{\nu+1+r}{\rho})/\Gamma(\frac{\nu+1}{\rho})$ for $r > 0$. Let $\alpha > 0$ be such that $\mathbb{E}X^\alpha = 2$. By Markov's inequality, the tail of $X$ satisfies $\mathbb{P}(X>x)\leq 2 x^{-\alpha}$. Therefore, we can represent tails of this form by the Student $t$ distribution with $\alpha+1$ degrees of freedom (generate $X \sim t_{\alpha}$).
-\end{itemize}
-
-\subsection{Bulk correction by Lipschitz mapping}
-
-While a representative distribution will exhibit the desired tails,
-the target distribution's bulk may be very different from a generalized Gamma and result in poor distributional approximation. To address this, we propose splicing together the tails from a generalized Gamma with a flexible density approximation for the bulk.
-While many combinations are possible, in this work we rely on \Cref{lem:lipschitz} and post-compose neural
-spline flows \citep{durkan2019neural} (which are identity functions outside of a bounded interval) after
-properly initialized generalized Gamma distributions.
-Optimizing the parameters of the flow results in good bulk approximation while simultaneously
-preserving the tail correctness guarantees attained by the GGA.
-
-\begin{example}
-	Let $A \in \mathbb{R}^{k \times k}$, $x,y\in\mathbb{R}^k$, with $x_i,y_i,A_{ij} \overset{\text{iid}}{\sim} \mathcal{N}(-1,1)$.
-	The distribution of $x^\top A y = \sum_{i,j} x_i A_{ij} y_j$ is convolution of normal-powers \citep{gupta2008analyzing} and has no convenient
-	closed form expression.
-	Using GGA's closure theorems (\cref{tab:gga_operations}), one can compute
-	its tail parameters to be $(\frac{k}{2}-1,\frac{3}{2}, \frac{2}{3})$.
-
-	\begin{figure}[h]
-		\centering
-		\input{./experiments/normal-power-sum.pgf}
-		\input{./experiments/lip-nf.pgf}
-		\caption{(Top) $5000$ samples of $\lvert x^\top A y \rvert$ vs the
-		calibrated GGA density $q(x)$. While calibrated tails are provably guarantees,
-		the target distribution's bulk differs from the assumed generalized Gamma representative distribution (\cref{ssec:repr_dist}) for all $k$.
-		To fix the bulk approximation, a normalizing flow is composed with
-		the GGA representative to form $\text{flow}(q)(x)$. The bulk approximation
-		is improved (bottom) while the tails continue to exhibit the same
-		behavior (bottom right).
-		}
-		\label{fig:power_normal}
-	\end{figure}
-
-	The GGA representative is a gamma distribution with the correct tails, but there is non-negligible error in the bulk where $x$ is small. To address this, a learnable bijector can be
-	optimized as in \Cref{fig:power_normal} bottom left to correct the bulk approximation. Guaranteed by \Cref{lem:lipschitz} and
-	visualized in \Cref{fig:power_normal} bottom right, the tails of the overall composition remain calibrated.
-\end{example}
-
-\section{Experiments}\label{sec:experiments}
-
-In this section we demonstrate that GGA-based density estimation yields improvements across a variety of metrics.
-We consider the parametric family defined in \Cref{ssec:repr_dist} and compare against pushfowards of Normal distributions. To understand the individual
-effect of using a GGA base distribution over standard normals versus more expressive pushforward maps \citep{durkan2019neural}, we also report ablation results where
-normalizing flows are replaced by affine transforms as originally
-proposed in \citep{kucukelbir2017automatic}. All experiments are repeated for 50 trials, trained to convergence using the Adam optimizer with manually tuned learning rate,
-and conducted on i7-8700K CPU and GTX 1080 GPU hardware.
-
-All target distributions in this section are expressed as generative PPL programs:
-Cauchy using a reciprocal normal, Chi2 using a sum of squared normals, IG (Inverse Gamma)
-using a reciprocal exponential, Normal using a sum of normals, and StudentT using a
-normal and Cauchy ratio. Doing so tasks the static analyzer to infer the target's tails and makes the analysis non-trivial.
-See supplementary for full details.
-
-Our results in the following tables share a consistent narrative where a GGA base
-distribution rarely hurts and can significantly help with heavy tailed targets.
-Except for when targets are truly light tailed ($\alpha=\infty$ in Chi2 and Normal),
-GGA-based approximations are the only ones to reproduce appropriate GPD tail index $\hat\alpha$ in density estimation and achieve a passing Pareto $\hat{k}$ diagnostic
-\citep{yao2018yes} below $0.2$ in variational inference. When viewed through traditional
-evaluation metrics such as negative cross-entropy $H(p,q) = E_p \log p(X)$,
-ELBO $E_q \log \frac{q(X)}{p(X)}$,
-and importance-weighted autoencoder bound \citep{burda2015importance} $E_q \log \sum_i^{1000} \frac{p(X)}{q(X)}$, GGA-based approximations remain favorable on almost all heavy-tailed
-targets and have negligible difference for light tailed targets. Less surprising is the result that adding a flow improved approximation metrics, as we expect the additional representation flexibility to be beneficial.
-
-%\feynman{explain the targets, generative and marginalized, reference appendix}
-
-\textbf{Density Estimation} We minimize a Monte-Carlo estimate of the cross entropy $H(p,q) = -E_p[\log q(X)] \approx -\frac{1}{N} \sum_{i=1}^N \log q(x_i),\quad x_i \sim p$.
-The results are shown in \Cref{tab:de} along with power-law tail index estimates \citep{clauset2009power} $\hat\alpha$.
-Overall, we see that GGA performs better (lower NLL, $\hat\alpha$ closer to target) when the target
-has heavier tails (lower $\hat\alpha$ target/theory) and that the difference is smaller but still non-negligible
-for distributions such as Chi1 which possess tails heavier than Gaussian.
-
-\begin{table}[h]
-	\centering
-	\caption{Density estimation metrics attained (mean, standard deviation in parenthesis)
-	on targets of varying tail index (smaller $\alpha =$ heavier tails).
-	Higher negative cross entropy $-H(p,q) = E_p \log q(X)$ implies a better overall approximation (row maxes bolded)
-	while close agreement between the target Pareto tail index $\alpha$ \citep{clauset2009power}
-	and its estimate $\hat\alpha$ in $q(x)$ suggest calibrated tails (closest in row bolded).
-	}
-	\label{tab:de}
-	\input{experiments/de_table.tex}
-\end{table}
-
-\textbf{Variational Inference} The optimization objective is the ELBO
-\[
-    E_q \log \frac{p(X)}{q(X)} \approx \frac{1}{N} \sum_{i=1}^N \log \frac{p(x_i)}{q(x_i)},\quad x_i \sim q
-\]
-Here, the density $p$ must also be evaluated so for simplicity
-experiments in \cref{tab:vi} use closed-form marginalized densities for targets.
-The overall trends also show that GGA yields consistent improvements as measured by both ELBO and importance-weighted
-estimates of marginal likelihood and that the difference was greater when the tails of $p(z)$ were heavier.
-The $\hat{k}$ diagnostics \citep{yao2018yes} corroborate our findings that variational inference succeeds
-($\hat{k} < -1.2$) when a GGA with appropriately matched tails is used and fails ($\hat{k} > 1$) when
-Gaussian tails are erroneously imposed.
-
-\begin{table}[h]
-	\centering
-	\caption{Variational inference metrics (mean, standard deviation in parenthesis)
-	on targets of varying tail index (smaller $\alpha =$ heavier tails). Both the IWAE bound $E_q \log \sum_i^K \frac{p(X_i)}{q(X_i)}$ and the ELBO ($K=1$) measure (a lower bound) on the marginal likelihood where larger is better (row maxes bolded). In \citet{yao2018yes},
-	a Pareto $\hat{k}$ diagnostic $> 0.2$ is interpreted as potentially problematic so only values below are bolded.}
-	\label{tab:vi}
-	\small\input{experiments/vi_table.tex}
-\end{table}
-
-\subsection{SGD for least-squares linear regression}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.32\textwidth]{figures/Kesten_0.40_1.5.png}
-\includegraphics[width=0.32\textwidth]{figures/Kesten_0.50_1.5.png}
-\includegraphics[width=0.32\textwidth]{figures/Kesten_0.50_2.png}
-\caption{\label{fig:SGD}Density of iterates of SGD vs. predicted tail behaviour}
-\end{figure}
-
-For inputs $X$ and labels $Y$ from a dataset $\mathcal{D}$, the least squares estimator for linear regression satisfies $\beta = \min_\beta \tfrac12 \mathbb{E}_{X,Y\sim\mathcal{D}}(Y - X\beta)^2$. To solve for this estimator, one can apply stochastic gradient descent (SGD) sampling over independent $X_k,Y_k\sim \mathcal{D}$ to obtain the sequence of iterations
-\[
-\beta_{k+1} = (I - \delta X_k X_k^\top) \beta_k + \delta Y_k X_k
-\]
-for a step size $\delta > 0$. For large $\delta$, the iterates $\beta_k$ typically exhibit heavy-tailed fluctuations; in this regard, this sequence of iterates has been used as a simple model for more general stochastic optimization dynamics \citep{gurbuzbalaban2021heavy,hodgkinson2021multiplicative}. In particular, generalization performance has been tied to the heaviness of the tails in the iterates \cite{simsekli2019tail}. Here we use our algebra to predict the tail behaviour in a simple one-dimensional setting where $X_k \sim \mathcal{N}(0,\sigma^2)$ and $Y_k \sim \mathcal{N}(0,1)$. From classical theory \citep{buraczewski2016stochastic}, it is known that $X_k$ converges in distribution to a power law with tail exponent $\alpha > 0$ satisfying $\mathbb{E}|1 - \delta X_k^2|^\alpha = 1$. In \cref{fig:SGD}, we plot the density of the representative obtained using our algebra after $10^4$ iterations against a kernel density estimate of the first $10^6$ iterates when $\sigma \in \{0.4,0.5\}$ and $\delta \in \{1.5,2.0\}$. In all cases, the density obtained from the algebra provides a surprisingly close fit. 
 
 \section{Related Work}
 
@@ -528,7 +268,7 @@ due to availability of a PPL compiler and support for static analysis plugins.
 Similar to \citet{bingham2019pyro,siddharth2017learning}, it uses PyTorch \citep{paszke2019pytorch} for GPU tensors and automatic differentiation.
 Synthesizing an approximating distribution during PPL compilation (\Cref{sec:impl}) is
 also performed in the Stan language by \citet{kucukelbir2017automatic} and normalizing
-flow extensions in \citet{webb2019aml}. We compare directly against these related density approximators in \Cref{sec:experiments}.
+flow extensions in \citet{webb2019aml}. We compare directly against these related density approximators in \Cref{sec:hta:experiments}.
 
 \textbf{Static analysis}
 
@@ -559,20 +299,768 @@ abstract syntax tree (AST) representations of a probabilistic program,
 applying GGA yields an upper bound on the tails of all random variables
 so that calibrated tails can be imposed on distribution estimates.
 
-\section{Conclusion}\label{sec:conclusion}
+\section{The Generalized Gamma Algebra}\label{sec:gga}
+
+Here we formulate an algebra of random variables that is closed under most standard elementary operations (addition, multiplication, powers) which forms the foundation for our static analysis.
+
+\begin{definition}\label{def:gg_tail}
+  A random variable $X$ is said to have a \emph{generalized Gamma tail} if the Lebesgue density of $|X|$ satisfies
+  \begin{equation}
+    \label{eq:GenGammaTails}
+    p_{|X|}(x) \sim c x^\nu e^{-\sigma x^\rho}, \qquad \text{as } x \to \infty,
+  \end{equation}
+  for some $c > 0$, $\nu \in \mathbb{R}$, $\sigma > 0$ and $\rho \in \mathbb{R}$. Denote the set of all such random variables by $\mathcal{G}$.
+\end{definition}
+Consider the following equivalence relation on $\mathcal{G}$: $X \equiv Y$ if and only if $0 < p_{|X|}(x) / p_{|Y|}(x) < +\infty$ for all sufficiently large $x$. The resulting equivalence classes can be represented by their corresponding parameters $\nu, \sigma, \rho$, and hence, we denote the class of random variables $X$ satisfying \cref{eq:GenGammaTails} by $(\nu,\sigma,\rho)$. In the special case where $\rho = 0$, for a fixed $\nu < -1$, each class $(\nu,\sigma,0)$ for $\sigma > 0$ is equivalent, and is denoted by $\mathcal{R}_{|\nu|}$, representing \emph{regularly varying} tails. Our algebra operates on these equivalence classes of $\mathcal{G}$, characterizing the change in tail behaviour under various operations.
+
+\begin{table}[t]
+  \centering
+  \bgroup
+  {\small
+    \begin{tabular}{|M{0.15\linewidth} | p{0.75\linewidth}|}
+      \hline
+      \centering \multirow{2}{*}{\textbf{Ordering}}        &
+      $\max\{(\nu_1,\sigma_1,\rho_1),(\nu_2,\sigma_2,\rho_2)\}$                                                                                                                                                                                                                    \\ & $\qquad \equiv \begin{cases}
+          (\nu_1,\sigma_1,\rho_1) & \text{ if } \limsup_{x\to\infty} \frac{x^\nu_1 e^{-\sigma_1 x^{\rho_1}}}{x^\nu_2 e^{-\sigma_2 x^{\rho_2}}} < +\infty \\
+          (\nu_2,\sigma_2,\rho_2) & \text{ otherwise.}
+        \end{cases}$ \\ \hline
+      \centering \multirow{2}{*}{\textbf{Addition}}        & $(\nu_{1},\sigma_{1},\rho_{1})\oplus(\nu_{2},\sigma_{2},\rho_{2})$                                                                                                                                                    \\
+                                                           & $\equiv \begin{cases}
+                                                                         \max\{(\nu_{1},\sigma_{1},\rho_{1}),(\nu_{2},\sigma_{2},\rho_{2})\}                                              & \text{ if }\rho_{1}\neq\rho_{2}\text{ or }\rho_{1},\rho_{2}<1 \\
+                                                                         \left(\nu_{1}+\nu_{2}+1,\min\{\sigma_{1},\sigma_{2}\},1\right)                                                   & \text{ if }\rho_{1}=\rho_{2}=1                                \\
+                                                                         (\nu_{1}+\nu_{2}+\frac{2-\rho}{2},(\sigma_{1}^{-\frac{1}{\rho-1}}+\sigma_{2}^{-\frac{1}{\rho-1}})^{1-\rho},\rho) & \text{ if }\rho=\rho_{1}=\rho_{2}>1.
+                                                                       \end{cases}$
+      \\ \hline
+      \centering \textbf{Powers}                           & $(\nu,\sigma,\rho)^\beta \equiv (\frac{\nu+1}{\beta} - 1,\sigma,\frac{\rho}{\beta})$ for $\beta > 0$                                                                                                                  \\\hline
+      \centering \textbf{Reciprocal*}                      & $(\nu,\sigma,\rho)^{-1} \equiv \begin{cases} (-\nu-2,\sigma,-\rho) & \text{ if } (\nu + 1)/\rho > 0 \text{ and } \rho \neq 0 \\
+              \mathcal{R}_2         & \text{ otherwise}
+                                                                                              \end{cases}$                                                                                          \\ \hline
+      \centering \textbf{Scalar \linebreak Multiplication} & $c(\nu,\sigma,\rho) \equiv (\nu,\sigma/|c|^\rho,\rho)$                                                                                                                                                                \\\hline
+      \multirow{3}{*}{\centering \textbf{Multiplication}}  & $(\nu_{1},\sigma_{1},\rho_{1})\otimes(\nu_{2},\sigma_{2},\rho_{2})$                                                                                                                                                   \\
+                                                           & $\qquad \equiv\begin{cases}
+                                                                               \left(\frac{1}{\mu}\left(\frac{\nu_{1}}{|\rho_{1}|}+\frac{\nu_{2}}{|\rho_{2}|}+\frac{1}{2}\right),\sigma,-\frac{1}{\mu}\right) & \text{ if }\rho_{1},\rho_{2}<0      \\
+                                                                               \left(\frac{1}{\mu}\left(\frac{\nu_{1}}{\rho_{1}}+\frac{\nu_{2}}{\rho_{2}}-\frac{1}{2}\right),\sigma,\frac{1}{\mu}\right)      & \text{ if }\rho_{1},\rho_{2}>0      \\
+                                                                               \mathcal{R}_{|\nu_1|}                                                                                                          & \mbox{ if }\rho_{1}\leq0,\rho_{2}>0 \\
+                                                                               \mathcal{R}_{\min\{|\nu_1|,|\nu_2|\}}                                                                                          & \mbox{ if }\rho_{1}=0,\rho_{2}=0
+                                                                             \end{cases}$                                    \\
+                                                           & where $\mu=\frac{1}{|\rho_{1}|}+\frac{1}{|\rho_{2}|}=\frac{|\rho_{1}|+|\rho_{2}|}{|\rho_{1}\rho_{2}|}$, $\sigma=\mu(\sigma_{1}|\rho_{1}|)^{\frac{1}{\mu|\rho_{1}|}}(\sigma_{2}|\rho_{2}|)^{\frac{1}{\mu|\rho_{2}|}}$. \\ \hline
+      \centering \textbf{Product of Densities}             & $(\nu_1,\sigma_1,\rho_1)\&(\nu_2,\sigma_2,\rho_2)
+      \equiv \begin{cases}
+                 (\nu_{1}+\nu_{2},\sigma_{1},\rho_{1})        & \text{ if }\rho_{1}<\rho_{2}      \\
+                 (\nu_{1}+\nu_{2},\sigma_{1}+\sigma_{2},\rho) & \text{ if }\rho=\rho_{1}=\rho_{2} \\
+                 (\nu_{1}+\nu_{2},\sigma_{2},\rho_{2})        & \text{ otherwise.}
+               \end{cases}$                                                                                                                                                                                      \\ \hline
+      \centering \textbf{Functions ($L$-Lipschitz)}        &
+      $f(X_1,\dots,X_n) \equiv L \max\{X_1,\dots,X_n\}$                                                                                                                                                                                                                            \\ \hline
+    \end{tabular}
+  }
+  \vspace{.25cm}
+  \caption{\label{tab:gga_operations}Operations on random variables (e.g.$X_1 + X_2$) are
+    viewed as actions on density functions
+    (e.g. convolution $(\nu_1, \sigma_1, \rho_1)\oplus (\nu_2, \sigma_2, \rho_2)$) and the tail parameters of the result are analyzed and reported.}
+  \egroup
+\end{table}
+
+The form of \cref{eq:GenGammaTails} and the name of the algebra is derived from the generalized Gamma distribution.
+\begin{definition}
+  Let $\nu \in \mathbb{R}$, $\sigma > 0$, and $\rho \in \mathbb{R} \backslash \{0\}$ be such that $(\nu+1)/ \rho > 0$.
+  A non-negative random variable $X$ is \emph{generalized Gamma distributed} with parameters $\nu,\sigma,\rho$ if it has Lebesgue density
+  \begin{equation}
+    \label{eq:GenGammaDensity}
+    p_{\nu,\sigma,\rho}(x) = c_{\nu,\sigma,\rho} x^\nu e^{-\sigma x^\rho},\qquad x > 0,
+  \end{equation}
+  where $c_{\nu,\sigma,\rho} = \rho \sigma^{(\nu+1)/\rho} / \Gamma((\nu+1)/\rho)$ is the normalizing constant. %The generalized Gamma density incorporates many other well-known densities, including that of the Gamma distribution ($\rho = 1$), and the Frechet/Weibull distribution ($\nu = \rho - 1$). 
+\end{definition}
+The importance of the generalized Gamma form arises due to a combination of two factors:
+\begin{enumerate}[label={(\roman*)},leftmargin=*]
+  \item The majority of interesting continuous univariate distributions with infinite support satisfy \cref{eq:GenGammaTails}, including
+        Gaussians ($\nu=0$, $\rho=2$),
+        gamma/exponential/chi-squared ($\nu > -1$, $\rho=1$), Weibull/Frechet ($\rho = \nu + 1$), and
+        Student $T$/Cauchy/Pareto ($\mathcal{R}_\nu$).
+        However, some notable exceptions include the log-normal distributions.
+  \item The set $\mathcal{G}$ is known to be closed under additive convolution, positive powers, and Lipschitz functions --- we will show it is closed under multiplicative convolution as well. This covers the majority of elementary operations on independent random variables, with reciprocals, exponentials and logarithms the only exceptions. However, we will introduce a few ``tricks'' to handle these cases as well.
+\end{enumerate}
+The full list of operations in GGA is compiled in \cref{tab:gga_operations}. All operations in the GGA can be proven to exhibit identical behaviour with their corresponding operations on random variables, with the sole exception of reciprocals (marked by asterisk), where additional assumptions are required.
+
+%To incorporate tails which lie outside of $\mathcal{G}$, we let $\mathcal{R}_1$ incorporate \emph{super-heavy tails}, which denote random variables with tails heavier than any random variable in $\mathcal{G}$. All operations remain consistent with this notation. Likewise, we let $\mathcal{L}$ denote \emph{super-light tails}, which are treated in our algebra as a class where $\rho = +\infty$ (effectively constants).
+
+% \paragraph{Exponential and Logarithm.} Tails of the generalized Gamma form are not closed under exponentiation or logarithms. Indeed, if both $X$ and $\exp X$ have generalized Gamma tails, then $X$ is exponentially distributed (and $\exp X$ has power law tails). As a workaround, we can consider an upper bound on the tail by projecting onto the nearest possible exponentially distributed / power law tail. If $\rho > 1$, then a change of variables shows the density of $\exp X$ satisfies
+% \[
+% p_{\exp X}(x) \sim \frac{c}{x}(\log x)^{\nu}\exp\left(-\sigma(\log x)^{\rho}\right)\leq\frac{\tilde{c}}{x}\exp\left(-\sigma(\log x)\right)=cx^{-\sigma-1},\,\mbox{ as }x \to \infty.
+% \]
+% The inverse of this operation sends $\mathcal{R}_{\sigma+1}$ to $(0,\sigma,1)$. With this in mind, we define the exponential and logarithmic operations according to the following: $\exp (\nu, \sigma, \rho) \equiv \mathcal{R}_{\sigma+1}$ if $\rho \geq 1$, otherwise $\mathcal{R}_1$; $\log (\nu, \sigma, \rho) \equiv (0, |\nu|-1, 1)$ if $\nu < -1$ and $\rho \leq 0$, otherwise $\mathcal{L}$.
+
+\subsection{Illustrative examples}\label{sec:addtl_eg}
+
+To further illustrate the GGA through example, in this section we work
+out explicit GGA computations using distributions
+from \cref{tab:dist_list} and operations in \cref{tab:gga_operations}
+and recover some common probability identities.
+
+\begin{example}[Chi-squared random variables]
+  Let $X_1,\dots,X_k$ be $k$ independent standard normal random variables. The variable $Z = \sum_{i=1}^k X_i^2$ is \emph{chi-squared distributed} with $k$ degrees of freedom. Using the generalized Gamma algebra, we can accurately determine the tail behaviour of this random variable directly from its construction. Recall that each $X_i \equiv (0,1/2,2)$, and by the power operation, $X_i^2 \equiv (-1/2,1/2,1)$. Applying the addition operation $k$ times reveals that $Z \equiv (k/2-1,1/2,1)$ and implies that the density of $Z$ is asymptotically $c x^{k/2-1} e^{-x / 2}$ as $x \to \infty$. In fact, the density of $Z$ is exactly $p_Z(x) = c_k x^{k/2-1} e^{-x/2}$ where $c_k = 2^{-k/2} / \Gamma(k/2)$.
+\end{example}
+
+\begin{example}[Products of random variables]
+  To demonstrate the efficacy of the multiplication operation in our algebra, we consider the product of two exponential, Gaussian, and reciprocal Gaussian random variables. In \cref{sec:proofs}, we manually prove the following.
+  \begin{lemma}
+    \label{lem:Products}
+    Let $X_1,X_2 \sim \mbox{Exp}(\lambda)$ and $Z_1,Z_2 \sim \mathcal{N}(0,1)$ be independent. The densities of $X_1 X_2$, $Z_1 Z_2$ and $Z = 1/Z_1 \cdot 1/Z_2$ satisfy as $x \to \infty$,
+    \[
+      p_{X_1 X_2}(x) \sim \frac{\lambda^{3/2}\sqrt{\pi}}{x^{1/4}} e^{-2\lambda \sqrt{x}},\quad p_{Z_1 Z_2}(x) \sim \frac{1}{\sqrt{2\pi x}} e^{-x},\quad
+      p_{Z}(x) \sim \frac{1}{\sqrt{2\pi}|z|^{3/2}}e^{-1/|z|}.
+    \]
+  \end{lemma}
+  With ease, our algebra correctly determines that $X_1 X_2 \equiv (-\frac14,2\lambda,\frac12)$, $Z_1 Z_2 \equiv (-\frac12, 1, 1)$ and $Z \equiv (-\frac32,1,-1)$.
+  % Recall that the Bessel $K$-function of zeroth order, denoted $K_0$, is given by the Fourier transform $K_0(x) = \frac12 \int_{-\infty}^{\infty} e^{ixt} (1+t^2)^{-1/2} \dd t$. This function behaves as $x \to \infty$ as $K_{0}(x)\sim\sqrt{\frac{\pi}{2x}}e^{-x}$. Let $X_1,X_2 \sim \mathrm{Exp}(\lambda)$ be two independent exponentially distributed variables. The density of the product $Z = X_1 X_2$ is given by 
+  % \[
+  % p_Z(x) = 2\lambda^{2}K_{0}(2\lambda\sqrt{z})\sim\lambda^{3/2}\sqrt{\pi}z^{-1/4}e^{-2\lambda\sqrt{z}}.
+  % \]
+  % This tail behaviour can be obtained using our algebra as follows: 
+  % The density of
+  % \[
+  % p_Z(x) = \frac1\pi K_0(|x|) \sim \frac{1}{\sqrt{2\pi x}} e^{-x},\qquad \mbox{as }x \to \infty.
+  % \]
+\end{example}
+
+
+\begin{example}[Reciprocal distributions]
+  Perhaps the most significant challenge with a tail algebra is correctly identifying the tail behaviour of reciprocal distributions. Here, we test the efficacy of our formulation with known reciprocal distributions.
+  \begin{itemize}
+    \item \emph{Reciprocal normal:} $X \sim \mathcal{N}(0,1) \equiv (0,1/2,2)$, and $X^{-1} \equiv (-2,1/2,-2)$.
+    \item \emph{Inverse exponential:} $X \sim \text{Exp}(\lambda) \equiv (0,\lambda,1)$, and $X^{-1} \equiv (-2,\lambda,-1)$.
+    \item \emph{Inverse $t$-distribution:} $X \equiv \mathcal{R}_\nu$, and $X^{-1} \equiv \mathcal{R}_2$.
+    \item \emph{Inverse Cauchy:} $X \equiv \mathcal{R}_2$, it is known $X^{-1}$
+          has the same distribution and our theory predicts $X^{-1} \equiv \mathcal{R}_2$.
+  \end{itemize}
+\end{example}
+
+\begin{example}[Cauchy distribution]
+  A simple special case of the Student $T$ distribution is the Cauchy distribution, which arises as the ratio of two standard normal random variables. For $X\sim\mathcal{N}(0,1)$, $X \equiv (0,1/2,2)$ and $X^{-1} \equiv (-2,1/2,-2)$. %The reciprocal of a standard normal random variable $X \equiv (0,1/2,2)$ satisfies $X^{-1} \equiv (-2,1/2,-2)$. 
+  Hence, the multiplication operation correctly predicts that the ratio of two standard normal random variables is in $\mathcal{R}_2$.
+\end{example}
+
+
+\begin{example}[Student $T$ distribution]
+  Let $X$ be a standard normal random variable, and $V$ a chi-squared random variable with $\nu$ degrees of freedom. The random variable $T = X / \sqrt{V / \nu}$ is \emph{$t$-distributed} with $\nu$ degrees of freedom. Since $V \equiv (\nu/2-1,1/2,1)$, multiplying by the constant $1/\nu$ reveals $V / \nu \equiv (\nu/2-1,1/(2\nu),1)$. Applying the square root operation, $\sqrt{V / \nu} \equiv (\nu-1,1/(2\nu),2)$. To compute the division operation, we first take the reciprocal to find $(V/\nu)^{-1/2} \equiv (-\nu-1,1/(2\nu),-2)$. Finally, since $\rho = -2 < 1$ for this random variable, the multiplication operation with $X \equiv (0,1/2,2)$ yields $T \equiv \mathcal{R}_{\nu+1}$, and so the density of $T$ is asymptotically $c x^{-\nu-1}$ as $x \to \infty$.
+  Indeed, the density of $T$ satisfies $p_T(x) = c_\nu (1 + x^2 / \nu)^{-(\nu+1)/2}$ where $c_\nu = \Gamma(\frac{\nu+1}{2})/\Gamma(\frac{\nu}{2}) (\nu\pi)^{-1/2}$, which exhibits the predicted tail behaviour.
+\end{example}
+
+
+\begin{example}{Log-normal distribution}
+  Although the log-normal distribution does not lie in $\mathcal{G}$, the existence of log-normal tails arising from the multiplicative central limit theorem is suggested by our algebra. Let $X_1,X_2,\dots$ be independent standard normal random variables and let $Z_k = X_1\cdots X_{2^k}$ for each $k=1,2,\dots$. By the multiplicative central limit theorem, letting $\tau = \exp(\mathbb{E}\log |X_i|) \approx 1.13$, $\left(\frac{X_{1}\cdots X_{n}}{\tau}\right)^{1/\sqrt{n}}$ converges in distribution as $n\to\infty$ to a log-normal random variable $Z$ with density
+  \[
+    p_Z(x) = \frac{1}{x\sqrt{2\pi}} \exp(-\tfrac12 (\log x)^2).
+  \]
+  Therefore, the same is true for $V_k = (Z_k / \tau)^{2^{-k/2}}$. Using our algebra, we will attempt to reproduce the tail of this density. Letting $\tilde{Z}_k = X_{2^k} \cdots X_{2^{k+1}}$, we see that $Z_{k+1} = Z_k \tilde{Z}_k$, and $Z_k,\tilde{Z}_k$ are iid. Let $Z_k \equiv (\nu_k, \sigma_k, \rho_k)$, by induction using the multiplication operation, we find that $\nu_{k+1} ~=~\frac{1}{\mu}\left(\frac{2\nu_{k}}{\rho_{k}}-\frac{1}{2}\right)=\nu_{k}-\frac{\rho_{k}}{4}$, $\sigma_{k+1}=\mu\left(\sigma_{k}\rho_{k}\right)^{\frac{2}{\mu\rho_{k}}}=\frac{2}{\rho_{k}}\left(\sigma_{k}\rho_{k}\right)=2\sigma_{k}$, and $\rho_{k+1}=\frac{1}{\mu}=\frac{\rho_{k}}{2}$.
+  Since $\rho_0 = 2$, $\sigma_0 = 1/2$, and $\nu_0 = 0$, we find that $\rho_k = 2^{1-k}$ and $\sigma_k = 2^{k-1}$. Furthermore, $\nu_{k+1} = \nu_k - 2^{-k-1}$ and so $\nu_k = -1 + 2^{-k}$. Therefore $Z_k \equiv (-1+2^{-k},2^{k-1},2^{1-k})$, and
+  \[
+    V_k \equiv (-1+2^{-k/2},2^{k-1}\tau^{-2^{1-k}},2^{1-k/2}),
+  \]
+  and letting $\epsilon_k = 2^{-k/2}$, the tail behaviour of the density of $V_k$ satisfies
+  \begin{align*}
+    p_k(x) & \sim c_k x^{-1+\epsilon_{k}}\exp\left(-\frac{\epsilon_{k}^{-2}}{2\tau^{-2\epsilon_{k}^{2}}}x^{2\epsilon_k}\right) \\& \sim c_k x^{-1+\epsilon_{k}}\exp\left(-\frac{1}{2\tau^{-2\epsilon_{k}^{2}}}\left(\frac{x^{\epsilon_{k}}-1}{\epsilon_{k}}\right)^{2}\right) \approx c_k x^{-1}\exp\left(-\frac{1}{2}(\log x)^2\right),
+  \end{align*}
+  as $x \to \infty$, where the approximation improves as $k$ gets larger. The quality of this approximation is shown in \cref{fig:lognormal}.
+\end{example}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.4\textwidth]{figures/LogNormal_Bulk.png}
+  \includegraphics[width=0.4\textwidth]{figures/LogNormal_Tail.png}
+  \caption{Estimation of the log-normal density by tail algebra applied to $V_k$.}
+  \label{fig:lognormal}
+\end{figure}
+
+\subsection{Operations in the Generalized Gamma Algebra}
+
+Whereas \cref{tab:gga_operations} provides a summary of our theory useful
+for referencing, in this section we provide additional explanation and references
+for how operations on random variables affect their GGA tails.
+
+\paragraph{Ordering.} A total ordering is imposed on the equivalence classes of $\mathcal{G}$ according to the heaviness of tails. In particular, we say that $(\nu_1,\sigma_1,\rho_1) \leq (\nu_2,\sigma_2,\rho_2)$ if $(x^{\nu_1} e^{-\sigma_1 x^{\rho_1}}) / (x^{\nu_2} e^{-\sigma_2 x^{\rho_2}})$ is bounded as $x \to \infty$. As usual, we say $(\nu_1,\sigma_1,\rho_1) < (\nu_2,\sigma_2,\rho_2)$ if $(\nu_1,\sigma_1,\rho_1) \leq (\nu_2,\sigma_2,\rho_2)$ but $(\nu_1,\sigma_1,\rho_1) \not\equiv (\nu_2,\sigma_2,\rho_2)$.
+
+%\paragraph{Multiplication by a Constant.} 
+
+\paragraph{Addition.} Tails of this form are  closed under addition. Combining subexponentiality for $\rho < 1$
+%Any random variable $X$ in $(\nu,\sigma,\rho)$ for $\rho < 1$ is subexponential 
+\cite[Chapter X.1]{asmussen2010ruin},
+%that is, any sum of iid copies of $X$ asymptotically saturates the union bound: $\mathbb{P}\left(\sum_{i=1}^{n}X_{i}>x\right)\sim\sum_{i=1}^{n}\mathbb{P}(X_{i}>x)$ as $x \to \infty$. Combining this
+with \cite[Thm 3.1 \& eqn. (8.3)]{asmussen2017tail},
+\begin{proposition}
+  \label{prop:gga_add}
+  Denoting the addition of random variables (additive convolution of densities) by $\oplus$,
+  \begin{multline}
+    (\nu_{1},\sigma_{1},\rho_{1})\oplus(\nu_{2},\sigma_{2},\rho_{2})
+    \\\equiv \begin{cases}
+      \max\{(\nu_{1},\sigma_{1},\rho_{1}),(\nu_{2},\sigma_{2},\rho_{2})\}                                              & \text{ if }\rho_{1}\neq\rho_{2}\text{ or }\rho_{1},\rho_{2}<1 \\
+      \left(\nu_{1}+\nu_{2}+1,\min\{\sigma_{1},\sigma_{2}\},1\right)                                                   & \text{ if }\rho_{1}=\rho_{2}=1                                \\
+      (\nu_{1}+\nu_{2}+1-\frac{\rho}{2},(\sigma_{1}^{-\frac{1}{\rho-1}}+\sigma_{2}^{-\frac{1}{\rho-1}})^{1-\rho},\rho) & \text{ if }\rho=\rho_{1}=\rho_{2}>1.
+    \end{cases}
+  \end{multline}
+\end{proposition}
+
+\paragraph{Powers.} For all exponents $\beta > 0$, by invoking a change of variables $x \mapsto x^\beta$, it is easy to show that
+%\begin{equation}
+%\label{eq:PowerEqn}
+$(\nu, \sigma, \rho)^\beta \equiv  \left(\frac{\nu+1}{\beta}-1, \sigma, \frac{\rho}\beta\right).$
+%\end{equation}
+%\paragraph{Reciprocals.}
+We \emph{define} negative powers and reciprocals equivalently to positive powers in the case $\beta < 0$. This equivalence cannot be proven to hold in general since we cannot determine tail asymptotics of the reciprocal without knowledge of its behaviour around zero. Therefore, we implicitly assume that the behaviour around zero mimics the tail behaviour, that is, \cref{eq:GenGammaTails} holds as $x \to 0^+$. However, this can only hold provided $(\nu + 1)/\rho > 0$ and $\rho \neq 0$. In all other cases, including $\mathcal{R}_\nu$, we assume that the density of $X$ approaches a nonzero value near zero, and define the reciprocal to be $\mathcal{R}_{2}$. %By assuming $p_X(x) \to \tilde{c} x^\nu e^{-\sigma x^\rho}$ as $x \to 0^+$, then \cref{eq:PowerEqn} also holds for $\beta < 0$.
+
+\paragraph{Multiplication.}
+For any $c \in \mathbb{R} \backslash \{0\}$, it can be readily seen from a change of variables $x \mapsto c x$ that $c (\nu, \sigma, \rho) = (\nu, \sigma / |c|^\rho, \rho)$. The class $\mathcal{G}$ is also closed under multiplication (assuming independence of random variables), as we show in the following result --- the proof is delayed to Appendix C.
+\begin{proposition}
+  \label{prop:Mult}
+  Denoting the multiplication of independent random variables (multiplicative convolution) by $\otimes$,
+  \[
+    (\nu_{1},\sigma_{1},\rho_{1})\otimes(\nu_{2},\sigma_{2},\rho_{2})
+    \equiv\begin{cases}
+      \left(\frac{1}{\mu}\left(\frac{\nu_{1}}{|\rho_{1}|}+\frac{\nu_{2}}{|\rho_{2}|}+\frac{1}{2}\right),\sigma,-\frac{1}{\mu}\right) & \text{ if }\rho_{1},\rho_{2}<0      \\
+      \left(\frac{1}{\mu}\left(\frac{\nu_{1}}{\rho_{1}}+\frac{\nu_{2}}{\rho_{2}}-\frac{1}{2}\right),\sigma,\frac{1}{\mu}\right)      & \text{ if }\rho_{1},\rho_{2}>0      \\
+      \mathcal{R}_{|\nu_1|}                                                                                                          & \mbox{ if }\rho_{1}\leq0,\rho_{2}>0 \\
+      \mathcal{R}_{\min\{|\nu_1|,|\nu_2|\}}                                                                                          & \mbox{ if }\rho_{1}=0,\rho_{2}=0
+    \end{cases}
+  \]
+  where $\mu=\frac{1}{|\rho_{1}|}+\frac{1}{|\rho_{2}|}=\frac{|\rho_{1}|+|\rho_{2}|}{|\rho_{1}\rho_{2}|}$ and $\sigma=\mu(\sigma_{1}|\rho_{1}|)^{\frac{1}{\mu|\rho_{1}|}}(\sigma_{2}|\rho_{2}|)^{\frac{1}{\mu|\rho_{2}|}}$.
+\end{proposition}
+% \begin{proof}
+% Appendix C.
+% \end{proof}
+
+%\feynman{I added this back; we need it for the StudentT example but this result currently doesn't give what we need}
+%The next binary operation of interest is \emph{multiplication}. Using Cauchy's inequality, we can adopt the naive
+%\[
+%X \cdot Y \equiv \max\{X^2, Y^2\}.
+%\]
+%In the case where $X,Y \in \mathcal{E}$, this turns out to be reasonable. However, for any other use case, Breiman's lemma suggests that $X \cdot Y \equiv \max\{X, Y\}$. \todo{Perform Tauberian analysis to determine sharpness of these operations}.
+
+
+\paragraph{Product of Densities.}
+
+We can also consider a product of densities operation acting on two random variables $X,Y$, denoted $X \& Y$, by
+$p_{X \& Y}(x) = c p_X(x) p_Y(x)$,
+where $c > 0$ is an appropriate normalizing constant and $p_X,p_Y,p_{X\& Y}$ are the densities of $X$, $Y$, and $X \& Y$, respectively. In terms of the equivalence classes:
+\[
+  (\nu_1,\sigma_1,\rho_1)\&(\nu_2,\sigma_2,\rho_2)
+  \equiv \begin{cases}
+    (\nu_{1}+\nu_{2},\sigma_{1},\rho_{1})        & \text{ if }\rho_{1}<\rho_{2}      \\
+    (\nu_{1}+\nu_{2},\sigma_{1}+\sigma_{2},\rho) & \text{ if }\rho=\rho_{1}=\rho_{2} \\
+    (\nu_{1}+\nu_{2},\sigma_{2},\rho_{2})        & \text{ otherwise.}
+  \end{cases}
+\]
+Note that this particular operation does not require either $p_X$ or $p_Y$ to be normalized --- only the tail behaviour is needed. We may also use this to work out the tail behaviour of a posterior density, provided the tail behaviour of the likelihood in the parameters is known.
+
+\paragraph{Lipschitz Functions.}
+
+There are many multivariate functions that cannot be readily represented in terms of the operations covered thus far. For these, it is important to specify the tail behaviour of pushforward measures under Lipschitz-continuous functions. Fortunately, this is covered by \cref{lem:lipschitz} below, presented in \cite[Proposition 1.3]{ledoux2001concentration}.
+H\"{o}lder-continuous functions can also be represented as a composition of a power operation and a Lipschitz-continuous function.
+\begin{lemma}\label{lem:lipschitz}
+  For any Lipschitz continuous function $f:\mathbb{R}^d \to \mathbb{R}$ satisfying $\|f(x)-f(y)\|\leq L\|x -y\|$ for $x,y \in \mathbb{R}^d$, there is $f(X_1,\dots,X_d) \equiv L \max\{X_1,\dots,X_d\}.$
+\end{lemma}
+
+\paragraph{Power Law Approximation.} Note that as $x \to \infty$, $p_{|X|}(x) \sim c x^\nu e^{-\sigma x^\rho} = \tilde{c}x^\nu e^{-\sigma\rho\frac{x^\rho - 1}{\rho}} \approx \tilde{c} x^\nu e^{-\sigma\rho \log x}$
+\[
+  p_{|X|}(x) \sim c x^\nu e^{-\sigma x^\rho} = \tilde{c} x^\nu e^{-\sigma(x^\rho - 0)} = \tilde{c} x^\nu e^{-\sigma\rho\frac{x^\rho - 1}{\rho}} \approx \tilde{c} x^\nu e^{-\sigma\rho \log x} = \tilde{c} x^{\nu-\sigma \rho},
+\]
+where we have used the approximation $\log x = \rho^{-2}(x^\rho - 1) + \mathcal{O}(\rho^2)$. Consequently, we can represent tails of this form by the Student $t$ distribution with $|\nu-\sigma\rho|-1$ degrees of freedom. In practice, we find this approximation tends to \emph{overestimate} the heaviness of the tail. Alternatively, the generalized Gamma density (\ref{eq:GenGammaDensity}) satisfies $\mathbb{E}X^r = \sigma^{-r/\rho} \Gamma(\frac{\nu+1+r}{\rho})/\Gamma(\frac{\nu+1}{\rho})$ for $r > 0$. Let $\alpha > 0$ be such that $\mathbb{E}X^\alpha = 2$. By Markov's inequality, the tail of $X$ satisfies $\mathbb{P}(X>x)\leq 2 x^{-\alpha}$. Therefore, we can represent tails of this form by the Student $t$ distribution with $\alpha+1$ degrees of freedom (generate $X \sim t_{\alpha}$). In practice, we find this approximation to be more accurate, and is hence used in Section 4.1.
+
+\subsection{List of univariate distributions}
+
+Here we provide an enumeration of common parametric distributions and their
+corresponding GGA parameterizations.
+
+  {\small
+    \bgroup
+    \def\arraystretch{2}
+    \begin{longtable}{|c|c|c|c|}
+      \caption{List of univariate distributions}\label{tab:dist_list}                                                                                                                                                                                                                                                                         \\
+      \hline
+      Name                                                                  & Support                                                 & Density $p(x)$                                                                                                                  & Class\tabularnewline
+      \hline
+      \hline
+      Benktander Type II                                                    & $(0,\infty)$                                            & $e^{\frac{a}{b}(1-x^{b})}x^{b-2}(ax^{b}-b+1)$                                                                                   & $(2b-2,\frac{a}{b},b)$\tabularnewline
+      \hline
+      Beta prime distribution                                               & $(0,\infty)$                                            & $\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}x^{\alpha-1}(1+x)^{-\alpha-\beta}$                                     & $\mathcal{R}_{\beta+1}$\tabularnewline
+      \hline
+      Burr distribution                                                     & $(0,\infty)$                                            & $ckx^{c-1} (1+x^{c})^{-k-1}$                                                                                                    & $\mathcal{R}_{ck+1}$\tabularnewline
+      \hline
+      Cauchy distribution                                                   & $(-\infty,\infty)$                                      & $(\pi\gamma)^{-1}\left[1+\left(\frac{x-x_{0}}{\gamma}\right)^{2}\right]^{-1}$                                                   & $\mathcal{R}_{2}$\tabularnewline
+      \hline
+      Chi distribution                                                      & $(0,\infty)$                                            & $\frac{1}{2^{k/2-1}\Gamma(k/2)}x^{k-1}e^{-x^{2}/2}$                                                                             & $(k-1,\frac{1}{2},2)$\tabularnewline
+      \hline
+      Chi-squared distribution                                              & $(0,\infty)$                                            & $\frac{1}{2^{k/2}\Gamma(k/2)}x^{\frac{k}{2}-1}e^{-x/2}$                                                                         & $(\frac{k}{2}-1,\frac{1}{2},1)$\tabularnewline
+      \hline
+      Dagum distribution                                                    & $(0,\infty)$                                            & $\frac{ap}{x}\left(\frac{x}{b}\right)^{ap}\left(\left(\frac{x}{b}\right)^{a}+1\right)^{-p-1}$                                   & $\mathcal{R}_{a+1}$\tabularnewline
+      \hline
+      Davis distribution                                                    & $(0,\infty)$                                            & $\propto(x-\mu)^{-1-n}/\left(e^{\frac{b}{x-\mu}}-1\right)$                                                                      & $(-1-n,b,-1)$\tabularnewline
+      \hline
+      Exponential distribution                                              & $(0,\infty)$                                            & $\lambda e^{-\lambda x}$                                                                                                        & $(0,\lambda,1)$\tabularnewline
+      \hline
+      $F$ distribution                                                      & $(0,\infty)$                                            & $\propto x^{d_{1}/2-1}(d_{1}x+d_{2})^{-(d_{1}+d_{2})/2}$                                                                        & $\mathcal{R}_{d_{2}/2+1}$\tabularnewline
+      \hline
+      Fisher $z$-distribution                                               & $(-\infty,\infty)$                                      & $\propto\frac{e^{d_{1}x}}{(d_{1}e^{2x}+d_{2})^{(d_{1}+d_{2})/2}}$                                                               & $(0,d_{2},1)$\tabularnewline
+      \hline
+      Frechet distribution                                                  & $(0,\infty)$                                            & $\frac{\alpha}{\lambda}\left(\frac{x-m}{\lambda}\right)^{-1-\alpha}e^{-\left(\frac{x-m}{\lambda}\right)^{-\alpha}}$             & $(-1-\alpha,\lambda^{\alpha},-\alpha)$\tabularnewline
+      \hline
+      Gamma distribution                                                    & $(0,\infty)$                                            & $\frac{\beta^{\alpha}}{\Gamma(\alpha)}x^{\alpha-1}e^{-\beta x}$                                                                 & $(\alpha-1,\beta,1)$\tabularnewline
+      \hline
+      Gamma/Gompertz distribution                                           & $(0,\infty)$                                            & $bse^{bx}\beta^{s}/(\beta-1+e^{bx})^{s+1}$                                                                                      & $(0,bs,1)$\tabularnewline
+      \hline
+      Gen. hyperbolic distribution                                          & $(-\infty,\infty)$                                      & $\propto e^{\beta(x-\mu)}\frac{K_{\lambda-1/2}(\alpha\sqrt{\delta^{2}+(x-\mu)^{2}})}{(\delta^{2}+(x-\mu)^{2})^{1/4-\lambda/2}}$ & $(\lambda-1,\alpha-\beta,1)$\tabularnewline
+      \hline
+      Gen. Normal distribution                                              & $(-\infty,\infty)$                                      & $\frac{\beta}{2\alpha\Gamma(1/\beta)}\exp\left(-\left(\frac{|x-\mu|}{\alpha}\right)^{\beta}\right)$                             & $(0,\alpha^{-\beta},\beta)$\tabularnewline
+      \hline
+      Geometric stable distribution                                         & $(-\infty,\infty)$                                      & no closed form                                                                                                                  & $\mathcal{R}_{\alpha+1}$\tabularnewline
+      \hline
+      Gompertz distribution                                                 & $(0,\infty)$                                            & $\sigma \eta \exp(\eta + \sigma x - \eta e^{\sigma x})$                                                                         & $\mathcal{L}$\tabularnewline
+      \hline
+      Gumbel distribution                                                   & $(0,\infty)$                                            & $\beta^{-1} e^{-(\beta^{-1}(x-\mu)+e^{-\beta^{-1}(x-\mu)})}$                                                                    & $(0,\frac{1}{\beta},1)$\tabularnewline
+      \hline
+      Gumbel Type II distribution                                           & $(0,\infty)$                                            & $\alpha\beta x^{-\alpha-1}e^{-\beta x^{-\alpha}}$                                                                               & $(-\alpha-1,\beta,-\alpha)$\tabularnewline
+      \hline
+      Holtsmark distribution                                                & $(-\infty,\infty)$                                      & no closed form                                                                                                                  & $\mathcal{R}_{5/2}$\tabularnewline
+      \hline
+      Hyperbolic secant distribution                                        & $(-\infty,\infty)$                                      & $\frac{1}{2}\text{sech}\left(\frac{\pi x}{2}\right)$                                                                            & $(0,\frac{\pi}{2},1)$\tabularnewline
+      \hline
+      Inv. chi-squared distribution                                         & $(0,\infty)$                                            & $\frac{2^{-k/2}}{\Gamma(k/2)}x^{-k/2-1}e^{-1/(2x)}$                                                                             & $(-\frac{k}{2}-1,\frac{1}{2},-1)$\tabularnewline
+      \hline
+      Inv. gamma distribution                                               & $(0,\infty)$                                            & $\frac{\beta^{\alpha}}{\Gamma(\alpha)}x^{-\alpha-1}e^{-\beta/x}$                                                                & $(-\alpha-1,\beta,-1)$\tabularnewline
+      \hline
+      Levy distribution                                                     & $(0,\infty)$                                            & $\sqrt{\frac{c}{2\pi}}(x-\mu)^{-3/2}e^{-\frac{c}{2(x-\mu)}}$                                                                    & $(-\frac{3}{2},\frac{c}{2},-1)$\tabularnewline
+      \hline
+      Laplace distribution                                                  & $(-\infty,\infty)$                                      & $\frac{1}{2\lambda}\exp\left(-\frac{|x-\mu|}{\lambda}\right)$                                                                   & $(0,\frac{1}{\lambda},1)$\tabularnewline
+      \hline
+      Logistic distribution                                                 & $(-\infty,\infty)$                                      & $\frac{e^{-(x-\mu)/\lambda}}{\lambda(1+e^{-(x-\mu)/\lambda})^{2}}$                                                              & $(0,\frac{1}{\lambda},1)$\tabularnewline
+      \hline
+      Log-Cauchy distribution                                               &
+      $(0,\infty)$                                                          & $\frac{\sigma}{x\pi}((\log x - \mu)^2 + \sigma^2)^{-1}$ & $\mathcal{R}_1$\tabularnewline
+      \hline
+      Log-Laplace distribution                                              & $(0,\infty)$                                            & $\frac{1}{2\lambda x}\exp\left(-\frac{\left|\log x-\mu\right|}{\lambda}\right)$                                                 & $\mathcal{R}_{1/\lambda+1}$\tabularnewline
+      \hline
+      Log-logistic distribution                                             & $(0,\infty)$                                            & $\frac{\beta}{\alpha}\left(\frac{x}{\alpha}\right)^{\beta-1}\left(1+\left(\frac{x}{\alpha}\right)^{\beta}\right)^{-2}$          & $\mathcal{R}_{\beta+1}$\tabularnewline
+      \hline
+      Log-$t$ distribution                                                  &
+      $(0,\infty)$                                                          &
+      $\propto x^{-1} (1 + \frac1{\nu}(\log x - \mu)^2)^{-\frac{\nu+1}{2}}$ & $\mathcal{R}_1$\tabularnewline
+      \hline
+      Lomax distribution                                                    & $(0,\infty)$                                            & $\frac{\alpha}{\lambda}\left(1+\frac{x}{\lambda}\right)^{-\alpha-1}$                                                            & $\mathcal{R}_{\alpha+1}$\tabularnewline
+      \hline
+      Maxwell-Boltzmann distribution                                        & $(0,\infty)$                                            & $\sqrt{\frac{2}{\pi}}\frac{x^{2}e^{-x^{2}/(2\sigma^{2})}}{\sigma^{3}}$                                                          & $(2,\frac{1}{2\sigma^{2}},2)$\tabularnewline
+      \hline
+      Normal distribution                                                   & $(-\infty,\infty)$                                      & $\frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{1}{2}(\frac{x-\mu}{\sigma})^{2}}$                                                         & $(0,\frac{1}{2\sigma^{2}},2$)\tabularnewline
+      \hline
+      Pareto distribution                                                   & $(x_{0},\infty)$                                        & $\alpha x_{0}^{\alpha}x^{-\alpha-1}$                                                                                            & $\mathcal{R}_{\alpha+1}$\tabularnewline
+      \hline
+      Rayleigh distribution                                                 & $(0,\infty)$                                            & $\frac{x}{\sigma^{2}}e^{-x^{2}/(2\sigma^{2})}$                                                                                  & $(1,\frac{1}{2\sigma^{2}},2)$\tabularnewline
+      \hline
+      Rice distribution                                                     & $(0,\infty)$                                            & $\frac{x}{\sigma^{2}}\exp\left(-\frac{(x^{2}+\nu^{2})}{2\sigma^{2}}\right)I_{0}\left(\frac{x\nu}{\sigma^{2}}\right)$            & $(\frac{1}{2},\frac{1}{2\sigma^{2}},2)$\tabularnewline
+      \hline
+      Skew normal distribution                                              & $(-\infty,\infty)$                                      & no closed form                                                                                                                  & $(0,\frac{1}{2\sigma^{2}},2)$\tabularnewline
+      \hline
+      Slash distribution                                                    & $(-\infty,\infty)$                                      & $\frac{1-e^{-\frac{1}{2}x^{2}}}{\sqrt{2\pi}x^{2}}$                                                                              & $(-2,\frac{1}{2},2)$\tabularnewline
+      \hline
+      Stable distribution                                                   & $(-\infty,\infty)$                                      & no closed form                                                                                                                  & $\mathcal{R}_{\alpha+1}$\tabularnewline
+      \hline
+      Student's $t$-distribution                                            & $(-\infty,\infty)$                                      & $\frac{\Gamma(\frac{\nu+1}{2})}{\sqrt{\nu\pi}\Gamma(\frac{\nu}{2})}\left(1+\frac{x^{2}}{\nu}\right)^{-\frac{\nu+1}{2}}$         & $\mathcal{R}_{\nu+1}$\tabularnewline
+      \hline
+      Tracy-Widom distribution                                              & $(-\infty,\infty)$                                      & no closed form                                                                                                                  & $(-\frac{3\beta}{4}-1,\frac{2\beta}{3},\frac{3}{2})$\tabularnewline
+      \hline
+      Voigt distribution                                                    & $(-\infty,\infty)$                                      & no closed form                                                                                                                  & $\mathcal{R}_{2}$\tabularnewline
+      \hline
+      Weibull distribution                                                  & $(0,\infty)$                                            & $\frac{\rho}{\lambda}\left(\frac{x}{\lambda}\right)^{\rho-1}e^{-(x/\lambda)^{\rho}}$                                            & $(\rho-1,\lambda^{-\rho},\rho)$\tabularnewline
+      \hline
+    \end{longtable}
+    \egroup
+  }
+
+The following densities are not supported by our algebra: Benini distribution; Benktander Type I distribution; Johnson's $S_U$-distribution; and the log-normal distribution. All of these densities exhibit log-normal tails.
+
+\subsection{Proofs of new results}
+\label{sec:proofs}
+
+\begin{proof}[Proof of Lemma \ref{lem:Products}]
+  The proof relies on the following integral definition \cite[pg. 183]{watson1995treatise} and asymptotic relation as $z \to \infty$ \cite[pg. 202]{watson1995treatise} of the modified Bessel function $K_\nu(z)$ for $z > 0$ and $\nu \geq 0$,
+  \begin{equation}
+    \label{eq:BesselInt}
+    K_\nu(z) = \frac12 \left(\frac{z}{2}\right)^\nu \int_0^\infty u^{-\nu-1}\exp\left(-u - \frac{z^2}{4u}\right) \dd u \sim \sqrt{\frac{\pi}{2z}}e^{-z}.
+  \end{equation}
+  We also make use of the known density for the product of two independent continuous random variables: if $X$ and $Y$ have densities $p_X$ and $p_Y$ respectively, then $Z = XY$ has density
+  \[
+    p_Z(z) = \int_\mathbb{R} p_X(x) p_Y(z/x) |x|^{-1} \dd x.
+  \]
+  \paragraph{Exponentials.} Recalling that the density of $X \sim \mathrm{Exp}(\lambda)$ is $p_X(x) = \lambda e^{-\lambda x}$ for $x \geq 0$, for $Z = XY$ where $X \sim \mathrm{Exp}(\lambda_1)$ and $Y \sim \mathrm{Exp}(\lambda_2)$ are independent,
+  \[
+    p_Z(z) = \int_{0}^{\infty}x^{-1}\lambda_{1}e^{-\lambda_{1}x}\lambda_{2}e^{-\lambda_{2}z/x}\dd x = \lambda_{1}\lambda_{2}\int_{0}^{\infty}x^{-1}e^{-\lambda_{1}x-\lambda_{2}z/x}\dd x.
+  \]
+  Since $2K_{0}(2\sqrt{z})=\int_{0}^{\infty}u^{-1}\exp(-u-\frac{z}{u})\dd u$, let $u = \lambda_1 v$, so that $\dd u = \lambda_1 \dd v$,
+  \[
+    2K_{0}(2\sqrt{\lambda_{1}\lambda_{2}z})=\int_{0}^{\infty}u^{-1}\exp\left(-\lambda_{1}v-\lambda_{2}\frac{z}{v}\right)\dd v.
+  \]
+  Therefore, letting $\lambda = \sqrt{\lambda_1\lambda_2}$,
+  \[
+    p_Z(z) = 2\lambda^2 K_0(2\lambda\sqrt{z}) \sim \sqrt{\pi} \lambda^{3/2} z^{-1/4} e^{-2\lambda z^{1/2}}.
+  \]
+  \paragraph{Normals.} Recalling that the density of $X \sim \mathcal{N}(0,1)$ is $p_X(x) = (2\pi)^{-1/2} \exp(-\frac12 x^2)$, for $Z = XY$ where $X,Y \sim \mathcal{N}(0,1)$ are independent,
+  \begin{align*}
+    p_Z(z) & = \frac{1}{2\pi}\int_{\mathbb{R}}\left|x\right|^{-1}e^{-\frac{1}{2}x^{2}}e^{-\frac{1}{2}z^{2}/x^{2}}\dd x \\
+           & =\frac{1}{\pi}\int_{0}^{\infty}x^{-1}e^{-\frac{1}{2}x^{2}-\frac{1}{2}z^{2}/x^{2}}\dd x                    \\
+           & =\frac{1}{\pi}\int_{0}^{\infty}x^{-1}e^{-\frac{1}{2}x^{2}-\frac{1}{2}z^{2}/x^{2}}\dd x.
+  \end{align*}
+  Let $u=\frac{1}{2}x^{2}$ so that $\dd u=x \dd x$ and
+  \[
+    K_{\nu}(z)=z^{\nu}\int_{0}^{\infty}x^{-2\nu-1}\exp\left(-\frac{1}{2}x^{2}-\frac{z^{2}}{2x^{2}}\right)\dd x.
+  \]
+  In particular, for any $z \in \mathbb{R}$,
+  \begin{equation}
+    \label{eq:BesselGauss}
+    K_{0}(|z|)=\int_{0}^{\infty}x^{-1}\exp\left(-\frac{1}{2}x^{2}-\frac{z^{2}}{2x^{2}}\right)\dd x,
+  \end{equation}
+  and so
+  \[
+    p_Z(z) = \frac{1}{\pi} K_0(|z|) \sim \frac{1}{\sqrt{2\pi|z|}} e^{-|z|}.
+  \]
+  \paragraph{Reciprocal Normals.} Finally, by a change of variables, we note that the density of $X^{-1}$ where $X \sim \mathcal{N}(0,1)$ is $p_{X^{-1}}(x) = (2\pi)^{-1/2} x^{-2}\exp(-\frac{1}{2x^2})$. Therefore, the density of $Z = 1/(XY)$ where $X,Y \sim \mathcal{N}(0,1)$ are independent is given by
+  \begin{align*}
+    p_{Z}(z) & =\int_{\mathbb{R}}\frac{1}{\sqrt{2\pi}x^{2}}e^{-\frac{1}{2x^{2}}}\frac{x^{2}}{\sqrt{2\pi}z^{2}}e^{-\frac{x^{2}}{2z^{2}}}\frac{1}{\left|x\right|}\dd x \\
+             & =\frac{1}{2\pi z^{2}}\int_{\mathbb{R}}e^{-\frac{1}{2x^{2}}-\frac{x^{2}}{2z^{2}}}\frac{1}{\left|x\right|}\dd x                                         \\
+             & =\frac{1}{\pi z^{2}}\int_{0}^{\infty}e^{-\frac{1}{2x^{2}}-\frac{x^{2}}{2z^{2}}}\frac{1}{x}\dd x                                                       \\
+             & =\frac{1}{\pi z^{2}}K_{0}(|z|^{-1}) \sim \sqrt{\frac{1}{2\pi}}|z|^{-3/2}e^{-|z|^{-1}},
+  \end{align*}
+  where we have once again used (\ref{eq:BesselGauss}).
+\end{proof}
+
+% \begin{lemma}
+% Suppose that $X$ is generalized Gamma distributed with density $p_X(x)$. Then $\int_z^\infty x^{-1} p_X(x) \dd x = o(\bar{p}_X(x))$ as $x \to \infty$.
+% \end{lemma}
+% \begin{proof}
+% Suppose that $X$ is generalized Gamma distributed with parameters $\nu,\sigma,\rho$. Then
+% \[
+% \int_z^\infty x^{-1} p_X(x) \dd x = \frac{\Gamma(\frac{\nu}{\rho}, \sigma z^\rho)}{\Gamma(\frac{\nu}{\rho})}.
+% \]
+% where $\Gamma(a,z)$ is the (upper) incomplete Gamma function. From \cite[8.11.2]{NIST:DLMF}, 
+% \[
+% \frac{\Gamma(\frac{\nu}{\rho}, \sigma z^\rho)}{\Gamma(\frac{\nu}{\rho})} \sim c\sigma^{\frac{\nu}{\rho}-1}z^{\nu-\rho}e^{-\sigma z^{\rho}}=o(\bar{p}_{X}(z)),
+% \]
+% for an appropriate $c > 0$.
+% \end{proof}
+% \begin{lemma}
+% Let $\bar{X},\bar{Y}$ be independent generalized Gamma random variables with densities $\bar{p}_X$ and $\bar{p}_Y$ respectively. If $X,Y$ are independent random variables with densities $p_X(x) \sim c_X \bar{p}_X(x)$ and $p_Y(x) \sim c_Y \bar{p}_Y(x)$ as $x\to\infty$, then the densities $p_{XY}$ and $\bar{p}_{XY}$ of $XY$ and $\bar{X}\bar{Y}$, respectively, satisfy $p_{XY}(x) \sim \bar{p}_{XY}(x)$ as $x \to \infty$.
+% \end{lemma}
+% \begin{proof}
+% Let $C_{X}=\sup_{x}|p_{X}(x)-\bar{p}_{X}(x)|$ and $C_{Y}=\sup_{y}|p_{Y}(y)-\bar{p}_{Y}(y)|$, and for any $\epsilon > 0$, let $M_\epsilon$ be such that
+% \[
+% \max_{x\geq M_{\epsilon}}\left\{ \left|\frac{p_{X}(x)}{\bar{p}_{X}(x)}-1\right|,\left|\frac{p_{Y}(x)}{\bar{p}_{Y}(x)}-1\right|\right\} <\epsilon.
+% \]
+% \end{proof}
+
+Recall that the Mellin transform of a function $f$ on $(0,\infty)$ is given by
+\[
+  \mathcal{M}_s[f] = \int_0^\infty x^{s-1} f(x) \dd x.
+\]
+Letting $p_{XY}$ denote the density of the product of independent random variables $X,Y$ with respective densities $p_X$ and $p_Y$, $\mathcal{M}_s[p_{XY}] = \mathcal{M}_s[p_X] \mathcal{M}_s[p_Y]$. There is
+\[
+  \mathcal{M}_s[c x^\nu e^{-\sigma x^\rho}] = \frac{c \sigma^{-\nu/\rho}}{\rho} \sigma^{-s/\rho} \Gamma\left(\frac{\nu}{\rho} + \frac{s}{\rho}\right).
+\]
+To facilitate the proof of Proposition \ref{prop:Mult}, we define the Fox $H$-function
+\[
+  H_{p,q}^{m,n}\left[z\left|\substack{(a_{1},A_{1}),\dots,(a_{p},A_{p})\\
+  (b_{1},B_{1}),\dots,(b_{q},B_{q})
+  }
+  \right.\right]
+\]
+as the inverse Mellin transform of
+\[
+  \Theta(s) = z^{-s} \frac{\prod_{j=1}^m \Gamma(b_j + B_j s) \cdots \prod_{j=1}^n \Gamma(1-a_j - A_j s)}{\prod_{j=m+1}^q \Gamma(1-b_j - B_j s) \prod_{j=n+1}^p \Gamma(a_j + A_j s)}.
+\]
+An important property of the Fox $H$-function is its asymptotic behaviour as $z \to \infty$. From \cite[Theorem 1.3]{mathai2009h},
+\[
+  H_{p,q}^{q,0}\left[z\left|\substack{(a_{1},A_{1}),\dots,(a_{p},A_{p})\\
+  (b_{1},B_{1}),\dots,(b_{q},B_{q})}\right.\right] \sim c x^{(\delta+\frac12)/\mu} \exp(-\mu \beta^{-1/\mu} x^{1/\mu}),\qquad \mbox{as }x\to\infty,
+\]
+for some constant $c > 0$, where $\beta = \prod_{j=1}^p (A_j)^{-A_j} \prod_{j=1}^q B_j^{B_j}$, $\mu = \sum_{j=1}^q B_j - \sum_{j=1}^p A_j$, and $\delta = \sum_{j=1}^q b_j - \sum_{j=1}^p a_j + \frac{p-q}{2}$.
+
+\begin{proof}[Proof of Proposition \ref{prop:Mult}]
+  The $\rho_1 \leq 0, \rho_2 > 0$ and $\rho_1 = \rho_2 = 0$ cases follow from Breiman's lemma \cite[Lemma B.5.1]{buraczewski2016stochastic}. Our argument proceeds similar to \cite{asmussen2017tail}. Assume that $\rho_1,\rho_2 > 0$ and let $0 < \epsilon < 1$ be such that $0 < a_- < a_+ < 1$, where
+  \[
+    a_+ = \frac{(1+\epsilon)\rho_2}{\rho_1+\rho_2},\qquad a_{-} = 1 - \frac{(1+\epsilon)\rho_1}{\rho_1+\rho_2}.
+  \]
+  Then for $\rho = \frac{\rho_1\rho_2}{\rho_1 + \rho_2}$, if $X \equiv (\nu_1,\sigma_1,\rho_1)$ and $Y \equiv (\nu_2,\sigma_2,\rho_2)$, then
+  \begin{align*}
+    \mathbb{P}(XY>x,X\notin[x^{a_{-}},x^{a_{+}}]) & \leq\mathbb{P}(X>x^{a_{+}})+\mathbb{P}(Y>x^{1-a_{-}})                                                                                                 \\
+                                                  & \sim c_{1}x^{\nu_{1}a_{+}}e^{-\sigma_{1}x^{\rho_{1}a_{+}}}+c_{2}x^{\nu_{2}(1-a_{-})}e^{-\sigma_{2}x^{\rho_{2}(1-a_{-})}}                              \\
+                                                  & \leq\left(c_{1}x^{\nu_{1}a_{+}}+c_{2}x^{\nu_{2}(1-a_{-})}\right)e^{-\min\{\sigma_{1},\sigma_{2}\}x^{(1+\epsilon)\rho}} = o(x^\nu e^{-\sigma x^\rho}),
+  \end{align*}
+  for any $\nu,\sigma > 0$. Hence, it will suffice to show the claimed tail asymptotics for the generalized Gamma distribution. In this case, since $a_- > 0$ and $a_+ < 1$, the tail of the distribution for the product of $X,Y$ depends only on the tail of the distributions for $X$ and $Y$.
+
+  Therefore, assume without loss of generality that $p_X(x) = c_X x^{\nu_1} e^{-\sigma_1 x^{\rho_1}}$ and $p_Y(x) = c_Y x^{\nu_2} e^{-\sigma_2 x^{\rho_2}}$. Then
+  \[
+    \mathcal{M}_s[p_{XY}] = c_X c_Y \frac{\sigma_{1}^{-\nu_{1}/\rho_{1}}}{\rho_{1}}\frac{\sigma_{2}^{-\nu_{2}/\rho_{2}}}{\rho_{2}}\left(\sigma_{1}^{1/\rho_{1}}\sigma_{2}^{1/\rho_{2}}\right)^{-s}\Gamma\left(\frac{\nu_{1}}{\rho_{1}}+\frac{s}{\rho_{1}}\right)\Gamma\left(\frac{\nu_{2}}{\rho_{2}}+\frac{s}{\rho_{2}}\right).
+  \]
+  Consequently,
+  \[
+    p_{XY}(z) = c_X c_Y \frac{\sigma_{1}^{-\nu_{1}/\rho_{1}}}{\rho_{1}}\frac{\sigma_{2}^{-\nu_{2}/\rho_{2}}}{\rho_{2}}H_{p,q}^{m,n}\left[\sigma_{1}^{1/\rho_{1}}\sigma_{2}^{1/\rho_{2}}z\left|\substack{-\\
+      (\frac{\nu_{1}}{\rho_{1}},\frac{1}{\rho_{1}}),(\frac{\nu_{2}}{\rho_{2}},\frac{1}{\rho_{2}})
+    }
+    \right.\right]
+  \]
+  Computing the corresponding $\beta,\delta,\mu$ for the asymptotic expansion, we find that
+  \[
+    \mu=\frac{1}{\rho_{1}}+\frac{1}{\rho_{2}},\qquad\delta=\frac{\nu_{1}}{\rho_{1}}+\frac{\nu_{2}}{\rho_{2}}-1,\qquad\beta=\rho_{1}^{-1/\rho_{1}}\rho_{2}^{-1/\rho_{2}}.
+  \]
+  Consequently, for some $c > 0$,
+  \[
+    p_{XY}(z) \sim c z^{\frac{1}{\mu}(\frac{1}{2}+\delta)}\exp\left(-\mu\beta^{-\frac{1}{\mu}}(\sigma_{1}^{1/\rho_{1}}\sigma_{2}^{1/\rho_{2}})^{\frac{1}{\mu}}z^{\frac{1}{\mu}}\right),
+  \]
+  which completes the $\rho_1,\rho_2 > 0$ case. The final case follows by composing the multiplication and reciprocal operations. Note that
+  \begin{align*}
+    (\nu_{1},\sigma_{1},-\rho_{1})^{-1}\otimes(\nu_{2},\sigma_{2},-\rho_{2})^{-1} & \equiv\left(-\nu_{1}-2,\sigma_{1},\rho_{1}\right)\otimes\left(-\nu_{2}-2,\sigma_{2},\rho_{2}\right)                                    \\
+                                                                                  & \equiv\left(\frac{1}{\mu}\left(\frac{-\nu_{1}-2}{\rho_{1}}+\frac{-\nu_{2}-2}{\rho_{2}}-\frac{1}{2}\right),\sigma,\frac{1}{\mu}\right)  \\
+                                                                                  & \equiv\left(\frac{1}{\mu}\left(\frac{-\nu_{1}}{\rho_{1}}+\frac{-\nu_{2}}{\rho_{2}}-2\mu-\frac{1}{2}\right),\sigma,\frac{1}{\mu}\right) \\
+                                                                                  & \equiv\left(\frac{1}{\mu}\left(\frac{-\nu_{1}}{\rho_{1}}+\frac{-\nu_{2}}{\rho_{2}}-\frac{1}{2}\right)-2,\sigma,\frac{1}{\mu}\right),
+  \end{align*}
+  and therefore
+  \[
+    (\nu_{1},\sigma_{1},-\rho_{1})\otimes(\nu_{2},\sigma_{2},-\rho_{2})\equiv\left(\frac{1}{\mu}\left(\frac{\nu_{1}}{\rho_{1}}+\frac{\nu_{2}}{\rho_{2}}+\frac{1}{2}\right),\sigma,-\frac{1}{\mu}\right).
+  \]
+\end{proof}
+
+
+\section{Implementation}\label{sec:impl}
+
+\subsection{Compile-time static analysis}
+
+To illustrate an implementation of GGA for static analysis, we sketch the operation of the PPL compiler at a high-level
+and defer to the supplementary code for details.
+A probabilistic program is first inspected using Python's built-in \texttt{ast} module
+and transformed to static single assignment (SSA) form \citep{rosen1988global}.
+Next, standard compiler optimizations (e.g. dead code elimination, constant propagation)
+are applied and an execution of the optimized program is traced \citep{wingate2011lightweight,bingham2019pyro}
+and accumulated in a directed acyclic graph representation. A breadth-first type checking pass, as seen in Algorithm~\ref{alg:bfs_typecheck}, completes in linear time, and GGA results may be applied to implement \texttt{computeGGA()} using the following steps:
+\begin{itemize}[leftmargin=*]
+  \item If a node has no parents, then it is an atomic distribution and its tail parameters are known (\Cref{tab:dist_list})
+  \item Otherwise, the node is an operation taking its potentially stochastic inputs (parents) to its output. Consult \Cref{tab:gga_operations} for the output GGA tails.
+\end{itemize}
+
+%% This declares a command \Comment
+%% The argument will be surrounded by /* ... */
+% \SetKwComment{Comment}{/* }{ */}
+
+\begin{algorithm}
+  \caption{Pseudocode for a GGA tails static analysis pass}\label{alg:bfs_typecheck}
+  \begin{algorithmic}
+    \REQUIRE{Abstract syntax tree for a PPL program}
+
+
+    \STATE{frontier $\gets$ [rv : Parents(rv) = $\emptyset$]}\\
+    \STATE{GGAs $\gets \{\}$}
+
+    \WHILE{\text{frontier} $\neq \emptyset$}
+    \STATE{next $\gets$ frontier.popLeft()}\\
+    \STATE{GGAs[next] $\gets$ computeGGA(next.op, next.parent)}\\
+    \STATE{frontier $\gets$ frontier + next.children()}
+    \ENDWHILE
+
+    \RETURN{GGA parameter estimates for all random variables}
+  \end{algorithmic}
+\end{algorithm}
+
+
+\subsection{Representative distributions}\label{ssec:repr_dist}
+
+For each $(\nu,\sigma,\rho)$ we make a carefully defined choice of $p$ on $\mathbb{R}$ such that if $X \sim p$, then $X \equiv (\nu,\sigma,\rho)$. This way, any random variable $f(X)$, where $f$ is $1$-Lipschitz, will exhibit the correct tail, and so approximations of this form may be used for variational inference or density estimation. Let $X \equiv (\nu,\sigma,\rho)$ and $0 < \epsilon \ll 1$ denote a small parameter such that tails $e^{-x^\epsilon}$ are deemed to be ``very heavy'' (we chose $\epsilon = 0.1$). %We also let $X\equiv(\nu,\sigma,\rho)$ and $\zeta$ denote an independent Rademacher random variable with $\mathbb{P}(\zeta=1)=\mathbb{P}(\zeta=-1)=\frac12$.
+
+\begin{itemize}
+  \item[($\rho \leq 0$)] If $\rho \leq -1$, then $p_X(x) \sim c x^{-|\nu|}$. A prominent distribution on $\mathbb{R}$ with power law tails is the \emph{Student $t$ distribution}, in this case, with $|\nu|-1$ degrees of freedom if $\nu < -1$ (generate $X \sim t_{|\nu|-1})$.
+  \item[($\rho > \epsilon$)] For moderately sized $\rho > 0$, we consider a symmetrized variant of the generalized Gamma density (\Cref{eq:GenGammaDensity}).
+  \item[($\rho \leq \epsilon$)] If $X \equiv (\nu,\sigma,\rho)$ where $\rho$ is small, then $X$ will exhibit much heavier tails, and the generalized Gamma distribution in Case 1 will become challenging to sample from. In these cases, we expect that the tail of $X$ should be well represented by a power law.
+    %Letting $\alpha = \sigma \rho - \nu - 1$, using an approximation to the logarithm, $p_{|X}(x) \approx c x^{-\alpha - 1}$ (see the Supplementary Material for more details). Therefore, we represent tails of this form by the Student $t$ distribution with $\alpha$ degrees  
+    The generalized Gamma density (\Cref{eq:GenGammaDensity}) satisfies $\mathbb{E}X^r = \sigma^{-r/\rho} \Gamma(\frac{\nu+1+r}{\rho})/\Gamma(\frac{\nu+1}{\rho})$ for $r > 0$. Let $\alpha > 0$ be such that $\mathbb{E}X^\alpha = 2$. By Markov's inequality, the tail of $X$ satisfies $\mathbb{P}(X>x)\leq 2 x^{-\alpha}$. Therefore, we can represent tails of this form by the Student $t$ distribution with $\alpha+1$ degrees of freedom (generate $X \sim t_{\alpha}$).
+\end{itemize}
+
+\subsection{Bulk correction by Lipschitz mapping}
+
+While a representative distribution will exhibit the desired tails,
+the target distribution's bulk may be very different from a generalized Gamma and result in poor distributional approximation. To address this, we propose splicing together the tails from a generalized Gamma with a flexible density approximation for the bulk.
+While many combinations are possible, in this work we rely on \Cref{lem:lipschitz} and post-compose neural
+spline flows \citep{durkan2019neural} (which are identity functions outside of a bounded interval) after
+properly initialized generalized Gamma distributions.
+Optimizing the parameters of the flow results in good bulk approximation while simultaneously
+preserving the tail correctness guarantees attained by the GGA.
+
+\begin{example}
+  Let $A \in \mathbb{R}^{k \times k}$, $x,y\in\mathbb{R}^k$, with $x_i,y_i,A_{ij} \overset{\text{iid}}{\sim} \mathcal{N}(-1,1)$.
+  The distribution of $x^\top A y = \sum_{i,j} x_i A_{ij} y_j$ is convolution of normal-powers \citep{gupta2008analyzing} and has no convenient
+  closed form expression.
+  Using GGA's closure theorems (\cref{tab:gga_operations}), one can compute
+  its tail parameters to be $(\frac{k}{2}-1,\frac{3}{2}, \frac{2}{3})$.
+
+  \begin{figure}[h]
+    \centering
+    \input{hta/experiments/normal-power-sum.pgf}
+    \input{hta/experiments/lip-nf.pgf}
+    \caption{(Top) $5000$ samples of $\lvert x^\top A y \rvert$ vs the
+      calibrated GGA density $q(x)$. While calibrated tails are provably guarantees,
+      the target distribution's bulk differs from the assumed generalized Gamma representative distribution (\cref{ssec:repr_dist}) for all $k$.
+      To fix the bulk approximation, a normalizing flow is composed with
+      the GGA representative to form $\text{flow}(q)(x)$. The bulk approximation
+      is improved (bottom) while the tails continue to exhibit the same
+      behavior (bottom right).
+    }
+    \label{fig:power_normal}
+  \end{figure}
+
+  The GGA representative is a gamma distribution with the correct tails, but there is non-negligible error in the bulk where $x$ is small. To address this, a learnable bijector can be
+  optimized as in \Cref{fig:power_normal} bottom left to correct the bulk approximation. Guaranteed by \Cref{lem:lipschitz} and
+  visualized in \Cref{fig:power_normal} bottom right, the tails of the overall composition remain calibrated.
+\end{example}
+
+\section{Experiments}\label{sec:hta:experiments}
+
+In this section we demonstrate that GGA-based density estimation yields improvements across a variety of metrics.
+We consider the parametric family defined in \Cref{ssec:repr_dist} and compare against pushfowards of Normal distributions. To understand the individual
+effect of using a GGA base distribution over standard normals versus more expressive pushforward maps \citep{durkan2019neural}, we also report ablation results where
+normalizing flows are replaced by affine transforms as originally
+proposed in \citep{kucukelbir2017automatic}. All experiments are repeated for 50 trials, trained to convergence using the Adam optimizer with manually tuned learning rate,
+and conducted on i7-8700K CPU and GTX 1080 GPU hardware.
+
+All target distributions in this section are expressed as generative PPL programs:
+Cauchy using a reciprocal normal, Chi2 using a sum of squared normals, IG (Inverse Gamma)
+using a reciprocal exponential, Normal using a sum of normals, and StudentT using a
+normal and Cauchy ratio. Doing so tasks the static analyzer to infer the target's tails and makes the analysis non-trivial.
+See supplementary for full details.
+
+Our results in the following tables share a consistent narrative where a GGA base
+distribution rarely hurts and can significantly help with heavy tailed targets.
+Except for when targets are truly light tailed ($\alpha=\infty$ in Chi2 and Normal),
+GGA-based approximations are the only ones to reproduce appropriate GPD tail index $\hat\alpha$ in density estimation and achieve a passing Pareto $\hat{k}$ diagnostic
+\citep{yao2018yes} below $0.2$ in variational inference. When viewed through traditional
+evaluation metrics such as negative cross-entropy $H(p,q) = E_p \log p(X)$,
+ELBO $E_q \log \frac{q(X)}{p(X)}$,
+and importance-weighted autoencoder bound \citep{burda2015importance} $E_q \log \sum_i^{1000} \frac{p(X)}{q(X)}$, GGA-based approximations remain favorable on almost all heavy-tailed
+targets and have negligible difference for light tailed targets. Less surprising is the result that adding a flow improved approximation metrics, as we expect the additional representation flexibility to be beneficial.
+
+%\feynman{explain the targets, generative and marginalized, reference appendix}
+
+\textbf{Density Estimation} We minimize a Monte-Carlo estimate of the cross entropy $H(p,q) = -E_p[\log q(X)] \approx -\frac{1}{N} \sum_{i=1}^N \log q(x_i),\quad x_i \sim p$.
+The results are shown in \Cref{tab:de} along with power-law tail index estimates \citep{clauset2009power} $\hat\alpha$.
+Overall, we see that GGA performs better (lower NLL, $\hat\alpha$ closer to target) when the target
+has heavier tails (lower $\hat\alpha$ target/theory) and that the difference is smaller but still non-negligible
+for distributions such as Chi1 which possess tails heavier than Gaussian.
+
+\begin{table}[h]
+  \centering
+  \caption{Density estimation metrics attained (mean, standard deviation in parenthesis)
+    on targets of varying tail index (smaller $\alpha =$ heavier tails).
+    Higher negative cross entropy $-H(p,q) = E_p \log q(X)$ implies a better overall approximation (row maxes bolded)
+    while close agreement between the target Pareto tail index $\alpha$ \citep{clauset2009power}
+    and its estimate $\hat\alpha$ in $q(x)$ suggest calibrated tails (closest in row bolded).
+  }
+  \label{tab:de}
+  \input{experiments/de_table.tex}
+\end{table}
+
+\textbf{Variational Inference} The optimization objective is the ELBO
+\[
+  E_q \log \frac{p(X)}{q(X)} \approx \frac{1}{N} \sum_{i=1}^N \log \frac{p(x_i)}{q(x_i)},\quad x_i \sim q
+\]
+Here, the density $p$ must also be evaluated so for simplicity
+experiments in \cref{tab:vi} use closed-form marginalized densities for targets.
+The overall trends also show that GGA yields consistent improvements as measured by both ELBO and importance-weighted
+estimates of marginal likelihood and that the difference was greater when the tails of $p(z)$ were heavier.
+The $\hat{k}$ diagnostics \citep{yao2018yes} corroborate our findings that variational inference succeeds
+($\hat{k} < -1.2$) when a GGA with appropriately matched tails is used and fails ($\hat{k} > 1$) when
+Gaussian tails are erroneously imposed.
+
+\begin{table}[h]
+  \centering
+  \caption{Variational inference metrics (mean, standard deviation in parenthesis)
+    on targets of varying tail index (smaller $\alpha =$ heavier tails). Both the IWAE bound $E_q \log \sum_i^K \frac{p(X_i)}{q(X_i)}$ and the ELBO ($K=1$) measure (a lower bound) on the marginal likelihood where larger is better (row maxes bolded). In \citet{yao2018yes},
+    a Pareto $\hat{k}$ diagnostic $> 0.2$ is interpreted as potentially problematic so only values below are bolded.}
+  \label{tab:vi}
+  \small\input{experiments/vi_table.tex}
+\end{table}
+
+
+The targets in \Cref{tab:de} and \Cref{tab:vi} are analyzed using
+the GGA. Note that Inverse Gamma (``IG'') corresponds
+to the inverse exponential. We selected closed form targets so that
+the Pareto tail index $\alpha$ is known analytically and the quality
+of theoretical predictions as well as empirical results can be evaluated
+against. All experiments are repeated for $100$ trials and $1,000$ samples
+from the model (as well as the approximation in VI) were used to compute
+each gradient estimate. Losses were trained until convergence, which
+all occurred in under $10,000$ iterations at a $0.05$ learning rate and
+the Adam \citep{kingma2014adam} optimizer.
+
+
+
+
+
+\subsection{SGD for least-squares linear regression}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.32\textwidth]{figures/Kesten_0.40_1.5.png}
+  \includegraphics[width=0.32\textwidth]{figures/Kesten_0.50_1.5.png}
+  \includegraphics[width=0.32\textwidth]{figures/Kesten_0.50_2.png}
+  \caption{\label{fig:SGD}Density of iterates of SGD vs. predicted tail behaviour}
+\end{figure}
+
+For inputs $X$ and labels $Y$ from a dataset $\mathcal{D}$, the least squares estimator for linear regression satisfies $\beta = \min_\beta \tfrac12 \mathbb{E}_{X,Y\sim\mathcal{D}}(Y - X\beta)^2$. To solve for this estimator, one can apply stochastic gradient descent (SGD) sampling over independent $X_k,Y_k\sim \mathcal{D}$ to obtain the sequence of iterations
+\[
+  \beta_{k+1} = (I - \delta X_k X_k^\top) \beta_k + \delta Y_k X_k
+\]
+for a step size $\delta > 0$. For large $\delta$, the iterates $\beta_k$ typically exhibit heavy-tailed fluctuations; in this regard, this sequence of iterates has been used as a simple model for more general stochastic optimization dynamics \citep{gurbuzbalaban2021heavy,hodgkinson2021multiplicative}. In particular, generalization performance has been tied to the heaviness of the tails in the iterates \cite{simsekli2019tail}. Here we use our algebra to predict the tail behaviour in a simple one-dimensional setting where $X_k \sim \mathcal{N}(0,\sigma^2)$ and $Y_k \sim \mathcal{N}(0,1)$. From classical theory \citep{buraczewski2016stochastic}, it is known that $X_k$ converges in distribution to a power law with tail exponent $\alpha > 0$ satisfying $\mathbb{E}|1 - \delta X_k^2|^\alpha = 1$. In \cref{fig:SGD}, we plot the density of the representative obtained using our algebra after $10^4$ iterations against a kernel density estimate of the first $10^6$ iterates when $\sigma \in \{0.4,0.5\}$ and $\delta \in \{1.5,2.0\}$. In all cases, the density obtained from the algebra provides a surprisingly close fit.
+
+
+
+\subsection{Normal target}
+
+Consider the toy example of a Normal target. This case is trivial for
+Gaussian based methods and is oftentimes the initialization.
+This lack of approximation gap in ADVI is seen in \Cref{fig:normal},
+where we also see that GGA achieves similar approximation quality.
+This is unsurprising as the GGA approximation in \Cref{tab:dist_list}
+is also a Normal distribution.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=1.0\textwidth]{figures/de_normal_sum.png}
+  \includegraphics[width=.4\textwidth]{figures/vi_normal_sum.png}
+  \caption{Density estimation and VI against a known normal target}
+  \label{fig:normal}
+\end{figure}
+
+
+\subsection{Chi-square}
+
+Now let $X_{ij} \sim N(0,1)$ and consider $tr X^\top X$.
+Such quantities arise in the analysis of random projections.
+It is important here to recognize that the power operation $X \mapsto X^2$ is not equivalent to the multiplication operation $X \mapsto X \otimes X$, as multiplication assumes independence.
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{figures/jl-chi2.png}
+  \caption{$5000$ samples of JL matrix trace (blue) vs GGA prediction (yellow)}
+  \label{fig:jl_chi2}
+\end{figure}
+
+
+
+\section{Conclusion}\label{sec:hta:conclusion}
 
 In this work, we have proposed a novel systematic approach for conducting tail inferential static analysis by implementing a three-parameter generalized Gamma algebra into a PPL compiler. Initial results are promising, showing that improved inference with simpler approximation families is possible when combined with tail metadata.
 While already useful, the generalized Gamma algebra and its implementation currently has
 some notable limitations:
 \begin{itemize}[leftmargin=*]
-\item Since the algebra assumes independence, handling of dependencies between defined random variables must be conducted externally. This will inevitably require interoperability with a symbolic package to decompose complex expressions into operations on independent random variables.
-\item The GGA is formulated for univariate distributions only. Suitably defining multivariate tails is an open problem with interesting alternatives \citep{jaini2020tails,ftvi} all of which
-could extend GGA to higher dimensions. 
-\item Conditioning is arguably the most important feature of a PPL and what distinguishes it from a glorified simulator. Exact marginalization in general is NP-hard \citep{koller2009probabilistic}, so treatment of conditional distributions using symbolic manipulations is a significant open problem, with some basic developments \cite{shan2017exact,cho2019disintegration}. Since only the tails are required in our setup, it may be possible to construct a dual algebra for operations under conditioning; this is left for future work.
-\item Compile-time static analysis only applicable to fixed model structure. While out of scope for our current work, open-universe models \citep{milch2010extending}
-and PPLs to support them \citep{bingham2019pyro} are an important research direction.
-\item The most significant omission to the algebra itself is classification of log-normal tails; while addition may be treated using \cite{gulisashvili2016tail} for example, multiplicative convolution with log-normal tails remains elusive. 
-\item At present, reciprocals are approximated by assuming behaviour near zero. Reciprocals may be better treated by covering near-zero asymptotics separately. 
+  \item Since the algebra assumes independence, handling of dependencies between defined random variables must be conducted externally. This will inevitably require interoperability with a symbolic package to decompose complex expressions into operations on independent random variables.
+  \item The GGA is formulated for univariate distributions only. Suitably defining multivariate tails is an open problem with interesting alternatives \citep{jaini2020tails,ftvi} all of which
+        could extend GGA to higher dimensions.
+  \item Conditioning is arguably the most important feature of a PPL and what distinguishes it from a glorified simulator. Exact marginalization in general is NP-hard \citep{koller2009probabilistic}, so treatment of conditional distributions using symbolic manipulations is a significant open problem, with some basic developments \cite{shan2017exact,cho2019disintegration}. Since only the tails are required in our setup, it may be possible to construct a dual algebra for operations under conditioning; this is left for future work.
+  \item Compile-time static analysis only applicable to fixed model structure. While out of scope for our current work, open-universe models \citep{milch2010extending}
+        and PPLs to support them \citep{bingham2019pyro} are an important research direction.
+  \item The most significant omission to the algebra itself is classification of log-normal tails; while addition may be treated using \cite{gulisashvili2016tail} for example, multiplicative convolution with log-normal tails remains elusive.
+  \item At present, reciprocals are approximated by assuming behaviour near zero. Reciprocals may be better treated by covering near-zero asymptotics separately.
 \end{itemize}
 
 The GGA provides a necessary first step into the static analysis of tails in
@@ -633,9 +1121,9 @@ novel PPL applications.
 %   \item Do the main claims made in the abstract and introduction accurately reflect the paper's contributions and scope?
 %     \answerYes{}
 %   \item Did you describe the limitations of your work?
-%     \answerYes{See \cref{sec:conclusion}}
+%     \answerYes{See \cref{sec:hta:conclusion}}
 %   \item Did you discuss any potential negative societal impacts of your work?
-%     \answerYes{See \cref{sec:conclusion}}
+%     \answerYes{See \cref{sec:hta:conclusion}}
 %   \item Have you read the ethics review guidelines and ensured that your paper conforms to them?
 %     \answerYes{}
 % \end{enumerate}
@@ -657,7 +1145,7 @@ novel PPL applications.
 % 	\item Did you report error bars (e.g., with respect to the random seed after running experiments multiple times)?
 %     \answerYes{Standard errors reported in parenthesis on \cref{tab:de} and \cref{tab:vi}}
 % 	\item Did you include the total amount of compute and the type of resources used (e.g., type of GPUs, internal cluster, or cloud provider)?
-%     \answerYes{See \cref{sec:experiments}}
+%     \answerYes{See \cref{sec:hta:experiments}}
 % \end{enumerate}
 
 % \item If you are using existing assets (e.g., code, data, models) or curating/releasing new assets...
@@ -693,485 +1181,7 @@ novel PPL applications.
 % \appendix
 
 
-\section{Additional examples}\label{sec:addtl_eg}
 
-To further illustrate the GGA through example, in this section we work
-out explicit GGA computations using distributions
-from \cref{tab:dist_list} and operations in \cref{tab:gga_operations}
-and recover some common probability identities.
-
-\begin{example}[Chi-squared random variables]
-	Let $X_1,\dots,X_k$ be $k$ independent standard normal random variables. The variable $Z = \sum_{i=1}^k X_i^2$ is \emph{chi-squared distributed} with $k$ degrees of freedom. Using the generalized Gamma algebra, we can accurately determine the tail behaviour of this random variable directly from its construction. Recall that each $X_i \equiv (0,1/2,2)$, and by the power operation, $X_i^2 \equiv (-1/2,1/2,1)$. Applying the addition operation $k$ times reveals that $Z \equiv (k/2-1,1/2,1)$ and implies that the density of $Z$ is asymptotically $c x^{k/2-1} e^{-x / 2}$ as $x \to \infty$. In fact, the density of $Z$ is exactly $p_Z(x) = c_k x^{k/2-1} e^{-x/2}$ where $c_k = 2^{-k/2} / \Gamma(k/2)$.
-\end{example}
-
-\begin{example}[Products of random variables]
-	To demonstrate the efficacy of the multiplication operation in our algebra, we consider the product of two exponential, Gaussian, and reciprocal Gaussian random variables. In \cref{sec:proofs}, we manually prove the following.
-	\begin{lemma}
-	\label{lem:Products}
-		Let $X_1,X_2 \sim \mbox{Exp}(\lambda)$ and $Z_1,Z_2 \sim \mathcal{N}(0,1)$ be independent. The densities of $X_1 X_2$, $Z_1 Z_2$ and $Z = 1/Z_1 \cdot 1/Z_2$ satisfy as $x \to \infty$,
-		\[
-			p_{X_1 X_2}(x) \sim \frac{\lambda^{3/2}\sqrt{\pi}}{x^{1/4}} e^{-2\lambda \sqrt{x}},\quad p_{Z_1 Z_2}(x) \sim \frac{1}{\sqrt{2\pi x}} e^{-x},\quad
-			p_{Z}(x) \sim \frac{1}{\sqrt{2\pi}|z|^{3/2}}e^{-1/|z|}.
-		\]
-	\end{lemma}
-	With ease, our algebra correctly determines that $X_1 X_2 \equiv (-\frac14,2\lambda,\frac12)$, $Z_1 Z_2 \equiv (-\frac12, 1, 1)$ and $Z \equiv (-\frac32,1,-1)$.
-	% Recall that the Bessel $K$-function of zeroth order, denoted $K_0$, is given by the Fourier transform $K_0(x) = \frac12 \int_{-\infty}^{\infty} e^{ixt} (1+t^2)^{-1/2} \dd t$. This function behaves as $x \to \infty$ as $K_{0}(x)\sim\sqrt{\frac{\pi}{2x}}e^{-x}$. Let $X_1,X_2 \sim \mathrm{Exp}(\lambda)$ be two independent exponentially distributed variables. The density of the product $Z = X_1 X_2$ is given by 
-	% \[
-	% p_Z(x) = 2\lambda^{2}K_{0}(2\lambda\sqrt{z})\sim\lambda^{3/2}\sqrt{\pi}z^{-1/4}e^{-2\lambda\sqrt{z}}.
-	% \]
-	% This tail behaviour can be obtained using our algebra as follows: 
-	% The density of
-	% \[
-	% p_Z(x) = \frac1\pi K_0(|x|) \sim \frac{1}{\sqrt{2\pi x}} e^{-x},\qquad \mbox{as }x \to \infty.
-	% \]
-\end{example}
-
-
-\begin{example}[Reciprocal distributions]
-	Perhaps the most significant challenge with a tail algebra is correctly identifying the tail behaviour of reciprocal distributions. Here, we test the efficacy of our formulation with known reciprocal distributions.
-	\begin{itemize}
-		\item \emph{Reciprocal normal:} $X \sim \mathcal{N}(0,1) \equiv (0,1/2,2)$, and $X^{-1} \equiv (-2,1/2,-2)$.
-		\item \emph{Inverse exponential:} $X \sim \text{Exp}(\lambda) \equiv (0,\lambda,1)$, and $X^{-1} \equiv (-2,\lambda,-1)$.
-		\item \emph{Inverse $t$-distribution:} $X \equiv \mathcal{R}_\nu$, and $X^{-1} \equiv \mathcal{R}_2$.
-		\item \emph{Inverse Cauchy:} $X \equiv \mathcal{R}_2$, it is known $X^{-1}$
-		      has the same distribution and our theory predicts $X^{-1} \equiv \mathcal{R}_2$.
-	\end{itemize}
-\end{example}
-
-\begin{example}[Cauchy distribution]
-	A simple special case of the Student $T$ distribution is the Cauchy distribution, which arises as the ratio of two standard normal random variables. For $X\sim\mathcal{N}(0,1)$, $X \equiv (0,1/2,2)$ and $X^{-1} \equiv (-2,1/2,-2)$. %The reciprocal of a standard normal random variable $X \equiv (0,1/2,2)$ satisfies $X^{-1} \equiv (-2,1/2,-2)$. 
-	Hence, the multiplication operation correctly predicts that the ratio of two standard normal random variables is in $\mathcal{R}_2$.
-\end{example}
-
-
-\begin{example}[Student $T$ distribution]
-	Let $X$ be a standard normal random variable, and $V$ a chi-squared random variable with $\nu$ degrees of freedom. The random variable $T = X / \sqrt{V / \nu}$ is \emph{$t$-distributed} with $\nu$ degrees of freedom. Since $V \equiv (\nu/2-1,1/2,1)$, multiplying by the constant $1/\nu$ reveals $V / \nu \equiv (\nu/2-1,1/(2\nu),1)$. Applying the square root operation, $\sqrt{V / \nu} \equiv (\nu-1,1/(2\nu),2)$. To compute the division operation, we first take the reciprocal to find $(V/\nu)^{-1/2} \equiv (-\nu-1,1/(2\nu),-2)$. Finally, since $\rho = -2 < 1$ for this random variable, the multiplication operation with $X \equiv (0,1/2,2)$ yields $T \equiv \mathcal{R}_{\nu+1}$, and so the density of $T$ is asymptotically $c x^{-\nu-1}$ as $x \to \infty$.
-	Indeed, the density of $T$ satisfies $p_T(x) = c_\nu (1 + x^2 / \nu)^{-(\nu+1)/2}$ where $c_\nu = \Gamma(\frac{\nu+1}{2})/\Gamma(\frac{\nu}{2}) (\nu\pi)^{-1/2}$, which exhibits the predicted tail behaviour.
-\end{example}
-
-
-\begin{example}{Log-normal distribution}
-	Although the log-normal distribution does not lie in $\mathcal{G}$, the existence of log-normal tails arising from the multiplicative central limit theorem is suggested by our algebra. Let $X_1,X_2,\dots$ be independent standard normal random variables and let $Z_k = X_1\cdots X_{2^k}$ for each $k=1,2,\dots$. By the multiplicative central limit theorem, letting $\tau = \exp(\mathbb{E}\log |X_i|) \approx 1.13$, $\left(\frac{X_{1}\cdots X_{n}}{\tau}\right)^{1/\sqrt{n}}$ converges in distribution as $n\to\infty$ to a log-normal random variable $Z$ with density
-	\[
-		p_Z(x) = \frac{1}{x\sqrt{2\pi}} \exp(-\tfrac12 (\log x)^2).
-	\]
-	Therefore, the same is true for $V_k = (Z_k / \tau)^{2^{-k/2}}$. Using our algebra, we will attempt to reproduce the tail of this density. Letting $\tilde{Z}_k = X_{2^k} \cdots X_{2^{k+1}}$, we see that $Z_{k+1} = Z_k \tilde{Z}_k$, and $Z_k,\tilde{Z}_k$ are iid. Let $Z_k \equiv (\nu_k, \sigma_k, \rho_k)$, by induction using the multiplication operation, we find that $\nu_{k+1} ~=~\frac{1}{\mu}\left(\frac{2\nu_{k}}{\rho_{k}}-\frac{1}{2}\right)=\nu_{k}-\frac{\rho_{k}}{4}$, $\sigma_{k+1}=\mu\left(\sigma_{k}\rho_{k}\right)^{\frac{2}{\mu\rho_{k}}}=\frac{2}{\rho_{k}}\left(\sigma_{k}\rho_{k}\right)=2\sigma_{k}$, and $\rho_{k+1}=\frac{1}{\mu}=\frac{\rho_{k}}{2}$.
-	Since $\rho_0 = 2$, $\sigma_0 = 1/2$, and $\nu_0 = 0$, we find that $\rho_k = 2^{1-k}$ and $\sigma_k = 2^{k-1}$. Furthermore, $\nu_{k+1} = \nu_k - 2^{-k-1}$ and so $\nu_k = -1 + 2^{-k}$. Therefore $Z_k \equiv (-1+2^{-k},2^{k-1},2^{1-k})$, and
-	\[
-		V_k \equiv (-1+2^{-k/2},2^{k-1}\tau^{-2^{1-k}},2^{1-k/2}),
-	\]
-	and letting $\epsilon_k = 2^{-k/2}$, the tail behaviour of the density of $V_k$ satisfies
-	\begin{align*}
-		p_k(x) & \sim c_k x^{-1+\epsilon_{k}}\exp\left(-\frac{\epsilon_{k}^{-2}}{2\tau^{-2\epsilon_{k}^{2}}}x^{2\epsilon_k}\right) \\& \sim c_k x^{-1+\epsilon_{k}}\exp\left(-\frac{1}{2\tau^{-2\epsilon_{k}^{2}}}\left(\frac{x^{\epsilon_{k}}-1}{\epsilon_{k}}\right)^{2}\right) \approx c_k x^{-1}\exp\left(-\frac{1}{2}(\log x)^2\right),
-	\end{align*}
-	as $x \to \infty$, where the approximation improves as $k$ gets larger. The quality of this approximation is shown in \cref{fig:lognormal}.
-\end{example}
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=0.4\textwidth]{figures/LogNormal_Bulk.png}
-	\includegraphics[width=0.4\textwidth]{figures/LogNormal_Tail.png}
-	\caption{Estimation of the log-normal density by tail algebra applied to $V_k$.}
-	\label{fig:lognormal}
-\end{figure}
-
-\section{Additional details for experiments}
-
-
-
-The targets in \Cref{tab:de} and \Cref{tab:vi} are analyzed using
-the GGA in \Cref{sec:addtl_eg}. Note that Inverse Gamma (``IG'') corresponds
-to the inverse exponential. We selected closed form targets so that
-the Pareto tail index $\alpha$ is known analytically and the quality
-of theoretical predictions as well as empirical results can be evaluated
-against. All experiments are repeated for $100$ trials and $1,000$ samples
-from the model (as well as the approximation in VI) were used to compute
-each gradient estimate. Losses were trained until convergence, which 
-all occurred in under $10,000$ iterations at a $0.05$ learning rate and
-the Adam \citep{kingma2014adam} optimizer.
-
-
-
-\subsection{Normal target}
-
-Consider the toy example of a Normal target. This case is trivial for
-Gaussian based methods and is oftentimes the initialization.
-This lack of approximation gap in ADVI is seen in \Cref{fig:normal},
-where we also see that GGA achieves similar approximation quality.
-This is unsurprising as the GGA approximation in \Cref{tab:dist_list}
-is also a Normal distribution.
-
-\begin{figure}
-	\centering
-	\includegraphics[width=1.0\textwidth]{figures/de_normal_sum.png}
-	\includegraphics[width=.4\textwidth]{figures/vi_normal_sum.png}
-	\caption{Density estimation and VI against a known normal target}
-	\label{fig:normal}
-\end{figure}
-
-
-\subsection{Chi-square}
-
-Now let $X_{ij} \sim N(0,1)$ and consider $tr X^\top X$.
-Such quantities arise in the analysis of random projections.
-It is important here to recognize that the power operation $X \mapsto X^2$ is not equivalent to the multiplication operation $X \mapsto X \otimes X$, as multiplication assumes independence.
-\begin{figure}
-	\centering
-	\includegraphics[width=\textwidth]{figures/jl-chi2.png}
-	\caption{$5000$ samples of JL matrix trace (blue) vs GGA prediction (yellow)}
-	\label{fig:jl_chi2}
-\end{figure}
-
-
-\section{Operations in the Generalized Gamma Algebra}
-
-Whereas \cref{tab:gga_operations} provides a summary of our theory useful
-for referencing, in this section we provide additional explanation and references
-for how operations on random variables affect their GGA tails.
-
-\paragraph{Ordering.} A total ordering is imposed on the equivalence classes of $\mathcal{G}$ according to the heaviness of tails. In particular, we say that $(\nu_1,\sigma_1,\rho_1) \leq (\nu_2,\sigma_2,\rho_2)$ if $(x^{\nu_1} e^{-\sigma_1 x^{\rho_1}}) / (x^{\nu_2} e^{-\sigma_2 x^{\rho_2}})$ is bounded as $x \to \infty$. As usual, we say $(\nu_1,\sigma_1,\rho_1) < (\nu_2,\sigma_2,\rho_2)$ if $(\nu_1,\sigma_1,\rho_1) \leq (\nu_2,\sigma_2,\rho_2)$ but $(\nu_1,\sigma_1,\rho_1) \not\equiv (\nu_2,\sigma_2,\rho_2)$. 
-
-%\paragraph{Multiplication by a Constant.} 
-
-\paragraph{Addition.} Tails of this form are  closed under addition. Combining subexponentiality for $\rho < 1$
-%Any random variable $X$ in $(\nu,\sigma,\rho)$ for $\rho < 1$ is subexponential 
-\cite[Chapter X.1]{asmussen2010ruin}, 
-%that is, any sum of iid copies of $X$ asymptotically saturates the union bound: $\mathbb{P}\left(\sum_{i=1}^{n}X_{i}>x\right)\sim\sum_{i=1}^{n}\mathbb{P}(X_{i}>x)$ as $x \to \infty$. Combining this
-with \cite[Thm 3.1 \& eqn. (8.3)]{asmussen2017tail},
-\begin{proposition}
-\label{prop:gga_add}
-Denoting the addition of random variables (additive convolution of densities) by $\oplus$,
-\begin{multline}
-(\nu_{1},\sigma_{1},\rho_{1})\oplus(\nu_{2},\sigma_{2},\rho_{2})
-\\\equiv \begin{cases}
-\max\{(\nu_{1},\sigma_{1},\rho_{1}),(\nu_{2},\sigma_{2},\rho_{2})\} & \text{ if }\rho_{1}\neq\rho_{2}\text{ or }\rho_{1},\rho_{2}<1\\
-\left(\nu_{1}+\nu_{2}+1,\min\{\sigma_{1},\sigma_{2}\},1\right) & \text{ if }\rho_{1}=\rho_{2}=1\\
-(\nu_{1}+\nu_{2}+1-\frac{\rho}{2},(\sigma_{1}^{-\frac{1}{\rho-1}}+\sigma_{2}^{-\frac{1}{\rho-1}})^{1-\rho},\rho) & \text{ if }\rho=\rho_{1}=\rho_{2}>1.
-\end{cases}
-\end{multline}
-\end{proposition}
-
-\paragraph{Powers.} For all exponents $\beta > 0$, by invoking a change of variables $x \mapsto x^\beta$, it is easy to show that
-%\begin{equation}
-%\label{eq:PowerEqn}
-$(\nu, \sigma, \rho)^\beta \equiv  \left(\frac{\nu+1}{\beta}-1, \sigma, \frac{\rho}\beta\right).$
-%\end{equation}
-%\paragraph{Reciprocals.}
-We \emph{define} negative powers and reciprocals equivalently to positive powers in the case $\beta < 0$. This equivalence cannot be proven to hold in general since we cannot determine tail asymptotics of the reciprocal without knowledge of its behaviour around zero. Therefore, we implicitly assume that the behaviour around zero mimics the tail behaviour, that is, \cref{eq:GenGammaTails} holds as $x \to 0^+$. However, this can only hold provided $(\nu + 1)/\rho > 0$ and $\rho \neq 0$. In all other cases, including $\mathcal{R}_\nu$, we assume that the density of $X$ approaches a nonzero value near zero, and define the reciprocal to be $\mathcal{R}_{2}$. %By assuming $p_X(x) \to \tilde{c} x^\nu e^{-\sigma x^\rho}$ as $x \to 0^+$, then \cref{eq:PowerEqn} also holds for $\beta < 0$.
-
-\paragraph{Multiplication.}
-For any $c \in \mathbb{R} \backslash \{0\}$, it can be readily seen from a change of variables $x \mapsto c x$ that $c (\nu, \sigma, \rho) = (\nu, \sigma / |c|^\rho, \rho)$. The class $\mathcal{G}$ is also closed under multiplication (assuming independence of random variables), as we show in the following result --- the proof is delayed to Appendix C.
-\begin{proposition}
-\label{prop:Mult}
-Denoting the multiplication of independent random variables (multiplicative convolution) by $\otimes$,
-\[
-(\nu_{1},\sigma_{1},\rho_{1})\otimes(\nu_{2},\sigma_{2},\rho_{2})
-\equiv\begin{cases}
-\left(\frac{1}{\mu}\left(\frac{\nu_{1}}{|\rho_{1}|}+\frac{\nu_{2}}{|\rho_{2}|}+\frac{1}{2}\right),\sigma,-\frac{1}{\mu}\right) & \text{ if }\rho_{1},\rho_{2}<0\\
-\left(\frac{1}{\mu}\left(\frac{\nu_{1}}{\rho_{1}}+\frac{\nu_{2}}{\rho_{2}}-\frac{1}{2}\right),\sigma,\frac{1}{\mu}\right) & \text{ if }\rho_{1},\rho_{2}>0\\
-\mathcal{R}_{|\nu_1|} & \mbox{ if }\rho_{1}\leq0,\rho_{2}>0 \\
-\mathcal{R}_{\min\{|\nu_1|,|\nu_2|\}} & \mbox{ if }\rho_{1}=0,\rho_{2}=0
-\end{cases}
-\]
-where $\mu=\frac{1}{|\rho_{1}|}+\frac{1}{|\rho_{2}|}=\frac{|\rho_{1}|+|\rho_{2}|}{|\rho_{1}\rho_{2}|}$ and $\sigma=\mu(\sigma_{1}|\rho_{1}|)^{\frac{1}{\mu|\rho_{1}|}}(\sigma_{2}|\rho_{2}|)^{\frac{1}{\mu|\rho_{2}|}}$. 
-\end{proposition}
-% \begin{proof}
-% Appendix C.
-% \end{proof}
-
-%\feynman{I added this back; we need it for the StudentT example but this result currently doesn't give what we need}
-%The next binary operation of interest is \emph{multiplication}. Using Cauchy's inequality, we can adopt the naive
-%\[
-%X \cdot Y \equiv \max\{X^2, Y^2\}.
-%\]
-%In the case where $X,Y \in \mathcal{E}$, this turns out to be reasonable. However, for any other use case, Breiman's lemma suggests that $X \cdot Y \equiv \max\{X, Y\}$. \todo{Perform Tauberian analysis to determine sharpness of these operations}.
-
-
-\paragraph{Product of Densities.}
-
-We can also consider a product of densities operation acting on two random variables $X,Y$, denoted $X \& Y$, by
-$p_{X \& Y}(x) = c p_X(x) p_Y(x)$,
-where $c > 0$ is an appropriate normalizing constant and $p_X,p_Y,p_{X\& Y}$ are the densities of $X$, $Y$, and $X \& Y$, respectively. In terms of the equivalence classes:
-\[
-(\nu_1,\sigma_1,\rho_1)\&(\nu_2,\sigma_2,\rho_2) 
-\equiv \begin{cases}
-(\nu_{1}+\nu_{2},\sigma_{1},\rho_{1}) & \text{ if }\rho_{1}<\rho_{2}\\
-(\nu_{1}+\nu_{2},\sigma_{1}+\sigma_{2},\rho) & \text{ if }\rho=\rho_{1}=\rho_{2}\\
-(\nu_{1}+\nu_{2},\sigma_{2},\rho_{2}) & \text{ otherwise.}
-\end{cases}
-\]
-Note that this particular operation does not require either $p_X$ or $p_Y$ to be normalized --- only the tail behaviour is needed. We may also use this to work out the tail behaviour of a posterior density, provided the tail behaviour of the likelihood in the parameters is known.
-
-\paragraph{Lipschitz Functions.}
-
-There are many multivariate functions that cannot be readily represented in terms of the operations covered thus far. For these, it is important to specify the tail behaviour of pushforward measures under Lipschitz-continuous functions. Fortunately, this is covered by \cref{lem:lipschitz} below, presented in \cite[Proposition 1.3]{ledoux2001concentration}. 
-H\"{o}lder-continuous functions can also be represented as a composition of a power operation and a Lipschitz-continuous function. 
-\begin{lemma}\label{lem:lipschitz}
-For any Lipschitz continuous function $f:\mathbb{R}^d \to \mathbb{R}$ satisfying $\|f(x)-f(y)\|\leq L\|x -y\|$ for $x,y \in \mathbb{R}^d$, there is $f(X_1,\dots,X_d) \equiv L \max\{X_1,\dots,X_d\}.$
-\end{lemma}
-
-\paragraph{Power Law Approximation.} Note that as $x \to \infty$, $p_{|X|}(x) \sim c x^\nu e^{-\sigma x^\rho} = \tilde{c}x^\nu e^{-\sigma\rho\frac{x^\rho - 1}{\rho}} \approx \tilde{c} x^\nu e^{-\sigma\rho \log x}$
-    \[
-    p_{|X|}(x) \sim c x^\nu e^{-\sigma x^\rho} = \tilde{c} x^\nu e^{-\sigma(x^\rho - 0)} = \tilde{c} x^\nu e^{-\sigma\rho\frac{x^\rho - 1}{\rho}} \approx \tilde{c} x^\nu e^{-\sigma\rho \log x} = \tilde{c} x^{\nu-\sigma \rho},
-    \]
-    where we have used the approximation $\log x = \rho^{-2}(x^\rho - 1) + \mathcal{O}(\rho^2)$. Consequently, we can represent tails of this form by the Student $t$ distribution with $|\nu-\sigma\rho|-1$ degrees of freedom. In practice, we find this approximation tends to \emph{overestimate} the heaviness of the tail. Alternatively, the generalized Gamma density (\ref{eq:GenGammaDensity}) satisfies $\mathbb{E}X^r = \sigma^{-r/\rho} \Gamma(\frac{\nu+1+r}{\rho})/\Gamma(\frac{\nu+1}{\rho})$ for $r > 0$. Let $\alpha > 0$ be such that $\mathbb{E}X^\alpha = 2$. By Markov's inequality, the tail of $X$ satisfies $\mathbb{P}(X>x)\leq 2 x^{-\alpha}$. Therefore, we can represent tails of this form by the Student $t$ distribution with $\alpha+1$ degrees of freedom (generate $X \sim t_{\alpha}$). In practice, we find this approximation to be more accurate, and is hence used in Section 4.1.
-
-\section{List of univariate distributions}
-
-
-{\small
-\bgroup
-\def\arraystretch{2}
-\begin{longtable}{|c|c|c|c|}
-\caption{List of univariate distributions}\label{tab:dist_list}\\
-\hline 
-Name & Support & Density $p(x)$ & Class\tabularnewline
-\hline 
-\hline 
-Benktander Type II & $(0,\infty)$ & $e^{\frac{a}{b}(1-x^{b})}x^{b-2}(ax^{b}-b+1)$ & $(2b-2,\frac{a}{b},b)$\tabularnewline
-\hline 
-Beta prime distribution & $(0,\infty)$ & $\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}x^{\alpha-1}(1+x)^{-\alpha-\beta}$ & $\mathcal{R}_{\beta+1}$\tabularnewline
-\hline 
-Burr distribution & $(0,\infty)$ & $ckx^{c-1} (1+x^{c})^{-k-1}$ & $\mathcal{R}_{ck+1}$\tabularnewline
-\hline 
-Cauchy distribution & $(-\infty,\infty)$ & $(\pi\gamma)^{-1}\left[1+\left(\frac{x-x_{0}}{\gamma}\right)^{2}\right]^{-1}$ & $\mathcal{R}_{2}$\tabularnewline
-\hline 
-Chi distribution & $(0,\infty)$ & $\frac{1}{2^{k/2-1}\Gamma(k/2)}x^{k-1}e^{-x^{2}/2}$ & $(k-1,\frac{1}{2},2)$\tabularnewline
-\hline 
-Chi-squared distribution & $(0,\infty)$ & $\frac{1}{2^{k/2}\Gamma(k/2)}x^{\frac{k}{2}-1}e^{-x/2}$ & $(\frac{k}{2}-1,\frac{1}{2},1)$\tabularnewline
-\hline 
-Dagum distribution & $(0,\infty)$ & $\frac{ap}{x}\left(\frac{x}{b}\right)^{ap}\left(\left(\frac{x}{b}\right)^{a}+1\right)^{-p-1}$ & $\mathcal{R}_{a+1}$\tabularnewline
-\hline 
-Davis distribution & $(0,\infty)$ & $\propto(x-\mu)^{-1-n}/\left(e^{\frac{b}{x-\mu}}-1\right)$ & $(-1-n,b,-1)$\tabularnewline
-\hline 
-Exponential distribution & $(0,\infty)$ & $\lambda e^{-\lambda x}$ & $(0,\lambda,1)$\tabularnewline
-\hline 
-$F$ distribution & $(0,\infty)$ & $\propto x^{d_{1}/2-1}(d_{1}x+d_{2})^{-(d_{1}+d_{2})/2}$ & $\mathcal{R}_{d_{2}/2+1}$\tabularnewline
-\hline 
-Fisher $z$-distribution & $(-\infty,\infty)$ & $\propto\frac{e^{d_{1}x}}{(d_{1}e^{2x}+d_{2})^{(d_{1}+d_{2})/2}}$ & $(0,d_{2},1)$\tabularnewline
-\hline 
-Frechet distribution & $(0,\infty)$ & $\frac{\alpha}{\lambda}\left(\frac{x-m}{\lambda}\right)^{-1-\alpha}e^{-\left(\frac{x-m}{\lambda}\right)^{-\alpha}}$ & $(-1-\alpha,\lambda^{\alpha},-\alpha)$\tabularnewline
-\hline 
-Gamma distribution & $(0,\infty)$ & $\frac{\beta^{\alpha}}{\Gamma(\alpha)}x^{\alpha-1}e^{-\beta x}$ & $(\alpha-1,\beta,1)$\tabularnewline
-\hline 
-Gamma/Gompertz distribution & $(0,\infty)$ & $bse^{bx}\beta^{s}/(\beta-1+e^{bx})^{s+1}$ & $(0,bs,1)$\tabularnewline
-\hline 
-Gen. hyperbolic distribution & $(-\infty,\infty)$ & $\propto e^{\beta(x-\mu)}\frac{K_{\lambda-1/2}(\alpha\sqrt{\delta^{2}+(x-\mu)^{2}})}{(\delta^{2}+(x-\mu)^{2})^{1/4-\lambda/2}}$ & $(\lambda-1,\alpha-\beta,1)$\tabularnewline
-\hline 
-Gen. Normal distribution & $(-\infty,\infty)$ & $\frac{\beta}{2\alpha\Gamma(1/\beta)}\exp\left(-\left(\frac{|x-\mu|}{\alpha}\right)^{\beta}\right)$ & $(0,\alpha^{-\beta},\beta)$\tabularnewline
-\hline 
-Geometric stable distribution & $(-\infty,\infty)$ & no closed form & $\mathcal{R}_{\alpha+1}$\tabularnewline
-\hline 
-Gompertz distribution & $(0,\infty)$ & $\sigma \eta \exp(\eta + \sigma x - \eta e^{\sigma x})$ & $\mathcal{L}$\tabularnewline
-\hline
-Gumbel distribution & $(0,\infty)$ & $\beta^{-1} e^{-(\beta^{-1}(x-\mu)+e^{-\beta^{-1}(x-\mu)})}$ & $(0,\frac{1}{\beta},1)$\tabularnewline
-\hline
-Gumbel Type II distribution & $(0,\infty)$ & $\alpha\beta x^{-\alpha-1}e^{-\beta x^{-\alpha}}$ & $(-\alpha-1,\beta,-\alpha)$\tabularnewline
-\hline 
-Holtsmark distribution & $(-\infty,\infty)$ & no closed form & $\mathcal{R}_{5/2}$\tabularnewline
-\hline 
-Hyperbolic secant distribution & $(-\infty,\infty)$ & $\frac{1}{2}\text{sech}\left(\frac{\pi x}{2}\right)$ & $(0,\frac{\pi}{2},1)$\tabularnewline
-\hline 
-Inv. chi-squared distribution & $(0,\infty)$ & $\frac{2^{-k/2}}{\Gamma(k/2)}x^{-k/2-1}e^{-1/(2x)}$ & $(-\frac{k}{2}-1,\frac{1}{2},-1)$\tabularnewline
-\hline 
-Inv. gamma distribution & $(0,\infty)$ & $\frac{\beta^{\alpha}}{\Gamma(\alpha)}x^{-\alpha-1}e^{-\beta/x}$ & $(-\alpha-1,\beta,-1)$\tabularnewline
-\hline 
-Levy distribution & $(0,\infty)$ & $\sqrt{\frac{c}{2\pi}}(x-\mu)^{-3/2}e^{-\frac{c}{2(x-\mu)}}$ & $(-\frac{3}{2},\frac{c}{2},-1)$\tabularnewline
-\hline 
-Laplace distribution & $(-\infty,\infty)$ & $\frac{1}{2\lambda}\exp\left(-\frac{|x-\mu|}{\lambda}\right)$ & $(0,\frac{1}{\lambda},1)$\tabularnewline
-\hline 
-Logistic distribution & $(-\infty,\infty)$ & $\frac{e^{-(x-\mu)/\lambda}}{\lambda(1+e^{-(x-\mu)/\lambda})^{2}}$ & $(0,\frac{1}{\lambda},1)$\tabularnewline
-\hline 
-Log-Cauchy distribution &
-$(0,\infty)$ & $\frac{\sigma}{x\pi}((\log x - \mu)^2 + \sigma^2)^{-1}$ & $\mathcal{R}_1$\tabularnewline
-\hline
-Log-Laplace distribution & $(0,\infty)$ & $\frac{1}{2\lambda x}\exp\left(-\frac{\left|\log x-\mu\right|}{\lambda}\right)$ & $\mathcal{R}_{1/\lambda+1}$\tabularnewline
-\hline 
-Log-logistic distribution & $(0,\infty)$ & $\frac{\beta}{\alpha}\left(\frac{x}{\alpha}\right)^{\beta-1}\left(1+\left(\frac{x}{\alpha}\right)^{\beta}\right)^{-2}$ & $\mathcal{R}_{\beta+1}$\tabularnewline
-\hline
-Log-$t$ distribution &
-$(0,\infty)$ &
-$\propto x^{-1} (1 + \frac1{\nu}(\log x - \mu)^2)^{-\frac{\nu+1}{2}}$ & $\mathcal{R}_1$\tabularnewline
-\hline 
-Lomax distribution & $(0,\infty)$ & $\frac{\alpha}{\lambda}\left(1+\frac{x}{\lambda}\right)^{-\alpha-1}$ & $\mathcal{R}_{\alpha+1}$\tabularnewline
-\hline 
-Maxwell-Boltzmann distribution & $(0,\infty)$ & $\sqrt{\frac{2}{\pi}}\frac{x^{2}e^{-x^{2}/(2\sigma^{2})}}{\sigma^{3}}$ & $(2,\frac{1}{2\sigma^{2}},2)$\tabularnewline
-\hline 
-Normal distribution & $(-\infty,\infty)$ & $\frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{1}{2}(\frac{x-\mu}{\sigma})^{2}}$ & $(0,\frac{1}{2\sigma^{2}},2$)\tabularnewline
-\hline 
-Pareto distribution & $(x_{0},\infty)$ & $\alpha x_{0}^{\alpha}x^{-\alpha-1}$ & $\mathcal{R}_{\alpha+1}$\tabularnewline
-\hline 
-Rayleigh distribution & $(0,\infty)$ & $\frac{x}{\sigma^{2}}e^{-x^{2}/(2\sigma^{2})}$ & $(1,\frac{1}{2\sigma^{2}},2)$\tabularnewline
-\hline 
-Rice distribution & $(0,\infty)$ & $\frac{x}{\sigma^{2}}\exp\left(-\frac{(x^{2}+\nu^{2})}{2\sigma^{2}}\right)I_{0}\left(\frac{x\nu}{\sigma^{2}}\right)$ & $(\frac{1}{2},\frac{1}{2\sigma^{2}},2)$\tabularnewline
-\hline 
-Skew normal distribution & $(-\infty,\infty)$ & no closed form & $(0,\frac{1}{2\sigma^{2}},2)$\tabularnewline
-\hline 
-Slash distribution & $(-\infty,\infty)$ & $\frac{1-e^{-\frac{1}{2}x^{2}}}{\sqrt{2\pi}x^{2}}$ & $(-2,\frac{1}{2},2)$\tabularnewline
-\hline 
-Stable distribution & $(-\infty,\infty)$ & no closed form & $\mathcal{R}_{\alpha+1}$\tabularnewline
-\hline 
-Student's $t$-distribution & $(-\infty,\infty)$ & $\frac{\Gamma(\frac{\nu+1}{2})}{\sqrt{\nu\pi}\Gamma(\frac{\nu}{2})}\left(1+\frac{x^{2}}{\nu}\right)^{-\frac{\nu+1}{2}}$ & $\mathcal{R}_{\nu+1}$\tabularnewline
-\hline 
-Tracy-Widom distribution & $(-\infty,\infty)$ & no closed form & $(-\frac{3\beta}{4}-1,\frac{2\beta}{3},\frac{3}{2})$\tabularnewline
-\hline 
-Voigt distribution & $(-\infty,\infty)$ & no closed form & $\mathcal{R}_{2}$\tabularnewline
-\hline 
-Weibull distribution & $(0,\infty)$ & $\frac{\rho}{\lambda}\left(\frac{x}{\lambda}\right)^{\rho-1}e^{-(x/\lambda)^{\rho}}$ & $(\rho-1,\lambda^{-\rho},\rho)$\tabularnewline
-\hline 
-\end{longtable}
-\egroup
-}
-
-The following densities are not supported by our algebra: Benini distribution; Benktander Type I distribution; Johnson's $S_U$-distribution; and the log-normal distribution. All of these densities exhibit log-normal tails.
-
-\section{Proofs}\label{sec:proofs}
-
-\begin{proof}[Proof of Lemma \ref{lem:Products}]
-The proof relies on the following integral definition \cite[pg. 183]{watson1995treatise} and asymptotic relation as $z \to \infty$ \cite[pg. 202]{watson1995treatise} of the modified Bessel function $K_\nu(z)$ for $z > 0$ and $\nu \geq 0$,
-\begin{equation}
-\label{eq:BesselInt}
-K_\nu(z) = \frac12 \left(\frac{z}{2}\right)^\nu \int_0^\infty u^{-\nu-1}\exp\left(-u - \frac{z^2}{4u}\right) \dd u \sim \sqrt{\frac{\pi}{2z}}e^{-z}. 
-\end{equation}
-We also make use of the known density for the product of two independent continuous random variables: if $X$ and $Y$ have densities $p_X$ and $p_Y$ respectively, then $Z = XY$ has density
-\[
-p_Z(z) = \int_\mathbb{R} p_X(x) p_Y(z/x) |x|^{-1} \dd x.
-\]
-\paragraph{Exponentials.} Recalling that the density of $X \sim \mathrm{Exp}(\lambda)$ is $p_X(x) = \lambda e^{-\lambda x}$ for $x \geq 0$, for $Z = XY$ where $X \sim \mathrm{Exp}(\lambda_1)$ and $Y \sim \mathrm{Exp}(\lambda_2)$ are independent,
-\[
-p_Z(z) = \int_{0}^{\infty}x^{-1}\lambda_{1}e^{-\lambda_{1}x}\lambda_{2}e^{-\lambda_{2}z/x}\dd x = \lambda_{1}\lambda_{2}\int_{0}^{\infty}x^{-1}e^{-\lambda_{1}x-\lambda_{2}z/x}\dd x.
-\]
-Since $2K_{0}(2\sqrt{z})=\int_{0}^{\infty}u^{-1}\exp(-u-\frac{z}{u})\dd u$, let $u = \lambda_1 v$, so that $\dd u = \lambda_1 \dd v$,
-\[
-2K_{0}(2\sqrt{\lambda_{1}\lambda_{2}z})=\int_{0}^{\infty}u^{-1}\exp\left(-\lambda_{1}v-\lambda_{2}\frac{z}{v}\right)\dd v.
-\]
-Therefore, letting $\lambda = \sqrt{\lambda_1\lambda_2}$, 
-\[
-p_Z(z) = 2\lambda^2 K_0(2\lambda\sqrt{z}) \sim \sqrt{\pi} \lambda^{3/2} z^{-1/4} e^{-2\lambda z^{1/2}}.
-\]
-\paragraph{Normals.} Recalling that the density of $X \sim \mathcal{N}(0,1)$ is $p_X(x) = (2\pi)^{-1/2} \exp(-\frac12 x^2)$, for $Z = XY$ where $X,Y \sim \mathcal{N}(0,1)$ are independent, 
-\begin{align*}
-p_Z(z) &= \frac{1}{2\pi}\int_{\mathbb{R}}\left|x\right|^{-1}e^{-\frac{1}{2}x^{2}}e^{-\frac{1}{2}z^{2}/x^{2}}\dd x\\
-&=\frac{1}{\pi}\int_{0}^{\infty}x^{-1}e^{-\frac{1}{2}x^{2}-\frac{1}{2}z^{2}/x^{2}}\dd x\\
-&=\frac{1}{\pi}\int_{0}^{\infty}x^{-1}e^{-\frac{1}{2}x^{2}-\frac{1}{2}z^{2}/x^{2}}\dd x.
-\end{align*}
-Let $u=\frac{1}{2}x^{2}$ so that $\dd u=x \dd x$ and
-\[
-K_{\nu}(z)=z^{\nu}\int_{0}^{\infty}x^{-2\nu-1}\exp\left(-\frac{1}{2}x^{2}-\frac{z^{2}}{2x^{2}}\right)\dd x.
-\]
-In particular, for any $z \in \mathbb{R}$,
-\begin{equation}
-\label{eq:BesselGauss}
-K_{0}(|z|)=\int_{0}^{\infty}x^{-1}\exp\left(-\frac{1}{2}x^{2}-\frac{z^{2}}{2x^{2}}\right)\dd x,
-\end{equation}
-and so
-\[
-p_Z(z) = \frac{1}{\pi} K_0(|z|) \sim \frac{1}{\sqrt{2\pi|z|}} e^{-|z|}.
-\]
-\paragraph{Reciprocal Normals.} Finally, by a change of variables, we note that the density of $X^{-1}$ where $X \sim \mathcal{N}(0,1)$ is $p_{X^{-1}}(x) = (2\pi)^{-1/2} x^{-2}\exp(-\frac{1}{2x^2})$. Therefore, the density of $Z = 1/(XY)$ where $X,Y \sim \mathcal{N}(0,1)$ are independent is given by
-\begin{align*}
-p_{Z}(z)&=\int_{\mathbb{R}}\frac{1}{\sqrt{2\pi}x^{2}}e^{-\frac{1}{2x^{2}}}\frac{x^{2}}{\sqrt{2\pi}z^{2}}e^{-\frac{x^{2}}{2z^{2}}}\frac{1}{\left|x\right|}\dd x\\
-&=\frac{1}{2\pi z^{2}}\int_{\mathbb{R}}e^{-\frac{1}{2x^{2}}-\frac{x^{2}}{2z^{2}}}\frac{1}{\left|x\right|}\dd x\\
-&=\frac{1}{\pi z^{2}}\int_{0}^{\infty}e^{-\frac{1}{2x^{2}}-\frac{x^{2}}{2z^{2}}}\frac{1}{x}\dd x\\
-&=\frac{1}{\pi z^{2}}K_{0}(|z|^{-1}) \sim \sqrt{\frac{1}{2\pi}}|z|^{-3/2}e^{-|z|^{-1}},
-\end{align*}
-where we have once again used (\ref{eq:BesselGauss}). 
-\end{proof}
-
-% \begin{lemma}
-% Suppose that $X$ is generalized Gamma distributed with density $p_X(x)$. Then $\int_z^\infty x^{-1} p_X(x) \dd x = o(\bar{p}_X(x))$ as $x \to \infty$.
-% \end{lemma}
-% \begin{proof}
-% Suppose that $X$ is generalized Gamma distributed with parameters $\nu,\sigma,\rho$. Then
-% \[
-% \int_z^\infty x^{-1} p_X(x) \dd x = \frac{\Gamma(\frac{\nu}{\rho}, \sigma z^\rho)}{\Gamma(\frac{\nu}{\rho})}.
-% \]
-% where $\Gamma(a,z)$ is the (upper) incomplete Gamma function. From \cite[8.11.2]{NIST:DLMF}, 
-% \[
-% \frac{\Gamma(\frac{\nu}{\rho}, \sigma z^\rho)}{\Gamma(\frac{\nu}{\rho})} \sim c\sigma^{\frac{\nu}{\rho}-1}z^{\nu-\rho}e^{-\sigma z^{\rho}}=o(\bar{p}_{X}(z)),
-% \]
-% for an appropriate $c > 0$.
-% \end{proof}
-% \begin{lemma}
-% Let $\bar{X},\bar{Y}$ be independent generalized Gamma random variables with densities $\bar{p}_X$ and $\bar{p}_Y$ respectively. If $X,Y$ are independent random variables with densities $p_X(x) \sim c_X \bar{p}_X(x)$ and $p_Y(x) \sim c_Y \bar{p}_Y(x)$ as $x\to\infty$, then the densities $p_{XY}$ and $\bar{p}_{XY}$ of $XY$ and $\bar{X}\bar{Y}$, respectively, satisfy $p_{XY}(x) \sim \bar{p}_{XY}(x)$ as $x \to \infty$.
-% \end{lemma}
-% \begin{proof}
-% Let $C_{X}=\sup_{x}|p_{X}(x)-\bar{p}_{X}(x)|$ and $C_{Y}=\sup_{y}|p_{Y}(y)-\bar{p}_{Y}(y)|$, and for any $\epsilon > 0$, let $M_\epsilon$ be such that
-% \[
-% \max_{x\geq M_{\epsilon}}\left\{ \left|\frac{p_{X}(x)}{\bar{p}_{X}(x)}-1\right|,\left|\frac{p_{Y}(x)}{\bar{p}_{Y}(x)}-1\right|\right\} <\epsilon.
-% \]
-% \end{proof}
-
-Recall that the Mellin transform of a function $f$ on $(0,\infty)$ is given by
-\[
-\mathcal{M}_s[f] = \int_0^\infty x^{s-1} f(x) \dd x.
-\]
-Letting $p_{XY}$ denote the density of the product of independent random variables $X,Y$ with respective densities $p_X$ and $p_Y$, $\mathcal{M}_s[p_{XY}] = \mathcal{M}_s[p_X] \mathcal{M}_s[p_Y]$. There is
-\[
-\mathcal{M}_s[c x^\nu e^{-\sigma x^\rho}] = \frac{c \sigma^{-\nu/\rho}}{\rho} \sigma^{-s/\rho} \Gamma\left(\frac{\nu}{\rho} + \frac{s}{\rho}\right).
-\]
-To facilitate the proof of Proposition \ref{prop:Mult}, we define the Fox $H$-function
-\[
-H_{p,q}^{m,n}\left[z\left|\substack{(a_{1},A_{1}),\dots,(a_{p},A_{p})\\
-(b_{1},B_{1}),\dots,(b_{q},B_{q})
-}
-\right.\right]
-\]
-as the inverse Mellin transform of
-\[
-\Theta(s) = z^{-s} \frac{\prod_{j=1}^m \Gamma(b_j + B_j s) \cdots \prod_{j=1}^n \Gamma(1-a_j - A_j s)}{\prod_{j=m+1}^q \Gamma(1-b_j - B_j s) \prod_{j=n+1}^p \Gamma(a_j + A_j s)}.
-\]
-An important property of the Fox $H$-function is its asymptotic behaviour as $z \to \infty$. From \cite[Theorem 1.3]{mathai2009h},
-\[
-H_{p,q}^{q,0}\left[z\left|\substack{(a_{1},A_{1}),\dots,(a_{p},A_{p})\\
-(b_{1},B_{1}),\dots,(b_{q},B_{q})}\right.\right] \sim c x^{(\delta+\frac12)/\mu} \exp(-\mu \beta^{-1/\mu} x^{1/\mu}),\qquad \mbox{as }x\to\infty,
-\]
-for some constant $c > 0$, where $\beta = \prod_{j=1}^p (A_j)^{-A_j} \prod_{j=1}^q B_j^{B_j}$, $\mu = \sum_{j=1}^q B_j - \sum_{j=1}^p A_j$, and $\delta = \sum_{j=1}^q b_j - \sum_{j=1}^p a_j + \frac{p-q}{2}$. 
-
-\begin{proof}[Proof of Proposition \ref{prop:Mult}]
-The $\rho_1 \leq 0, \rho_2 > 0$ and $\rho_1 = \rho_2 = 0$ cases follow from Breiman's lemma \cite[Lemma B.5.1]{buraczewski2016stochastic}. Our argument proceeds similar to \cite{asmussen2017tail}. Assume that $\rho_1,\rho_2 > 0$ and let $0 < \epsilon < 1$ be such that $0 < a_- < a_+ < 1$, where
-\[
-a_+ = \frac{(1+\epsilon)\rho_2}{\rho_1+\rho_2},\qquad a_{-} = 1 - \frac{(1+\epsilon)\rho_1}{\rho_1+\rho_2}.
-\]
-Then for $\rho = \frac{\rho_1\rho_2}{\rho_1 + \rho_2}$, if $X \equiv (\nu_1,\sigma_1,\rho_1)$ and $Y \equiv (\nu_2,\sigma_2,\rho_2)$, then
-\begin{align*}
-\mathbb{P}(XY>x,X\notin[x^{a_{-}},x^{a_{+}}])  & \leq\mathbb{P}(X>x^{a_{+}})+\mathbb{P}(Y>x^{1-a_{-}}) \\
-& \sim c_{1}x^{\nu_{1}a_{+}}e^{-\sigma_{1}x^{\rho_{1}a_{+}}}+c_{2}x^{\nu_{2}(1-a_{-})}e^{-\sigma_{2}x^{\rho_{2}(1-a_{-})}}\\
-& \leq\left(c_{1}x^{\nu_{1}a_{+}}+c_{2}x^{\nu_{2}(1-a_{-})}\right)e^{-\min\{\sigma_{1},\sigma_{2}\}x^{(1+\epsilon)\rho}} = o(x^\nu e^{-\sigma x^\rho}),
-\end{align*}
-for any $\nu,\sigma > 0$. Hence, it will suffice to show the claimed tail asymptotics for the generalized Gamma distribution. In this case, since $a_- > 0$ and $a_+ < 1$, the tail of the distribution for the product of $X,Y$ depends only on the tail of the distributions for $X$ and $Y$. 
-
-Therefore, assume without loss of generality that $p_X(x) = c_X x^{\nu_1} e^{-\sigma_1 x^{\rho_1}}$ and $p_Y(x) = c_Y x^{\nu_2} e^{-\sigma_2 x^{\rho_2}}$. Then
-\[
-\mathcal{M}_s[p_{XY}] = c_X c_Y \frac{\sigma_{1}^{-\nu_{1}/\rho_{1}}}{\rho_{1}}\frac{\sigma_{2}^{-\nu_{2}/\rho_{2}}}{\rho_{2}}\left(\sigma_{1}^{1/\rho_{1}}\sigma_{2}^{1/\rho_{2}}\right)^{-s}\Gamma\left(\frac{\nu_{1}}{\rho_{1}}+\frac{s}{\rho_{1}}\right)\Gamma\left(\frac{\nu_{2}}{\rho_{2}}+\frac{s}{\rho_{2}}\right).
-\]
-Consequently,
-\[
-p_{XY}(z) = c_X c_Y \frac{\sigma_{1}^{-\nu_{1}/\rho_{1}}}{\rho_{1}}\frac{\sigma_{2}^{-\nu_{2}/\rho_{2}}}{\rho_{2}}H_{p,q}^{m,n}\left[\sigma_{1}^{1/\rho_{1}}\sigma_{2}^{1/\rho_{2}}z\left|\substack{-\\
-(\frac{\nu_{1}}{\rho_{1}},\frac{1}{\rho_{1}}),(\frac{\nu_{2}}{\rho_{2}},\frac{1}{\rho_{2}})
-}
-\right.\right]
-\]
-Computing the corresponding $\beta,\delta,\mu$ for the asymptotic expansion, we find that
-\[
-\mu=\frac{1}{\rho_{1}}+\frac{1}{\rho_{2}},\qquad\delta=\frac{\nu_{1}}{\rho_{1}}+\frac{\nu_{2}}{\rho_{2}}-1,\qquad\beta=\rho_{1}^{-1/\rho_{1}}\rho_{2}^{-1/\rho_{2}}.
-\]
-Consequently, for some $c > 0$,
-\[
-p_{XY}(z) \sim c z^{\frac{1}{\mu}(\frac{1}{2}+\delta)}\exp\left(-\mu\beta^{-\frac{1}{\mu}}(\sigma_{1}^{1/\rho_{1}}\sigma_{2}^{1/\rho_{2}})^{\frac{1}{\mu}}z^{\frac{1}{\mu}}\right),
-\]
-which completes the $\rho_1,\rho_2 > 0$ case. The final case follows by composing the multiplication and reciprocal operations. Note that
-\begin{align*}
-(\nu_{1},\sigma_{1},-\rho_{1})^{-1}\otimes(\nu_{2},\sigma_{2},-\rho_{2})^{-1}	&\equiv\left(-\nu_{1}-2,\sigma_{1},\rho_{1}\right)\otimes\left(-\nu_{2}-2,\sigma_{2},\rho_{2}\right)\\
-&\equiv\left(\frac{1}{\mu}\left(\frac{-\nu_{1}-2}{\rho_{1}}+\frac{-\nu_{2}-2}{\rho_{2}}-\frac{1}{2}\right),\sigma,\frac{1}{\mu}\right)\\
-&\equiv\left(\frac{1}{\mu}\left(\frac{-\nu_{1}}{\rho_{1}}+\frac{-\nu_{2}}{\rho_{2}}-2\mu-\frac{1}{2}\right),\sigma,\frac{1}{\mu}\right)\\
-&\equiv\left(\frac{1}{\mu}\left(\frac{-\nu_{1}}{\rho_{1}}+\frac{-\nu_{2}}{\rho_{2}}-\frac{1}{2}\right)-2,\sigma,\frac{1}{\mu}\right),
-\end{align*}
-and therefore
-\[
-(\nu_{1},\sigma_{1},-\rho_{1})\otimes(\nu_{2},\sigma_{2},-\rho_{2})\equiv\left(\frac{1}{\mu}\left(\frac{\nu_{1}}{\rho_{1}}+\frac{\nu_{2}}{\rho_{2}}+\frac{1}{2}\right),\sigma,-\frac{1}{\mu}\right).
-\]
-\end{proof}
 
 % \fi
 \end{document}

@@ -28,20 +28,20 @@
 \newif\ifDRAFT
 \DRAFTtrue
 \ifDRAFT
-\newcommand{\marrow}{\marginpar[\hfill$\longrightarrow$]{$\longleftarrow$}}
-\newcommand{\niceremark}[3]
+   \newcommand{\marrow}{\marginpar[\hfill$\longrightarrow$]{$\longleftarrow$}}
+   \newcommand{\niceremark}[3]
    {\textcolor{red}{\textsc{#1 #2:} \marrow\textsf{#3}}}
-\newcommand{\ken}[2][says]{\niceremark{Ken}{#1}{#2}}
-\newcommand{\manfred}[2][says]{\niceremark{Manfred}{#1}{#2}}
-\newcommand{\michael}[2][says]{\niceremark{Michael}{#1}{#2}}
-\newcommand{\michal}[2][says]{\niceremark{Michal}{#1}{#2}}
-\newcommand{\feynman}[2][says]{\niceremark{Feynman}{#1}{#2}}
-%\usepackage[inline]{showlabels}
+   \newcommand{\ken}[2][says]{\niceremark{Ken}{#1}{#2}}
+   \newcommand{\manfred}[2][says]{\niceremark{Manfred}{#1}{#2}}
+   \newcommand{\michael}[2][says]{\niceremark{Michael}{#1}{#2}}
+   \newcommand{\michal}[2][says]{\niceremark{Michal}{#1}{#2}}
+   \newcommand{\feynman}[2][says]{\niceremark{Feynman}{#1}{#2}}
+   %\usepackage[inline]{showlabels}
 \else
-\newcommand{\ken}[1]{}
-\newcommand{\michael}[1]{}
-\newcommand{\michal}[1]{}
-\newcommand{\feynman}[1]{}
+   \newcommand{\ken}[1]{}
+   \newcommand{\michael}[1]{}
+   \newcommand{\michal}[1]{}
+   \newcommand{\feynman}[1]{}
 \fi
 \newcommand{\norm}[1]{{\| #1 \|}}
 
@@ -54,7 +54,7 @@
 \newcommand{\dk}{\dxy^k}
 \newcommand{\dxy}{\mathrm{D}}
 \def\simiid{\overset{\textnormal{\fontsize{6}{6}\selectfont
-i.i.d.}}{\sim}}
+         i.i.d.}}{\sim}}
 %\newcommand{\Dxy}{D_{\!\cal X\!,\cal Y}}
 \def\vskx{{\mathrm{VS}_{\!\dx}^k}}
 \def\vsk{{\mathrm{VS}_{\!D}^k}}
@@ -78,10 +78,10 @@ i.i.d.}}{\sim}}
 \def\Lev{{\mathrm{Lev}}}
 \newcommand\todod[1]{\Red{\# DH: #1}}
 \newcommand{\explain}[2]{\mathrel{\overset{\makebox[0pt]{\text{\tiny
-#1}}}{#2}}}
+               #1}}}{#2}}}
 \def\tot {{\mathrm{tot}}}
 \def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) --
-(1,.7) -- (.25,.15) -- cycle;}
+   (1,.7) -- (.25,.15) -- cycle;}
 \newcommand{\mnote}[1]{{\bf\large \Magenta{*}}\marginpar{\small \Magenta{#1}}}
 \newcommand{\bnote}[1]{{\bf #1}}
 
@@ -89,14 +89,14 @@ i.i.d.}}{\sim}}
 \newenvironment{proofof}[2]{\par\vspace{2mm}\noindent\textbf{Proof of {#1} {#2}}\ }{\hfill\BlackBox}
 \newcommand{\sets}[2]
 {{\hspace{-0.3mm}[\hspace{-0.3mm}#1\hspace{-0.3mm}]\hspace{-0.3mm}\choose
-\hspace{-0.3mm}#2\hspace{-0.3mm}}}
+         \hspace{-0.3mm}#2\hspace{-0.3mm}}}
 \DeclareMathOperator{\sgn}{\textnormal{sgn}}
 \DeclareMathOperator{\adj}{\textnormal{adj}}
 \def\Rb{{\mathbf{R}}}
 \DeclareMathOperator{\ws}{\widetilde{\w}}
 \newcommand{\inote}[1]{{\bf {#1}}}
 \def\xib{\boldsymbol\xi}
-\def\Sigmab{\mathbf{\Sigma}}
+\def\Sigmab{\matr{\Sigma}}
 \def\Sigmabh{\widehat{\Sigmab}}
 \def\Sigmabt{\widetilde{\Sigmab}}
 \def\S{\mathbf{S}}
@@ -169,7 +169,7 @@ i.i.d.}}{\sim}}
 \newcommand{\Sm}{{S_{-i}}}
 \newcommand{\Sp}{{S_{+i}}}
 \ifx\BlackBox\undefined
-\newcommand{\BlackBox}{\rule{1.5ex}{1.5ex}}  % end of proof
+   \newcommand{\BlackBox}{\rule{1.5ex}{1.5ex}}  % end of proof
 \fi
 %\renewcommand{\dagger}{+}
 \DeclareMathOperator*{\argmin}{\mathop{\mathrm{argmin}}}
@@ -300,60 +300,63 @@ i.i.d.}}{\sim}}
 \DeclareMathOperator{\half}{\frac{1}{2}}
 
 \ifx\proof\undefined
-\newenvironment{proof}{\par\noindent{\bf Proof\ }}{\hfill\BlackBox\\[2mm]}
+   \newenvironment{proof}{\par\noindent{\bf Proof\ }}{\hfill\BlackBox\\[2mm]}
 \fi
 
 \ifx\theorem\undefined
-\newtheorem{theorem}{Theorem}
+   \newtheorem{theorem}{Theorem}
 \fi
 
 \ifx\example\undefined
-\newtheorem{example}{Example}
+   \newtheorem{example}{Example}
 \fi
 
 \ifx\condition\undefined
-\newtheorem{condition}{Condition}
+   \newtheorem{condition}{Condition}
 \fi
 \ifx\property\undefined
-\newtheorem{property}{Property}
+   \newtheorem{property}{Property}
 \fi
 
 \ifx\lemma\undefined
-\newtheorem{lemma}{Lemma}
+   \newtheorem{lemma}{Lemma}
 \fi
 
 \ifx\proposition\undefined
-\newtheorem{proposition}{Proposition}
+   \newtheorem{proposition}{Proposition}
 \fi
 
 \ifx\remark\undefined
-\newtheorem{remark}{Remark}
+   \newtheorem{remark}{Remark}
 \fi
 
 \ifx\corollary\undefined
-\newtheorem{corollary}{Corollary}
+   \newtheorem{corollary}{Corollary}
 \fi
 
 \ifx\definition\undefined
-\newtheorem{definition}{Definition}
+   \newtheorem{definition}{Definition}
 \fi
 
 \ifx\conjecture\undefined
-\newtheorem{conjecture}{Conjecture}
+   \newtheorem{conjecture}{Conjecture}
 \fi
 
 \ifx\axiom\undefined
-\newtheorem{axiom}{Axiom}
+   \newtheorem{axiom}{Axiom}
 \fi
 
 \ifx\claim\undefined
-\newtheorem{claim}{Claim}
+   \newtheorem{claim}{Claim}
 \fi
 
 \ifx\assumption\undefined
-\newtheorem{assumption}{Assumption}
+   \newtheorem{assumption}{Assumption}
 \fi
 
 \ifx\condition\undefined
-\newtheorem{condition}{Condition}
+   \newtheorem{condition}{Condition}
+\fi
+\ifx\question\undefined
+   \newtheorem{question}{Question}
 \fi

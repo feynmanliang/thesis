@@ -1,4 +1,5 @@
-  \documentclass[thesis.tex]{subfiles}
+\documentclass[../../thesis.tex]{subfiles}
+
 %  \usepackage[round]{natbib}
 %  \usepackage{fullpage}
 %  \usepackage{amsmath}
@@ -135,28 +136,38 @@
 % \maketitle
 
 % \begin{abstract}
-  Double descent refers to the phase transition that is exhibited by
-  the generalization error of unregularized learning models when varying the ratio
-  between the number of parameters and the number of training
-  samples. The recent success of highly over-parameterized machine learning
-  models such as deep neural networks has motivated a theoretical analysis of
-  the double descent phenomenon in classical models such as linear
-  regression which can also generalize well in the over-parameterized
-  regime. We provide the first exact non-asymptotic
-  expressions for double descent of the minimum norm linear
-  estimator. Our approach involves constructing a special
-  determinantal point process  which we call surrogate random
-  design, to replace the standard i.i.d.~design of the training
-  sample. This surrogate design admits exact expressions for the mean
-  squared error of the estimator while preserving the key properties
-  of the standard design. We also establish an exact implicit
-  regularization result for over-parameterized training samples. In
-  particular, we show that, for the surrogate design, the implicit bias
-  of the unregularized minimum norm estimator precisely corresponds to
-  solving a ridge-regularized least squares problem on the population
-  distribution. In our analysis we introduce a new mathematical tool of
-  independent interest: the class of random matrices for which
-  determinant commutes with expectation.
+
+\chapter{Exact expressions for double descent in determinantal random designs}
+\label{ch:double_descent}
+
+Building on the theory established in \cref{ch:design}, in this chapter
+we analyze a determinantal ``surrogate'' random design to develop new
+non-asymptotic theory on double descent in overparameterized linear models.
+Double descent refers to the phase transition that is exhibited by
+the generalization error of unregularized learning models when varying the ratio
+between the number of parameters and the number of training
+samples. The recent success of highly over-parameterized machine learning
+models such as deep neural networks has motivated a theoretical analysis of
+the double descent phenomenon in classical models such as linear
+regression which can also generalize well in the over-parameterized
+regime. We provide the first exact non-asymptotic
+expressions for double descent of the minimum norm linear
+estimator. Our approach involves constructing a special
+determinantal point process  which we call surrogate random
+design, to replace the standard i.i.d.~design of the training
+sample. This surrogate design admits exact expressions for the mean
+squared error of the estimator while preserving the key properties
+of the standard design. We also establish an exact implicit
+regularization result for over-parameterized training samples. In
+particular, we show that, for the surrogate design, the implicit bias
+of the unregularized minimum norm estimator precisely corresponds to
+solving a ridge-regularized least squares problem on the population
+distribution. In our analysis we introduce a new mathematical tool of
+independent interest: the class of random matrices for which
+determinant commutes with expectation.
+Some of the results presented in this chapter were first published
+in \fullcite{surrogate-design}.
+
 % \end{abstract}
 
 
@@ -239,7 +250,7 @@ commutes with expectation, which should be of independent interest.
 % detailed discussion), and which we expect will be of more general interest.
 % Informally, the goal of a surrogate random design is to modify an original
 % design to capture its main properties while being ``nicer'' in some useful way.
-% In Theorem~\ref{t:asymptotic} and Appendix \ref{sec:asymp-conj-details} we show, both
+% In Theorem~\ref{t:asymptotic} and \Cref{sec:asymp-conj-details} we show, both
 % theoretically and empirically, that our surrogate design accurately preserves
 % the key properties of the original design when the data distribution is a
 % multivariate Gaussian.
@@ -319,18 +330,18 @@ we use $\X^\dagger$ to denote the Moore-Penrose inverse of $\X$.
   \centering
   \begin{subfigure}{0.49\textwidth}%
     \subcaption{Surrogate MSE expressions (Theorem \ref{t:mse}) closely match
-    numerical estimates even for non-isotropic
-    features. Eigenvalue decay leads to a steeper
-    descent curve in the under-determined regime ($n<d$).}
-    \includegraphics[width=\textwidth]{../figs/descent-intro}
+      numerical estimates even for non-isotropic
+      features. Eigenvalue decay leads to a steeper
+      descent curve in the under-determined regime ($n<d$).}
+    \includegraphics[width=\textwidth]{design/figs/descent-intro}
   \end{subfigure}
   \hfill
   \begin{subfigure}{0.49\textwidth}
     \subcaption{The mean of the estimator $\X^\dagger\y$ exhibits
-    shrinkage which closely matches the shrinkage of a
-    ridge-regularized least squares optimum (theory lines), as characterized by
-    Theorem \ref{t:unbiased}.}
-    \includegraphics[width=\textwidth]{../figs/descent-shrinkage}
+      shrinkage which closely matches the shrinkage of a
+      ridge-regularized least squares optimum (theory lines), as characterized by
+      Theorem \ref{t:unbiased}.}
+    \includegraphics[width=\textwidth]{design/figs/descent-shrinkage}
   \end{subfigure}
   \caption{Illustration of the main results for $d=100$ and
     $\mu=\Nc(\zero,\Sigmab)$ where $\Sigmab$ is diagonal with
@@ -348,8 +359,7 @@ we use $\X^\dagger$ to denote the Moore-Penrose inverse of $\X$.
   \label{f:intro}
 \end{figure}
 
-\noindent
-Proof of Theorem \ref{t:mse} is given in Appendix \ref{a:mse-proof}.
+Proof of Theorem \ref{t:mse} is given in \Cref{a:mse-proof}.
 For illustration, we plot the MSE expressions in Figure~\ref{f:intro}a,
 comparing them with empirical estimates of the true MSE under the
 i.i.d.~design for a multivariate Gaussian distribution
@@ -392,7 +402,7 @@ for completeness we state this result for arbitrary values of $n$ and $d$.
 Note that, just like the definition of regularized least squares, this
 theorem applies more generally than Theorem~\ref{t:mse}, in that it
 does \emph{not} require the responses to follow any linear model as in
-Assumption~\ref{a:linear} (proof in Appendix~\ref{s:unbiased-proof}).
+Assumption~\ref{a:linear} (proof in \Cref{s:unbiased-proof}).
 \begin{theorem}[Implicit regularization of Moore-Penrose estimator]
   \label{t:unbiased}
   For $\mu$ satisfying
@@ -583,7 +593,6 @@ Theorem~\ref{t:asymptotic} has the rate of~$O(1/d)$.
 % \end{align*}
 
 \section{Related work}
-\label{s:related-work}
 
 There is a large body of related work, which for simplicity we cluster into three groups.
 
@@ -607,7 +616,7 @@ population.
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=.5\textwidth]{../figs/descent-model-log}
+  \includegraphics[width=.5\textwidth]{design/figs/descent-model-log}
   \caption{
     Surrogate MSE as a function of $d/n$, with $n$
     fixed to $100$ and varying dimension $d$ and condition number
@@ -784,27 +793,83 @@ On the other hand in the over-determined case, i.e., $n>d$, we have
 $K\geq d$ so that $\pdet(\X\X^\top)=\det(\X^\top\X)$. In the special case
 of $n=d=K$ both of these equations are satisfied: $\pdet(\X\X^\top)=\det(\X^\top\X)=\det(\X\X^\top)=\det(\X)^2$.
 
-The first non-trivial property of the surrogate design $S_\mu^n$ is
-that the expected sample size is in fact always equal to $n$, which we
-prove in Appendix \ref{appx: proof-of-l-size}.
-\begin{lemma} \label{l:size}
+We first record an important property of the design $S_\mu^d$
+which can be used to construct an over-determined design for any $n>d$. A similar
+version of this result was also previously shown by
+\cite{correcting-bias-journal} for a different determinantal design.
+
+\begin{lemma}\label{l:decomposition}
+  Let $\Xb\sim S_\mu^d$ and $\X\sim \mu^K$, where
+  $K\sim\Poisson(\gamma)$. Then the matrix composed of a random
+  permutation of the rows from $\Xb$ and $\X$ is distributed according to
+  $S_\mu^{d+\gamma}$.
+\end{lemma}
+
+\begin{proof}
+  Let $\Xt$ denote the matrix constructed from the permuted rows of
+  $\Xb$ and $\X$.  Letting $\Z\sim\mu^{K+d}$, we derive the probability
+  $\Pr\big\{\Xt\!\in\! E\big\}$ by summing over the possible index subsets  $S\subseteq
+    [K+d]$ that correspond to the rows coming from $\Xb$:
+  \begin{align*}
+    \Pr\big\{\Xt\in E\big\} & = \E\bigg[\frac{1}{\binom{K+d}{d}}
+      \sum_{S:\,|S|=d}\frac{\E[\det(\Z_{S,*})^2\one_{[\Z\in E]}\mid
+    K]}{d!\det(\Sigmab_\mu)}\bigg]                               \\
+                            & =\sum_{k=0}^\infty
+    \frac{\gamma^k\ee^{-\gamma}}{k!}\,\frac{\gamma^dk!}{(k+d)!}\,
+    \frac{\E\big[\sum_{S:\,|S|=d}\det(\Z_{S,*})^2\one_{[\Z\in E]}\mid
+    K=k\big]}{\det(\gamma\Sigmab_\mu)}                           \\
+                            & \overset{(*)}{=} \sum_{k=0}^\infty
+    \frac{\gamma^{k+d}\ee^{-\gamma}}{(k+d)!}
+    \,\frac{\E[\det(\Z^\top\Z)\one_{[\Z\in E]}\mid K=k]}{\det(\gamma\Sigmab_\mu)},
+  \end{align*}
+  where $(*)$ uses the Cauchy-Binet formula to sum over all subsets $S$
+  of size $d$. Finally, since the sum shifts from $k$
+  to $k+d$, the last expression can be rewritten as
+  $\E[\det(\X^\top\X)\one_{[\X\in E]}]/\det(\gamma\Sigmab_\mu)$, where recall that
+  $\X\sim\mu^K$ and $K\sim\Poisson(\gamma)$, matching the definition of $S_\mu^{d+\gamma}$.
+\end{proof}
+
+Another non-trivial property of the surrogate design $S_\mu^n$ is
+that the expected sample size is in fact always equal to $n$.
+\begin{lemma} \label{l:expected_size_n}
   Let $\Xb\sim S_\mu^n$ for any $n>0$.
   Then, we have $\E[\#(\Xb)] = n$.
 \end{lemma}
 
-\noindent
+\begin{proofof}{Lemma}{\ref{l:expected_size_n}}
+  The result is obvious when $n=d$, whereas
+  for $n>d$ it is an immediate consequence
+  of Lemma \ref{l:decomposition}.
+  Finally, for $n<d$ the expected sample
+  size follows as a corollary of Lemma \ref{l:proj}, which states that
+  \begin{align*}
+    \text{(Lemma \ref{l:proj})} \qquad\E\big[\I - \Xb^\dagger\Xb\big] =
+    (\gamma_n\Sigmab_\mu + \I)^{-1},
+  \end{align*}
+  where $\Xb^\dagger\Xb$ is the orthogonal projection onto
+  the subspace spanned by the rows of $\Xb$. Since the rank of this
+  subspace is equal to the number of the rows, we have
+  $\#(\Xb)=\tr(\Xb^\dagger\Xb)$, so
+  \begin{align*}
+    \E\big[\#(\Xb)\big] = d - \tr\big((\gamma_n\Sigmab_\mu +
+    \I)^{-1}\big) =
+    \tr\big(\gamma_n\Sigmab_\mu(\gamma_n\Sigmab_\mu+\I)^{-1}\big) = n,
+  \end{align*}
+  which completes the proof.
+\end{proofof}
+
 Our general template for computing expectations under
 a surrogate design $\Xb\sim\S_\mu^n$ is to use the following expressions based on the
 i.i.d.~random design $\X\sim\mu^K$:
 \begin{align}
   \E[F(\Xb)] & =\begin{cases}
-    \frac{\E[\det(\X\X^\top)F(\X)]}{\E[\det(\X\X^\top)]}
-    \quad K\sim\Poisson(\gamma_n) & \text{for }n<d, \\[2mm]
-    \frac{\E[\det(\X)^2F(\X)]}{\E[\det(\X)^2]}\hspace{3mm}
-    \quad K=d                     & \text{for }n=d, \\[2mm]
-    \frac{\E[\det(\X^\top\X)F(\X)]}{\E[\det(\X^\top\X)]}
-    \quad K\sim\Poisson(\gamma_n) & \text{for }n>d.
-  \end{cases}\label{eq:cases}
+                  \frac{\E[\det(\X\X^\top)F(\X)]}{\E[\det(\X\X^\top)]}
+                  \quad K\sim\Poisson(\gamma_n) & \text{for }n<d, \\[2mm]
+                  \frac{\E[\det(\X)^2F(\X)]}{\E[\det(\X)^2]}\hspace{3mm}
+                  \quad K=d                     & \text{for }n=d, \\[2mm]
+                  \frac{\E[\det(\X^\top\X)F(\X)]}{\E[\det(\X^\top\X)]}
+                  \quad K\sim\Poisson(\gamma_n) & \text{for }n>d.
+                \end{cases}\label{eq:cases}
 \end{align}
 These formulas follow from Definitions \ref{d:det} and
 \ref{d:surrogate} because the determinants $\det(\X\X^\top)$ and
@@ -859,7 +924,7 @@ MSE expressions for surrogate designs. A standard decomposition of the MSE yield
 Thus, our task is to find closed form expressions for the two
 expectations above. The latter, which is the expected projection onto
 the complement of the row-span of $\Xb$, is proven in
-Appendix \ref{s:unbiased-proof}.
+\Cref{s:unbiased-proof}.
 \begin{lemma}\label{l:proj}
   If  $\Xb\sim S_\mu^n$ and $n<d$, then we have:
   $\E\big[\I-\Xb^\dagger\Xb\big] = (\gamma_n\Sigmab_\mu+\I)^{-1}$.
@@ -867,12 +932,12 @@ Appendix \ref{s:unbiased-proof}.
 
 \noindent
 No such expectation formula is known for i.i.d.~designs, except when
-$\mu$ is an isotropic Gaussian. In Appendix \ref{s:unbiased-proof}, we
+$\mu$ is an isotropic Gaussian. In \Cref{s:unbiased-proof}, we
 also prove a generalization of Lemma \ref{l:proj} which is then used
 to establish our implicit regularization result
 (Theorem~\ref{t:unbiased}). We next give an expectation formula
 for the trace of the Moore-Penrose inverse of the covariance
-matrix for a surrogate design (proof in Appendix \ref{a:mse-proof}).
+matrix for a surrogate design (proof in \Cref{a:mse-proof}).
 \begin{lemma}\label{l:sqinv-all}
   If  $\Xb\sim S_\mu^n$ and $n<d$, then:
   $\E\big[\tr\big((\Xb^\top\Xb)^{\dagger}\big)\big]
@@ -908,7 +973,6 @@ The key question motivating the following definition is: \textit{When does takin
   \end{align*}
 \end{definition}
 
-\noindent
 We next give a few simple examples to provide some intuition. First, note
 that every $1\times 1$ random matrix is determinant preserving simply
 because taking a determinant is an identity transfomation in one
@@ -922,7 +986,6 @@ negative) follow.
   $\A$ is d.p.~because $\E[\det(\A)]=0$.
 \end{example}
 
-\noindent
 In fact, it can be shown that all random matrices with independent entries
 are determinant preserving. However, this is not a necessary condition.
 \begin{example}\label{e:rank-1}
@@ -936,12 +999,32 @@ are determinant preserving. However, this is not a necessary condition.
   and $\Var[s]>0$ then it is not.
 \end{example}
 
-\noindent
+We use $\adj(\A)$ to denote the adjugate of $\A$, defined as follows: the
+$(i,j)$th entry of $\adj(\A)$ is
+$(-1)^{i+j}\det(\A_{[n]\backslash\{j\},[n]\backslash\{i\}})$.
+We will use two useful identities related to the adjugate: (1)
+$\adj(\A)=\det(\A)\A^{-1}$ for invertible $\A$, and (2)
+$\det(\A+\u\v^\top)=\det(\A)+\v^\top\!\adj(\A)\u$
+\citep[see Fact 2.14.2 in][]{matrix-mathematics}.
+Note that from the definition of an adjugate matrix it immediately follows that if $\A$ is
+determinant preserving then adjugate commutes with expectation for this matrix:
+\begin{align}
+  \E\big[\big(\!\adj(\A)\big)_{i,j}\big] & =
+  \E\big[(-1)^{i+j}\det(\A_{[d]\backslash\{j\},[d]\backslash\{i\}})\big]\nonumber
+  \\
+                                         & =(-1)^{i+j}\det\!\big(\E[\A_{[d]\backslash\{j\},[d]\backslash\{i\}}]\big)
+  \\
+                                         & = \big(\!\adj(\E[\A])\big)_{i,j}.\label{eq:adj}
+\end{align}
+The adjugate is useful in our analysis because it connects the
+determinant and the inverse via the formula
+$\adj(\A)=\det(\A)\A^{-1}$, which holds for any invertible $\A$.
+
 To construct more complex examples, we show that determinant preserving random matrices are
 closed under addition and multiplication. The proof of this result is
 an extension of an existing argument, given by
 \cite{determinantal-averaging} in the proof of Lemma~7, for computing
-the expected determinant of the sum of rank-1 random matrices (proof in Appendix \ref{a:dp}).
+the expected determinant of the sum of rank-1 random matrices.
 \begin{lemma}[Closure properties]\label{t:ring}
   If $\A$ and $\B$ are independent and determinant preserving, then:
   \vspace{-1mm}
@@ -956,13 +1039,55 @@ the expected determinant of the sum of rank-1 random matrices (proof in Appendix
 %   $\A+\B$ and $\A\B$ are also determinant preserving.
 % \end{lemma}
 
-\noindent
+\begin{proofof}{Lemma}{\ref{t:ring}} \
+  First, we show that $\A+\u\v^\top$ is d.p.~for any fixed
+  $\u,\v\in\R^d$. Below, we use the identity for a rank one
+  update of a determinant:
+  $\det(\A+\u\v^\top)=\det(\A)+\v^\top\!\adj(\A)\u$. It follows that
+  for any $\Ic$ and $\Jc$ of the same size,
+  \begin{align*}
+    \E\big[\!\det(\A_{\Ic,\Jc}\!+\u_{\Ic}\v_{\Jc}^\top)\big] & =
+    \E\big[\!\det(\A_{\Ic,\Jc}) +
+    \v_{\Jc}^\top\adj(\A_{\Ic,\Jc}) \u_{\Ic}\big]                                                                           \\
+                                                             & \overset{(*)}{=}\det\!\big(\E[\A_{\Ic,\Jc}]\big) +
+    \v_{\Jc}^\top\adj\!\big(\E[\A_{\Ic,\Jc}]\big) \u_{\Ic}                                                                  \\
+                                                             & =\det\!\big(\E[\A_{\Ic,\Jc} \!+ \u_{\Ic}\v_{\Jc}^\top]\big),
+  \end{align*}
+  where $(*)$ used \eqref{eq:adj}, i.e., the fact that for d.p.~matrices, adjugate commutes
+  with expectation. Crucially, through the definition of an adjugate
+  this step implicitly relies on the assumption that all the square
+  submatrices of $\A_{\Ic,\Jc}$ are also  determinant preserving.
+  Iterating this, we get that $\A+\Z$ is d.p.~for any fixed
+  $\Z$. We now show the same for $\A+\B$:
+  \begin{align*}
+    \E\big[\!\det(\A_{\Ic,\Jc}\!+\B_{\Ic,\Jc})\big]
+     & =
+    \E\Big[\E\big[\!\det(\A_{\Ic,\Jc}\!+\B_{\Ic,\Jc})\mid\B\big]\Big]                \\
+     & \overset{(*)}{=}\E\Big[\!\det\!\big(\E[\A_{\Ic,\Jc}]\!+\B_{\Ic,\Jc}\big)\Big] \\
+     & = \det\!\big(\E[\A_{\Ic,\Jc}\!+\B_{\Ic,\Jc}]\big),
+  \end{align*}
+  where $(*)$  uses the fact that after conditioning on $\B$ we can
+  treat it as a fixed matrix. Next, we show that $\A\B$ is determinant preserving via the Cauchy-Binet formula:
+  \begin{align*}
+    \E\big[\!\det\!\big((\A\B)_{\Ic,\Jc}\big)\big]
+     & = \E\big[\!\det(\A_{\Ic,*}\B_{*,\Jc})\big]                  \\
+     & =\E\bigg[\sum_{S:\,|S|=|\Ic|}\!\!\det\!\big(\A_{\Ic,S}\big)
+    \det\!\big(\B_{S,\Jc}\big)\bigg]                               \\
+     & =\!\!\sum_{S:\,|S|=|\Ic|}\!\!\det\!\big(\E[\A]_{\Ic,S}\big)
+    \det\!\big(\E[\B]_{S,\Jc}\big)                                 \\
+     & =\det\!\big(\E[\A]_{\Ic,*}\, \E[\B]_{*,\Jc}\big)            \\
+     & = \det\!\big(\E[\A\B]_{\Ic,\Jc}\big),
+  \end{align*}
+  where recall that $\A_{\Ic,*}$ denotes the submatrix of $\A$
+  consisting of its (entire) rows indexed by $\Ic$.
+\end{proofof}
+
 Next, we introduce another important class of d.p.~matrices:
 a sum of i.i.d.~rank-1 random matrices with the number of
 i.i.d.~samples being a Poisson random variable. Our use of the Poisson
 distribution is crucial for the below result to hold. It is an
 extension of an expectation formula given by \cite{dpp-intermediate}
-for sampling from discrete distributions (proof in Appendix \ref{a:dp}).
+for sampling from discrete distributions.
 \begin{lemma}\label{l:poisson}
   If $K$ is a Poisson random variable and $\A,\B$ are random $K\times d$
   matrices whose rows  are sampled as an i.i.d.~sequence of joint pairs of
@@ -972,7 +1097,61 @@ for sampling from discrete distributions (proof in Appendix \ref{a:dp}).
   \end{align*}
 \end{lemma}
 
+To prove Lemma \ref{l:poisson}, we will use the following
+lemma, many variants of which appeared in the literature
+\cite[e.g.,][]{expected-generalized-variance}. We use the one given by
+\cite{correcting-bias}.
+\begin{lemma}[\cite{correcting-bias}]\label{l:cb}
+  If the rows of random $k\times d$ matrices $\A,\B$
+  are sampled as an i.i.d.~sequence of $k\geq d$ pairs of joint random vectors, then
+  \begin{align}
+    k^d\,\E \big[\det(\A^\top\B)\big]
+     & = \ktd\,\det\!\big(\E[\A^\top\B]\big).
+  \end{align}
+\end{lemma}
+
 \noindent
+Here, we use the following standard shorthand: $\ktd =
+  \frac{k!}{(k-d)!} = k\,(k-1)\dotsm(k-d+1)$. Note that the above result
+almost looks like we are claiming that the matrix $\A^\top\B$ is d.p.,
+but in fact it is not because $k^d\neq \ktd$. The difference
+in those factors is precisely what we are going to correct with the
+Poisson random variable. We now present the proof of Lemma
+\ref{l:poisson}.
+\begin{proofof}{Lemma}{\ref{l:poisson}}
+  Without loss of generality, it suffices to check Definition \ref{d:main} with both $\Ic$ and
+  $\Jc$ equal $[d]$. We first expand the expectation by
+  conditioning on the value of $K$ and letting $\gamma=\E[K]$:
+  \begin{align*}
+    \E\big[\!\det(\A^\top\B)\big]
+          & = \sum_{k=0}^\infty
+    \E\big[\det(\A^\top\B)\mid K\!=\!k\big]\
+    \Pr(K\!=\!k)                     \\
+    \text{(Lemma \ref{l:cb})}
+    \quad & =
+    \sum_{k=d}^\infty\frac{k! k^{-d}}{(k-d)!}\det\!\big(\E[\A^\top\B\mid
+      K\!=\!k]\big)
+    \frac{\gamma^k\ee^{-\gamma}}{k!} \\
+          & =\sum_{k=d}^\infty
+    \Big(\frac\gamma k\Big)^d\det\!\big(\E[\A^\top\B\mid K\!=\!k]\big)
+    \frac{\gamma^{k-d}\ee^{-\gamma}}{(k-d)!}.
+    %  \\
+    %  &=\sum_{k=0}^\infty \det\!\big(\E[\A^\top\B]\big)\,\Pr(K\!=\!k)
+    % \ =\ \det\!\big(\E[\A^\top\B]\big).
+  \end{align*}
+  Note that $\frac\gamma k\,\E[\A^\top\B\mid K\!=\!k]=\E[\A^\top\B]$,
+  which is independent of $k$. Thus we can rewrite the above
+  expression as:
+  \begin{align*}
+    \det\!\big(\E[\A^\top\B]\big)\sum_{k=d}^\infty\frac{\gamma^{k-d}\ee^{-\gamma}}{(k-d)!}
+    =
+    \det\!\big(\E[\A^\top\B]\big)\sum_{k=0}^\infty
+    \frac{\gamma^{k}\ee^{-\gamma}}{k!}=\det\!\big(\E[\A^\top\B]\big),
+  \end{align*}
+  which concludes the proof.
+\end{proofof}
+
+
 Finally, we show the expectation formula needed for obtaining the
 normalization constant of the under-determined surrogate design, given
 in \eqref{eq:cases}.
@@ -981,7 +1160,7 @@ requires, because it allows the matrices $\A$ and $\B$ to be different
 (the constant is obtained by setting $\A=\B=\X\sim\mu^K$).
 In fact, we use this more general statement to show Theorems
 \ref{t:mse} and~\ref{t:unbiased}. The proof uses
-Lemmas \ref{t:ring} and \ref{l:poisson} (see Appendix \ref{a:dp}).
+Lemmas \ref{t:ring} and \ref{l:poisson}.
 \begin{lemma}\label{l:normalization}
   If $K$ is a Poisson random variable and $\A$, $\B$ are random $K\times d$
   matrices whose rows  are sampled as an i.i.d.~sequence of joint pairs of
@@ -990,6 +1169,582 @@ Lemmas \ref{t:ring} and \ref{l:poisson} (see Appendix \ref{a:dp}).
     \E\big[\det(\A\B^\top)\big] & = \ee^{-\E[K]}\det\!\big(\I + \E[\B^\top\A]\big).
   \end{align*}
 \end{lemma}
+
+To prove Lemma \ref{l:normalization}, we use the following standard
+determinantal formula which is used to derive the normalization
+constant of a discrete determinantal point process.
+\begin{lemma}[\cite{dpp-ml}]\label{l:det-standard}
+  For any $k\times d$ matrices $\A,\B$ we have
+  \[\det(\I+\A\B^\top)=\sum_{S\subseteq[k]}\det(\A_{S,*}\B_{S,*}^\top).\]
+\end{lemma}
+
+\begin{proofof}{Lemma}{\ref{l:normalization}}
+  By Lemma \ref{l:poisson}, the matrix $\B^\top\A$ is determinant
+  preserving. Applying Lemma \ref{t:ring} we conclude that
+  $\I+\B^\top\A$ is also d.p., so
+  \begin{align*}
+    \det\!\big(\I+\E[\B^\top\A]\big) = \E\big[\det(\I+\B^\top\A)\big] =\E\big[\det(\I+\A\B^\top)\big],
+  \end{align*}
+  where the second equality is known as Sylvester's Theorem.
+  We rewrite the expectation of $\det(\I+\A\B^\top)$ by applying Lemma
+  \ref{l:det-standard}.  Letting $\gamma=\E[K]$, we obtain:
+  \begin{align*}
+    \E\big[\det(\I+\A\B^\top)\big] & =\E\bigg[\sum_{S\subseteq [K]}\E\big[\det(\A_{S,*}\B_{S,*}^\top)\mid
+    K\big]\bigg]                                                                                          \\
+                                   & \overset{(*)}{=}\sum_{k=0}^\infty\frac{\gamma^k\ee^{-\gamma}}{k!}
+    \sum_{i=0}^k\binom{k}{i} \E\big[\det(\A\B^\top)\mid K=i\big]                                          \\
+                                   & =\sum_{i=0}^\infty \E\big[\det(\A\B^\top)\mid K=i\big]
+    \sum_{k\geq i}^\infty \binom{k}{i}
+    \frac{\gamma^k\ee^{-\gamma}}{k!}                                                                      \\
+                                   & =\sum_{i=0}^\infty
+    \frac{\gamma^i\ee^{-\gamma}}{i!}\E\big[\det(\A\B^\top)\mid K=i\big]
+    \sum_{k\geq i}^\infty\frac{\gamma^{k-i}}{(k-i)!} = \E\big[\det(\A\B^\top)\big]\cdot\ee^\gamma,
+  \end{align*}
+  where $(*)$ follows from the exchangeability of the rows of $\A$ and
+  $\B$, which implies that the distribution of $\A_{S,*}\B_{S,*}^\top$ is the
+  same for all subsets $S$ of a fixed size $k$.
+\end{proofof}
+
+\section{Proof of Theorem \ref{t:mse}}
+\label{a:mse-proof}
+In this section we use $Z_\mu^n$ to denote the normalization
+constant that appears in \eqref{eq:cases} when computing an expectation for surrogate design
+$S_\mu^n$.
+We first prove Lemma \ref{l:sqinv-all}. % by splitting the under- and
+% over-determined cases and start with proving the former.
+% Note that those
+% results require $\mu$ to satisfy general position (Assumption \ref{a:general-position}),
+% which implies that if $\X\sim\mu^k$ for $k\leq d$ then $\rank(\X)=k$.
+\begin{lemma}[restated Lemma \ref{l:sqinv-all}]\label{l:sqinv-under}
+  If  $\Xb\sim S_\mu^n$ for $n<d$, then we have
+  \begin{align*}
+    \E\big[\tr\big((\Xb^\top\Xb)^{\dagger}\big)\big]
+     & ={\gamma_n}\big(1- \det\!\big((\tfrac1{\gamma_n}\I+\Sigmab_\mu)^{-1}\Sigmab_\mu\big)\big).
+  \end{align*}
+\end{lemma}
+\begin{proof}
+  Let $\X\sim\mu^K$ for $K\sim\Poisson({\gamma_n})$. Note that if
+  $\det(\X\X^\top)>0$ then using the fact that
+  $\det(\A)\A^{-1}=\adj(\A)$ for any invertible matrix $\A$, we can write:
+  \begin{align*}
+    \det(\X\X^\top)\tr\big((\X^\top\X)^{\dagger}\big)
+     & = \det(\X\X^\top)\tr\big((\X\X^\top)^{-1}\big) \\
+     & = \tr(\adj(\X\X^\top))                         \\[-1mm]
+     & = \sum_{i=1}^K\det(\X_{-i}\X_{-i}^\top),
+  \end{align*}
+  where $\X_{-i}$ is a shorthand for $\X_{[K]\backslash\{i\},*}$.
+  Assumption \ref{a:general-position} ensures that
+  $\Pr\big\{\det(\X\X^\top)>0\big\}=1$, which allows us to write:
+  \begin{align*}
+    Z_\mu^n\cdot \E\big[\tr\big((\Xb^\top\Xb)^{\dagger}\big)\big]
+     & =\E\bigg[
+      \sum_{i=1}^K\det(\X_{-i}\X_{-i}^\top)\ \big|\
+    \det(\X\X^\top)>0\bigg]\cdot\overbrace{\Pr\big\{\det(\X\X^\top)>0\big\}}^{1}   \\
+     & =\sum_{k=0}^d\frac{\gamma_n^{k}\ee^{-\gamma_n}}{k!}\E\Big[
+    \sum_{i=1}^k\det(\X_{-i}\X_{-i}^\top)\ \big|\  K=k\Big]                        \\
+     & =\sum_{k=0}^d\frac{\gamma_n^{k}\ee^{-\gamma_n}}{k!}\, k\
+    \E\big[\det(\X\X^\top)\mid K=k-1\big]                                          \\
+     & =\gamma_n\sum_{k=0}^{d-1}\frac{\gamma_n^{k}\ee^{-\gamma_n}}{k!}
+    \E\big[\det(\X\X^\top)\mid K=k\big]                                            \\
+     & =\gamma_n\Big(\E\big[\det(\X\X^\top)\big]\ -\
+    \frac{\gamma_n^{d}\ee^{-\gamma_n}}{d!}\E\big[\det(\X)^2\mid K=d\big]
+    \Big)                                                                          \\
+     & \overset{(*)}{=}\gamma_n\big(\ee^{-\gamma_n}\det(\I +\gamma_n\Sigmab_\mu) -
+    \ee^{-\gamma_n}\det(\gamma_n\Sigmab_\mu)\big),
+  \end{align*}
+  where $(*)$ uses Lemma \ref{l:normalization} for the first term and
+  Lemma \ref{l:cb} for the second term. We obtain the desired result by
+  dividing both sides by
+  $Z_\mu^n=\ee^{-\gamma_n}\det(\I+\gamma_n\Sigmab_\mu)$.
+\end{proof}
+In the over-determined regime, a more general matrix expectation
+formula can be shown (omitting the trace). The following result is
+related to an expectation formula derived by
+\cite{correcting-bias-journal}, however they use a slightly
+different determinantal design so the results are incomparable.
+\begin{lemma}\label{l:sqinv-over}
+  If $\Xb\sim S_\mu^n$ and $n>d$, then we
+  have
+  \begin{align*}
+    \E\big[ (\Xb^\top\Xb)^{\dagger}\big] =
+    \Sigmab_\mu^{-1}\cdot \frac{1-\ee^{-\gamma_n}}{\gamma_n}.
+  \end{align*}
+\end{lemma}
+\begin{proof}
+  Let $\X\sim\mu^K$ for $K\sim\Poisson(\gamma_n)$. Assumption
+  \ref{a:general-position} implies that for $K\neq d-1$ we have
+  \begin{align}
+    \det(\X^\top\X)(\X^\top\X)^\dagger=\adj(\X^\top\X),\label{eq:adj-over}
+  \end{align}
+  however when $k=d-1$ then \eqref{eq:adj-over} does not hold because
+  $\det(\X^\top\X)=0$ while $\adj(\X^\top\X)$ may be non-zero. It
+  follows that:
+  \begin{align*}
+    Z_\mu^n\cdot
+    \E\big[ (\Xb^\top\Xb)^{\dagger}\big]
+     & =\E\big[\det(\X^\top\X)(\X^\top\X)^\dagger\big]                                      \\
+     & =\E\big[\adj(\X^\top\X)\big]-
+    \frac{\gamma_n^{d-1}\ee^{-\gamma_n}}{(d-1)!}
+    \E\big[\adj(\X^\top\X)\mid K=d-1\big]                                                   \\
+     & \overset{(*)}{=}\adj\!\big(\E[\X^\top\X]\big) -
+    \frac{\gamma_n^{d-1}\ee^{-\gamma_n}}{(d-1)^{d-1}}
+    \adj\!\big(\E[\X^\top\X\mid K=d-1]\big)                                                 \\
+     & =\adj(\gamma_n\Sigmab_\mu) - \ee^{-\gamma_n}\adj(\gamma_n\Sigmab_\mu)                \\
+     & =\det(\gamma_n\Sigmab_\mu)\,(\gamma_n\Sigmab_\mu)^{-1}(1-\ee^{-\gamma_n})            \\
+     & =\det(\gamma_n\Sigmab_\mu)\,\Sigmab_\mu^{-1}\cdot\frac{1-\ee^{-\gamma_n}}{\gamma_n},
+  \end{align*}
+  where the first term in $(*)$ follows from Lemma
+  \ref{l:normalization} and \eqref{eq:adj}, whereas the second term comes
+  from Lemma 2.3 of \cite{correcting-bias-journal}.
+  Dividing both sides by $Z_\mu^n=\det(\gamma_n\Sigmab_\mu)$ completes the proof.
+\end{proof}
+
+Applying the closed form expressions from Lemmas
+\ref{l:proj}, \ref{l:sqinv-all} and \ref{l:sqinv-over}, we derive
+the formula for the MSE and prove Theorem \ref{t:mse} (we defer the
+proof of Lemma \ref{l:proj} to \Cref{s:unbiased-proof}).
+\begin{proofof}{Theorem}{\ref{t:mse}}
+  First, assume that $n<d$, in which case we have
+  $\gamma_n=\frac1{\lambda_n}$ and moreover
+  \begin{align*}
+    n & = \tr\big(\Sigmab_\mu(\Sigmab_\mu+\lambda_n\I)^{-1}\big)                          \\
+      & =\tr\big((\Sigmab_\mu+\lambda_n\I-\lambda_n\I)(\Sigmab_\mu+\lambda_n\I)^{-1}\big) \\
+      & =d - \lambda_n\tr\big((\Sigmab_\mu+\lambda_n\I)^{-1}\big),
+    %\frac{\tr\big((\Sigmab_\mu+\lambda_n\I)^{-1}\big)}{d-n},
+  \end{align*}
+  so we can write $\lambda_n$ as $(d-n)/\tr((\Sigmab_\mu+\lambda_n\I)^{-1})$.
+  From this and Lemmas \ref{l:proj} and \ref{l:sqinv-under}, we
+  obtain the desired expression, where recall
+  that $\alpha_n = \det\!\big(\Sigmab_\mu (\Sigmab_\mu+\frac1{\gamma_n})^{-1}\big)$:
+  \begin{align*}
+    \MSE{\Xb^\dagger\ybb} & = \sigma^2\,\gamma_n(1-\alpha_n) +
+    \tfrac1{\gamma_n} \,\w^{*\top}(\Sigmab_\mu+\tfrac1{\gamma_n}\I)^{-1}\w^*
+    \\
+                          & \overset{(a)}{=}\sigma^2\,\frac{1-\alpha_n}{\lambda_n} +
+    \lambda_n\,\w^{*\top}(\Sigmab_\mu+\lambda_n\I)^{-1}\w^*                                                           \\
+                          & \overset{(b)}{=}\sigma^2\tr\big((\Sigmab_\mu+\lambda_n\I)^{-1}\big)\frac{1-\alpha_n}{d-n}
+    +
+    (d-n)\frac{\w^{*\top}(\Sigmab_\mu+\lambda_n\I)^{-1}\w^*}
+    {\tr\big((\Sigmab_\mu+\lambda_n\I)^{-1}\big)}.
+  \end{align*}
+  While the expression given after $(a)$ is simpler than the one
+  after $(b)$, the latter better illustrates how the MSE depends on
+  the sample size $n$ and the dimension $d$.
+  Now, assume that $n>d$. In this case, we have $\gamma_n=n-d$ and apply Lemma
+  \ref{l:sqinv-over}:
+  \begin{align*}
+    \MSE{\Xb^\dagger\ybb}
+     & = \sigma^2\,\tr(\Sigmab_\mu^{-1})\,
+    \frac{1-\ee^{-\gamma_n}}{\gamma_n}
+    =\sigma^2\,\tr(\Sigmab_\mu^{-1})
+    \,\frac{1-\beta_n}{n-d}.
+  \end{align*}
+  The case of $n=d$ was shown in Theorem~2.12 of \cite{correcting-bias-journal}.
+  This concludes the proof.
+\end{proofof}
+
+\section{Proof of Theorem \ref{t:unbiased}}
+\label{s:unbiased-proof}
+
+As in the previous section, we use $Z_\mu^n$ to denote the normalization
+constant that appears in \eqref{eq:cases} when computing an expectation
+for surrogate design $S_\mu^n$.
+Recall that our goal is to compute the expected value of
+$\Xb^\dagger\ybb$ under the surrogate design $S_\mu^n$. Similarly as for Theorem
+\ref{t:mse}, the case of $n=d$ was shown in Theorem 2.10 of
+\cite{correcting-bias-journal}. We break the rest down into the
+under-determined case $(n<d)$ and the over-determined case ($n>d$),
+starting with the former. Recall that we do \emph{not} require any
+modeling assumptions on the responses.
+\begin{lemma}\label{l:ridge-under}
+  If $\Xb\sim S_\mu^n$ and $n<d$, then for any $y(\cdot)$
+  such that $\E_{\mu,y}[y(\x)\,\x]$ is well-defined,
+  denoting $\yb_i$ as $y(\xbb_i)$, we have
+  \begin{align*}
+    \E\big[\Xb^\dagger \ybb\big]
+     & =
+    \big(\Sigmab_\mu+\tfrac1{\gamma_n}\I\big)^{-1}\E_{\mu,y}[y(\x)\,\x].
+  \end{align*}
+\end{lemma}
+\begin{proof}
+  Let $\X\sim\mu^K$ for $K\sim\Poisson(\gamma_n)$ and denote
+  $y(\x_i)$ as $y_i$.
+  Note that when $\det(\X\X^\top)>0$, then
+  the $j$th entry of $\X^\dagger\y$ equals
+  $\f_j^\top(\X\X^\top)^{-1}\y$, where $\f_j$ is the $j$th
+  column of $\X$, so:
+  \begin{align*}
+    \det(\X\X^\top)\,(\X^\dagger\y)_j
+     & = \det(\X\X^\top)\, \f_j^\top(\X\X^\top)^{-1}\y \\
+     & =
+    \det(\X\X^\top+\y\f_j^\top) - \det(\X\X^\top).
+  \end{align*}
+  If $\det(\X\X^\top)=0$, then also
+  $\det(\X\X^\top+\y\f_j^\top)=0$, so we can write:
+  \begin{align*}
+    Z_\mu^n\cdot\E\big[(\Xb^\dagger\ybb)_j\big]
+     & =  \E\big[\det(\X\X^\top)(\X^\dagger\y)_j\big]                                   \\
+     & = \E\big[\det(\X\X^\top+\y\f_j^\top)-\det(\X\X^\top)\big]                        \\
+     & =\E\big[\det\!\big([\X,\y][\X,\f_j]^\top\big)\big] - \E\big[\det(\X\X^\top)\big] \\
+     & \overset{(a)}{=}\ee^{-\gamma_n}\det\!\bigg(\I +
+    \gamma_n\,\E_{\mu,y}\bigg[\begin{pmatrix}\x\x^\top &
+               \!\!\x\, y(\x) \\ x_j\,\x^\top&\!\!
+               x_j\,y(\x)\end{pmatrix}\bigg]\bigg)
+    -\ee^{-\gamma_n}\det(\I+\gamma_n\Sigmab_\mu)                                        \\
+     & \overset{(b)}{=}\ee^{-\gamma_n}\det(\I+\gamma_n\Sigmab_\mu)                      \\
+     & \qquad \times \Big(\E_{\mu,y}\big[\gamma_n
+        x_j\,y(\x)\big] - \E_{\mu}\big[\gamma_n
+        x_j\,\x^\top\big](\I+\gamma_n\Sigmab_\mu)^{-1}\E_{\mu,y}\big[\gamma_n\x\,
+        y(\x)\big]\Big),
+  \end{align*}
+  where $(a)$ uses Lemma \ref{l:normalization} twice, with the first
+  application involving two different matrices $\A=[\X,\y]$ and
+  $\B=[\X,\f_j]$, whereas $(b)$ is a standard determinantal identity
+  \cite[see Fact 2.14.2 in][]{matrix-mathematics}.
+  Dividing both sides by $Z_\mu^n$ and letting $\v_{\mu,y}=\E_{\mu,y}[y(\x)\,\x]$, we obtain that:
+  \begin{align*}
+    \E\big[\Xb^\dagger\ybb\big]
+     & = \gamma_n\v_{\mu,y} - \gamma_n^2\Sigmab_\mu(\I+\gamma_n\Sigmab_\mu)^{-1}\v_{\mu,y} \\
+     & =\gamma_n\big(\I - \gamma_n\Sigmab_\mu (\I+\gamma_n\Sigmab_\mu)^{-1}\big)\v_{\mu,y}
+    =\gamma_n(\I+\gamma_n\Sigmab_\mu)^{-1}\v_{\mu,y},
+  \end{align*}
+  which completes the proof.
+\end{proof}
+We return to Lemma \ref{l:proj}, regarding the expected orthogonal
+projection onto the complement of the row-span of $\Xb$, i.e.,
+$\E[\I-\Xb^\dagger\Xb]$, which follows as a corollary of Lemma~\ref{l:ridge-under}.
+\begin{proofof}{Lemma}{\ref{l:proj}}
+  We let $y(\x)=x_j$ where $j\in[d]$ and apply Lemma
+  \ref{l:ridge-under} for each $j$, obtaining:
+  \begin{align*}
+    \I - \E\big[\Xb^\dagger\Xb] = \I -
+    (\Sigmab_\mu+\tfrac1{\gamma_n}\I)^{-1}\Sigmab_\mu,
+  \end{align*}
+  from which the result follows by simple algebraic manipulation.
+\end{proofof}
+
+We move on to the over-determined case, where the ridge regularization
+of adding the identity to $\Sigmab_\mu$ vanishes. Recall that we
+assume throughout the paper that $\Sigmab_\mu$ is invertible.
+\begin{lemma}\label{l:ridge-over}
+  If $\Xb\sim S_\mu^n$ and $n>d$, then for any real-valued random function $y(\cdot)$
+  such that $\E_{\mu,y}[y(\x)\,\x]$ is well-defined,
+  denoting $\yb_i$ as $y(\xbb_i)$, we have
+  \begin{align*}
+    \E\big[\Xb^\dagger \ybb\big]
+     & =\Sigmab_\mu^{-1}\E_{\mu,y}\big[y(\x)\,\x\big].
+  \end{align*}
+\end{lemma}
+\begin{proof}
+  Let $\X\sim\mu^K$ for $K\sim\Poisson(\gamma_n)$ and denote
+  $y_i=y(\x_i)$. Similarly as in the proof of
+  Lemma~\ref{l:ridge-under}, we note that when $\det(\X^\top\X)>0$,
+  then
+  the $j$th entry of $\X^\dagger\y$ equals
+  $\e_j^\top(\X^\top\X)^{-1}\X^\top\y$, where $\e_j$ is the $j$th
+  standard basis vector, so:
+  \begin{align*}
+    \det(\X^\top\X)\,(\X^\dagger\y)_j =
+    \det(\X^\top\X)\, \e_j^\top(\X^\top\X)^{-1}\X^\top\y =
+    \det(\X^\top\X+\X^\top\y\e_j^\top) - \det(\X^\top\X).
+  \end{align*}
+  If $\det(\X^\top\X)=0$, then also
+  $\det(\X^\top\X+\X^\top\y\e_j^\top)=0$. We proceed to compute the
+  expectation:
+  \begin{align*}
+    Z_\mu^n\cdot\E\big[(\Xb^\dagger\ybb)_j\big]
+     & =  \E\big[\det(\X^\top\X)(\X^\dagger\y)_j\big]                                     \\
+     & = \E\big[\det(\X^\top\X+\X^\top\y\e_j^\top)-\det(\X^\top\X)\big]                   \\
+     & =\E\big[\det\!\big(\X^\top(\X+\y\e_j^\top)\big)\big] - \E\big[\det(\X^\top\X)\big] \\
+     & \overset{(*)}{=}\det\!\Big(
+    \gamma_n\,\E_{\mu,y}\big[\x(\x+ y(\x)\e_j)^\top\big]\Big)
+    -\det(\gamma_n\Sigmab_\mu)                                                            \\
+     & =\det\!\big(\gamma_n\Sigmab_\mu + \gamma_n\E_{\mu,y}[\x\,y(\x)]\e_j^\top\big)
+    -\det(\gamma_n\Sigmab_\mu)                                                            \\
+     & =\det(\gamma_n\Sigmab_\mu)\cdot
+    \gamma_n\e_j^\top(\gamma_n\Sigmab_\mu)^{-1}\E_{\mu,y}\big[y(\x)\,\x\big],
+  \end{align*}
+  where $(*)$ uses Lemma \ref{l:poisson} twice (the first time, with
+  $\A=\X$ and $\B=\X+\y\e_j^\top$). Dividing both sides by
+  $Z_\mu^n=\det(\gamma_n\Sigmab_\mu)$ concludes the proof.
+\end{proof}
+
+\noindent
+We combine Lemmas \ref{l:ridge-under} and \ref{l:ridge-over} to obtain
+the proof of Theorem \ref{t:unbiased}.
+\begin{proofof}{Theorem}{\ref{t:unbiased}}
+  The case of $n=d$ follows directly from Theorem~2.10 of
+  \cite{correcting-bias}.
+  Assume that $n<d$. Then we have
+  $\gamma_n=\frac1{\lambda_n}$, so the result follows
+  from Lemma \ref{l:ridge-under}.
+  % , noting that unlike in the lemma,
+  % Theorem \ref{t:unbiased} allows for the response model $y(\cdot)$ to be randomized:
+  % \begin{align*}
+  %   \E[\Xb^\dagger\ybb] = \E\big[\E[\Xb^\dagger\ybb\mid\ybb]\big] =
+  % % \w_{\lambda_n}^* = \argmin_\w\E_\mu\big[(\x^\top\w-y(\x))^2\big] +
+  % %   \lambda_n\|\w\|^2 =
+  % %   \big(\Sigmab_\mu+\lambda_n\I\big)^{-1}
+  % %   \E_{\mu}\big[y(\x)\,\x\big].
+  % \end{align*}
+  If $n>d$, then the result follows from Lemma \ref{l:ridge-over}.
+\end{proofof}
+
+\section{Proof of Theorem \ref{t:asymptotic}}
+\label{sec:proof-of-t-asymptotic}
+
+The proof of Theorem \ref{t:asymptotic} follows the standard decomposition of
+MSE in Equation~\ref{eq:mse-derivation}, and in the process,
+establishes consistency of the variance and bias terms
+independently. To this end, we introduce the following two useful
+lemmas that capture the limiting behavior of the
+variance and bias terms, respectively.
+
+\begin{lemma}\label{c:wishart}
+  Under the setting of Theorem~\ref{t:asymptotic}, we have, as $n,d \to \infty$
+  with $n/d \to \bar c \in (0, \infty) \setminus \{ 1 \}$ that
+  \begin{align}
+    %\bigg|\frac{\E\big[\tr((\X^\top \X)^\dagger)\big]}{\Vc(\Sigmab,n)} -1\bigg| \to 0 \qquad\text{for}\quad\Vc(\Sigmab,n)= \frac{1-\alpha_n}{\lambda_n}
+    \begin{cases}
+      \E\big[\tr((\X^\top \X)^\dagger)\big] - (1-\alpha_n) \lambda_n^{-1} \to 0,                    & \text{for }\bar c < 1, \\
+      \E\big[\tr((\X^\top \X)^\dagger)\big] - \frac{1-\beta_n}{n - d} \cdot \tr \Sigmab^{-1} \to 0, & \text{for }\bar c > 1
+    \end{cases}
+    \label{eq:wishart}
+  \end{align}
+  where $\lambda_n\geq 0$ is the unique solution to
+  $n=\tr(\Sigmab(\Sigmab+\lambda_n\I)^{-1})$,
+  $\alpha_n=\det(\Sigmab(\Sigmab+\lambda_n\I)^{-1})$,
+  and $\beta_n = e^{d-n}$.
+\end{lemma}
+
+\noindent
+
+The second term in the MSE derivation \eqref{eq:mse-derivation}, $\E[\I -
+    \X^\dag \X]$, involves the expectation of a projection onto the orthogonal
+complement of a sub-Gaussian general position sample $\X$.
+This term is zero when $n > d$, and for $n < d$
+we prove in \cref{sec:proof-of-c-projection} that the surrogate design's
+bias $\mathcal{B}(\Sigmab, n)$ provides an asymptotically consistent approximation
+to all of the eigenvectors and eigenvalues:
+
+\begin{lemma}\label{c:projection}
+  Under the setting of Theorem~\ref{t:asymptotic}, for $\w \in \R^d$ of bounded Euclidean norm (i.e., $\| \w \| \le C'$ for all $d$), we have, as $n,d \to \infty$ with $n/d \to \bar c \in (0,1)$ that
+  \begin{align}
+    %\sup_{\w\in\R^d\backslash\{\zero\}}\bigg|\frac{\w^\top\E[\I-\X^\dagger\X]\w}{\w^\top \Bc(\Sigmab,n)\w} - 1\bigg| \to 0 \qquad\text{for}\quad\Bc(\Sigmab,n) = \lambda_n(\Sigmab+\lambda_n\I)^{-1}
+    \w^\top\E[\I-\X^\dagger\X]\w - \lambda_n \w^\top (\Sigmab + \lambda_n \I)^{-1}\w \to 0
+    \label{eq:projection}
+  \end{align}
+  while $\I - \X^\dagger \X = 0$ for $\bar c > 1$.
+\end{lemma}
+
+\subsection{Proof of \cref{c:wishart}}
+\label{sec:proof-of-c-wishart}
+
+\subsubsection{The $\bar c \in (0,1)$ case}
+
+For $n < d$, we first establish (1) $\liminf_n \lambda_n > 0$ and (2) $\alpha_n \to 0$.
+To prove (1), by hypothesis $\Sigmab \succeq c \I$ for all $d$. Since $\frac{n}{d} < 1$,
+we have (by definition of $\lambda_n$) for some $\delta > 0$
+\begin{align*}
+  1 - \delta
+  > \frac{n}{d}
+  = \frac{1}{d} \tr(\Sigmab(\Sigmab + \lambda_n \I)^{-1})
+  > \frac{c}{c + \lambda_n}
+\end{align*}
+Rearranging, we have $\lambda_n > \frac{\delta c}{1 - \delta} > 0$.
+For (2), let $(\tau_i)_{i \in [d]}$ denote the eigenvalues of $\Sigmab$.
+Since $1 - x \leq e^{-x}$ and $C \I \succeq \Sigmab \succeq c \I$ for all $d$,
+\begin{align*}
+  \alpha_n
+  = \prod_{i=1}^d \frac{\tau_i}{\tau_i + \lambda_n}
+  \leq \left(\frac{C}{C + \lambda_n}\right)^d
+  = \left( 1 - \frac{\lambda_n}{C + \lambda_n}\right)^d
+  \leq \exp\left(-d \frac{\lambda_n}{C + \lambda_n}\right)
+\end{align*}
+and since $\lambda_n > 0$ eventually as $d \to \infty$ we have
+$\alpha_n \to 0$ so that $(1-\alpha_n) \lambda_n^{-1} - \lambda_n^{-1} \to 0$.
+
+% (1) and (2) together imply $\mathcal{V}(\Sigmab, n) \to \lambda_n^{-1}$, and
+% by Slutsky's theorem
+% \begin{align*}
+%   \lim_{n,d} \left\lvert
+%   \frac{\E[\tr((\X^\top \X)^\dag)] - \mathcal{V}(\Sigmab, n)}{\mathcal{V}(\Sigmab, n)}
+%   \right\rvert
+%   = \lim_{n,d} \left\lvert
+%   \frac{\E[\tr((\X^\top \X)^\dag)] - \lambda_n^{-1}}{\lambda_n^{-1}}
+%   \right\rvert
+% \end{align*}
+% Since $\liminf_n \lambda_n > 0$ was shown in (1),
+As a consequence of (2) and Slutsky's theorem, it suffices to show
+$\tr(\X^\top \X)^\dag - \lambda_n^{-1} \overset{d}{\to} 0$ as $n,d \to \infty$.
+To do this, we consider the limiting behavior of $\tr
+  (\X^\top \X)^\dagger/n = \tr (\X \X^\top)^\dagger/n$ as $n/d \to \bar c \in
+  (0,1)$, for $\X = \Z \Sigmab^{\frac12}$ with $\Z \in \mathbb R^{n \times d}$
+having i.i.d.~zero mean, unit variance sub-Gaussian entries, i.e., the behavior
+of
+\begin{equation}\label{eq:limit1}
+  \lim_{n,d \to \infty} \lim_{z \to 0^+} \frac1n \tr \left( \frac1n \X \X^\top + z \I_n \right)^{-1}
+\end{equation}
+by definition of the pseudo-inverse.
+
+The proof comes in three steps: (i) for fixed $z > 0$, consider the limiting behavior of $ \delta(z) \equiv \tr (\X \X^\top/n + z \I_n)^{-1}/n$ as $n,d \to \infty$ and state
+\begin{equation}\label{eq:limit2}
+  \lim_{n,d \to \infty} \delta(z) - m(z) \to 0
+\end{equation}
+almost surely for some $m(z)$ to be defined; (ii) show that both $\delta(z)$ and its derivate $\delta'(z)$ are uniformly bounded (by some quantity independent of $z>0$) so that by Arzela-Ascoli theorem, $\delta(z)$ converges uniformly to its limit and we are allowed to take $z \to 0^+$ in \eqref{eq:limit2} and state
+\begin{equation}\label{eq:limit3}
+  \lim_{z \to 0^+} \lim_{n,d \to \infty} \delta(z) - \lim_{z \to 0^+} m(z) \to 0
+\end{equation}
+almost surely, given that the limit $\lim_{z \to 0^+} m(z) \equiv m(0)$ exists and eventually (iii) exchange the two limits in \eqref{eq:limit3} with Moore-Osgood theorem, to reach
+\[
+  \lim_{n,d \to \infty} \lim_{z \to 0^+} \frac1n \tr \left(\frac1n \X \X^\top + z \I_n \right)^{-1} - m(0) \to 0.
+\]
+
+Step (i) follows from \cite{silverstein1995empirical} that, we have, for $z > 0$ that
+\[
+  \delta(z) \equiv \frac1n \tr \left( \frac1n \X \X^\top  + z \I_n \right)^{-1}  - m(z) \to 0
+\]
+almost surely as $n,d \to \infty$, for $m(z)$ the unique positive solution to
+\begin{equation}\label{eq:def-m}
+  m(z) = \left( z + \frac1n \tr \Sigmab (\I + m(z) \Sigmab)^{-1} \right)^{-1}.
+\end{equation}
+
+For the above step (ii), we use the assumption $\Sigmab \succeq c \I \succ 0$
+for all $d$ large, so that with $\X = \Z \Sigmab^{\frac12}$, we have for large enough $n,d$ that
+\[
+  \lambda_{\min} (\X \X^\top/n) \ge \lambda_{\min} (\Z \Z^\top/n) \lambda_{\min} (\Sigmab) \ge \frac{c}2 (\sqrt{\bar c} - 1 )^2
+\]
+almost surely, where we used Bai-Yin theorem \cite{bai1993limit}, which states that the minimum eigenvalue of $\Z \Z^\top/n$ is almost surely larger than $( \sqrt{\bar c} - 1 )^2/2$ for $n<d$ sufficiently large. Note that here the case $\bar c = 1$ is excluded.
+
+Observe that
+\[
+  |\delta(z)| = \left| \frac1n \tr \left( \frac1n \X \X^\top  + z \I_n \right)^{-1} \right| \le \frac1{ \lambda_{\min} (\X \X^\top/n) }
+\]
+and similarly for its derivative, so that we are allowed to take the $z \to 0^+$ limit. Note that the existence of the $\lim_{z \to 0^+} m(z)$ for $m(z)$ defined in \eqref{eq:def-m} is well known, see for example \cite{ledoit2011eigenvectors}. Then, by Moore-Osgood theorem we finish step (iii) and by concluding that
+\[
+  \tr (\X^\top \X)^\dagger - m(0) \to 0
+\]
+for $m(0) = \lambda_n^{-1}$ the unique solution to $\lambda_n^{-1} = \left( \frac1n \tr \Sigmab (\I + \lambda_n^{-1} \Sigmab)^{-1} \right)^{-1}$, or equivalently, to
+\[
+  n = \tr \Sigmab (\Sigmab + \lambda_n \I)^{-1}
+\]
+as desired.
+
+\subsubsection{The $\bar c \in (1, \infty)$ case}
+
+First note that as $n, d \to \infty$ with $n > d$, we have $\beta_n = e^{d-n} \to 0$ and it
+it suffices to show
+\[
+  \tr (\X^\top \X)^\dagger - \frac1{n-d} \tr \Sigmab^{-1} \to 0
+\]
+almost surely to conclude the proof.
+
+In the $\bar c \in (1, \infty)$ case, it is more convenient to work on the following co-resolvent
+\[
+  \lim_{n,d \to \infty} \lim_{z \to 0^+} \frac1n \tr \left( \frac1n \X^\top \X + z \I_d \right)^{-1}
+\]
+where we recall $\X^\top \X = \Sigmab^{\frac12} \Z^\top \Z \Sigmab^{\frac12} \in \R^{d \times d}$ and following the same three-step procedure as in the $\bar c < 1$ case above. The only difference is in step (i) we need to assess the asymptotic behavior of $\delta \equiv \tr (\X^\top \X/n + z \I_d)^{-1}/n$. This was established in \cite{bai1998no} where it was shown that, for $z > 0$ we have
+\[
+  \frac1n \tr (\X^\top \X/n + z \I_d)^{-1} - \frac{d}n m(z) \to 0
+\]
+almost surely as $n,d \to \infty$, for $m(z)$ the unique solution to
+\[
+  m(z) = \frac1d \tr \left( \left(1- \frac{d}n - \frac{d}n z m(z) \right) \Sigmab - z \I_d \right)^{-1}
+\]
+so that for $d < n$ by taking $z = 0$ we have
+\[
+  m(0) = \frac{n}d \frac1{n-d} \tr \Sigmab^{-1}.
+\]
+The steps (ii) and (iii) follow exactly the same line of arguments as the $\bar c < 1$ case and are thus omitted.
+
+
+% {\RED TODO: proof for $n>d$ sub-Gaussians. We can't appeal
+% to inverse Wishart mean anymore}
+% Now consider $n > d$ with $n/d \to \bar c \in (1, \infty)$.  Firstly notice
+% $\beta_n = e^{d - n} \to 0$, so $\lim \mathcal{V}(\Sigmab, n) = \lim
+% \frac{1}{n-d} \tr(\Sigmab^{-1})$. Noting
+% $\lim \frac{1}{n-d} \tr(\Sigmab^{-1}) = \int \tau^{-1} dH(\tau)$ (where $H$ is the
+% limiting spectral distribution of $\Sigmab$) is a constant, by Slutsky's theorem
+% it suffices to show
+% \[
+%   \tr (\X^\top \X)^\dagger - \frac1{n-d} \tr \Sigmab^{-1} \to 0
+% \]
+% Recognizing $(\X^\top \X)^\dag = (\X^\top\X)^{-1}$ as an inverse-Wishart
+% matrix when $n > d$, we have that the left-hand side is identically zero.
+
+
+
+
+
+\subsection{Proof of \cref{c:projection}}
+\label{sec:proof-of-c-projection}
+
+Since $\X^\dagger \X = \X^\top (\X \X^\top)^\dagger \X$, to prove
+\cref{c:projection}, we are interested in the limiting behavior of the
+following quadratic form
+\[
+  \lim_{n,d \to \infty} \lim_{z \to 0^+} \frac1n \w^\top \X^\top \left( \frac1n \X \X^\top + z \I_n \right)^{-1} \X \w
+\]
+for deterministic $\w \in \mathbb R^{d}$ of bounded Euclidean norm (i.e., $\| \w \| \le C'$ as $n,d \to \infty$), as $n,d \to \infty$ with $n/d \to \bar c \in (0,1)$. The limiting behavior of the above quadratic form, or more generally, bilinear form of the type $\frac1n \w_1^\top \X^\top \left( \frac1n \X \X^\top + z \I_n \right)^{-1} \X \w_2$ for $\w_1, \w_2 \in \mathbb R^{d}$ of bounded Euclidean norm are widely studied in random matrix literature, see for example \cite{hachem2013bilinear}.
+
+For the proof of \Cref{c:projection} we follow the same protocol as that of
+\Cref{c:wishart}, namely: (i) we consider, for fixed $z > 0$, the limiting
+behavior of $\frac1n \w^\top \X^\top \left( \frac1n \X \X^\top + z \I_n
+  \right)^{-1} \X \w$. Note that
+\begin{align*}
+  \delta(z) & \equiv \frac1n \w^\top \X^\top \left( \frac1n \X \X^\top + z \I_n \right)^{-1} \X \w = \w^\top \left( \frac1n \X^\top \X + z \I_d \right)^{-1} \frac1n \X^\top \X \w \\
+            & = \| \w \|^2 - z \w^\top \left( \frac1n \X^\top \X + z \I_d \right)^{-1} \w
+\end{align*}
+and it remains to work on the second $z \w^\top \left( \frac1n \X^\top \X + z \I_d \right)^{-1} \w$ term.
+It follows from \cite{hachem2013bilinear} that
+\[
+  %\delta(z) = \| \w \|^2 - z \w^\top \left( \frac1n \X^\top \X + z \I_d \right)^{-1} \w  \to \| \w \|^2 - \w^\top (\I_d + m(z) \Sigmab)^{-1} \w^\top
+  z \w^\top \left( \frac1n \X^\top \X + z \I_d \right)^{-1} \w - \w^\top (\I_d + m(z) \Sigmab)^{-1} \w^\top \to 0
+\]
+almost surely as $n,d \to \infty$, where we recall $m(z)$ is the unique solution to \eqref{eq:def-m}.
+
+We move on to step (ii), under the assumption that $c \le \lambda_{\min} (\Sigmab) \le \lambda_{\max} (\Sigmab) \le C$ and $\| \w \| \le C'$, we have
+\begin{align*}
+  \lambda_{\max} \left( \frac1n \X^\top \left( \frac1n \X \X^\top + z \I_n \right)^{-1} \X \right) & \le \frac{ \lambda_{\max} (\X \X^\top/n) }{ \lambda_{\min} (\X \X^\top/n) + z } \le \frac{ \lambda_{\max} (\Z \Z^\top/n) \lambda_{\max} (\Sigmab) }{ \lambda_{\min} (\Z \Z^\top/n) \lambda_{\min} (\Sigmab) } \\
+                                                                                                   & \le 4 \frac{ (\sqrt{\bar c} + 1)^2 C }{ (\sqrt{\bar c} -1)^2 c }
+\end{align*}
+so that $\delta(z)$ remains bounded and similarly for its derivative
+$\delta'(z)$, which, by Arzela-Ascoli theorem, yields uniform
+convergence and we are allowed to take the $z \to 0^+$
+limit. Ultimately, in step (iii) we exchange the two limits with
+Moore-Osgood theorem, concluding the proof.
+
+\subsection{Finishing the proof of Theorem~\ref{t:asymptotic}}
+
+To finish the proof of Theorem~\ref{t:asymptotic}, it remains to write
+\[
+  \MSE{\X^\dagger\y} = \sigma^2\E\big[\tr\big((\X^\top\X)^{\dagger}\big)\big] +
+  \w^{*\top}\E\big[\I-\X^\dagger\X\big]\w^*
+\]
+Since $\lambda_n = \frac{d-n}{ \tr (\Sigmab + \lambda_n \I)^{-1} }$,
+by \Cref{c:wishart} and \Cref{c:projection} we have
+$\MSE{\X^\dagger\y} - \Mc(\Sigmab, \w^*, \sigma^2, n) \to 0$ as $n,d
+  \to \infty$ with $n/d \to \bar c \in (0,\infty) \setminus \{ 1 \}$,
+which concludes the proof of Theorem~\ref{t:asymptotic}.
+% \begin{align*}
+%   &\MSE{\X^\dagger\y} - \Mc(\Sigmab, \w^*, \sigma^2, n) \\
+%   &=
+%     \underbrace{\left(
+%       \sigma^2\E\big[\tr\big((\X^\top\X)^{\dagger}\big)\big]
+%       - \frac{\sigma^2(1 - \alpha_n)}{\lambda_n}
+%     \right)}_{\to 0} + \underbrace{\left(
+%       \w^{*\top}\E\big[\I-\X^\dagger\X\big]\w^*
+%       - \lambda_n \w^{*\top} (\Sigmab + \lambda_n \I)^{-1} \w^*
+%     \right)}_{\to 0}
+% \end{align*}
+%as $n,d \to \infty$ with $n/d \to \bar c \in (0,1)$.
+%This allows us to conclude the proof of
+
+% For
+% the case $n <d$, note that $\X^\dagger \X = \I$ and
+% \[
+%   \MSE{\X^\dagger\y} - \frac1{n-d} \tr (\Sigmab^{-1}) \to 0.
+% \]
 
 \input{continuous-empirical.tex}
 
@@ -1063,12 +1818,12 @@ implicit regularization resulting from over-parameterization.
 %   \bibliographystyle{alpha}
 % \fi
 
-% \bibliography{../pap}
+% \bibliography{design/pap}
 
 % \ifisarxiv\else\newpage\fi
 
 % \appendix
 
-\input{appendix}
+% \input{appendix}
 
 \end{document}

@@ -2,18 +2,18 @@
     \centering
     \hspace{-0.35cm}
     \includegraphics[width=\textwidth]{Figures/mg_combined.pdf}
-     % \includegraphics[width=0.51\textwidth]{bayesian_figures/objectives-mg_scale-full.pdf}\hspace{-2mm}\nobreak\includegraphics[width=0.51\linewidth]{bayesian_figures/ratios-mg_scale.pdf}
+    % \includegraphics[width=0.51\textwidth]{bayesian_figures/objectives-mg_scale-full.pdf}\hspace{-2mm}\nobreak\includegraphics[width=0.51\linewidth]{bayesian_figures/ratios-mg_scale.pdf}
     % \includegraphics[width=0.49\textwidth]{bayesian_figures/objectives-mg_scale-zoom.pdf}
     \caption{(left) A-optimality value obtained by the various methods on
         the \texttt{mg\_scale} dataset \citep{libsvm} with
         prior precision $\A = 10^{-5}\, \I$,\quad (right)
-A-optimality value for our method (with and without SDP) divided by
-$f_{\A}(\frac kn\Sigmab_{\X})$, the baseline estimate suggested by Theorem \ref{t:q1}.}
+        A-optimality value for our method (with and without SDP) divided by
+        $f_{\A}(\frac kn\Sigmab_{\X})$, the baseline estimate suggested by Theorem \ref{t:q1}.}
     \label{f:experiments}
 \end{figure*}
 
-\section{Experiments}\label{s:experiments}
-We confirm our theoretical
+\section{Experiments}\label{s:bayesian:experiments}
+We confirm our theoreticala
 results with experiments on real world data from \texttt{libsvm} datasets
 \citep{libsvm} (more details in Appendix~\ref{a:experiments}).
 For all our experiments, the prior precision matrix is set to $\A = n^{-1} \I$
@@ -28,7 +28,7 @@ is compared against several baselines and recently proposed methods
 for A-optimal design that have been shown to perform well in
 practice. Note that none of these algorithms come with theoretical
 guarantees as strong as those offered by our approach. The list of
-implemented methods is as follows: 
+implemented methods is as follows:
 \begin{description}
     \item[Our method (with SDP)] uses the efficient algorithms
         developed in proving Theorem~\ref{t:q2} to sample
@@ -43,18 +43,18 @@ implemented methods is as follows:
         and Sedumi.
 
     \item[Our method (without SDP)] samples $\DPPreg{p}(\X,\A)$ with uniform
-      probabilities $p \equiv \frac{k}{n}$.
-      % Compared to uniform and predictive length
-      %   sampling, there is an additional DPP sampling overhead which is independent
-      %   of sample size $k$ (but does depend on $d$).
+        probabilities $p \equiv \frac{k}{n}$.
+        % Compared to uniform and predictive length
+        %   sampling, there is an additional DPP sampling overhead which is independent
+        %   of sample size $k$ (but does depend on $d$).
 
-          \item[Greedy bottom-up] adds an index $i \in [n]$ to the sample $S$
+    \item[Greedy bottom-up] adds an index $i \in [n]$ to the sample $S$
         maximizing the increase in A-optimality criterion
         \citep{greedy-supermodular,chamon2017approximate}.
-       %  This method posesses well-understood theoretical bounds
-       %  (however they
-       % require additional assumptions on the matrix $\X$) and has strong
-       %  empirical performance \cite{tractable-experimental-design}.
+        %  This method posesses well-understood theoretical bounds
+        %  (however they
+        % require additional assumptions on the matrix $\X$) and has strong
+        %  empirical performance \cite{tractable-experimental-design}.
 
     \item[Uniform] samples every size $k$ subset $S \subseteq [n]$
         with equal probability.
@@ -92,9 +92,9 @@ line for our method with SDP on
 Figure~\ref{f:experiments} (right) shows that the ratio never goes
 below 0.5, and we saw similar behavior across all examined datasets
 (see Appendix~\ref{a:experiments}). This evidence suggests that for
-    many real datasets $\opt$ is within only a small constant factor
-    away from $f_{\A}(\frac{k}{n}\Sigmab_\X)$, matching the upper bound of
-    Theorem~\ref{t:q1}. 
+many real datasets $\opt$ is within only a small constant factor
+away from $f_{\A}(\frac{k}{n}\Sigmab_\X)$, matching the upper bound of
+Theorem~\ref{t:q1}.
 % As sample size $k \to n$, this should converge towards $1$ because $\X_S^\top
 % \X_S \to \X^\top \X = \Sigma_X$.
 % Across all datasets we examined, we see that this ratio is close to
@@ -109,3 +109,7 @@ below 0.5, and we saw similar behavior across all examined datasets
 % design with a $k$ cardinality constraint.
 % \feynman{Does this make sense?}
 
+
+% \section{Additional details for the experiments}
+% \label{a:experiments}
+\input{bayesian_experiments-appendix.tex}

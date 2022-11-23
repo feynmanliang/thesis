@@ -9,7 +9,7 @@
     ],
     "shutdownAction": "stopCompose",
     "workspaceFolder": "/workspace",
-    "postCreateCommand": "apt-get update && apt-get install ghostscript && tlmgr update --self && tlmgr install memoir textcase etoolbox biblatex cleveref units l3packages microtype xcolor tikz float caption wrapfig cancel adjustbox todonotes hhtensor mathtools doublestroke braket algorithms multirow enumitem siunitx subfiles biber ifoddpage epstopdf && texhash",
+    "postCreateCommand": "apt-get update && apt-get install -y ghostscript procps && tlmgr update --self && tlmgr install memoir textcase etoolbox biblatex cleveref units ushort listings l3packages microtype xcolor pgf float caption wrapfig cancel adjustbox todonotes hhtensor mathtools doublestroke braket algorithms multirow enumitem siunitx subfiles biber ifoddpage epstopdf fontspec && texhash",
     "extensions": [
         "james-yu.latex-workshop",
         // Git
@@ -18,25 +18,6 @@
         "shardulm94.trailing-spaces",
         "stkb.rewrap", // rewrap comments after n characters on one line
         // Other
-        "vscode-icons-team.vscode-icons",
-    ],
-    "settings": {
-        // General settings
-        "files.eol": "\n",
-        // Latex settings
-        "latex-workshop.chktex.enabled": true,
-        "latex-workshop.latex.clean.subfolder.enabled": true,
-        "latex-workshop.latex.autoClean.run": "onBuilt",
-        "editor.formatOnSave": true,
-        "files.associations": {
-            "*.tex": "latex"
-        },
-        "latex-workshop.latexindent.path": "latexindent",
-        "latex-workshop.latexindent.args": [
-            "-c",
-            "%DIR%/",
-            "%TMPFILE%",
-            "-y=defaultIndent: '%INDENT%'"
-        ]
-    }
+        "vscode-icons-team.vscode-icons"
+    ]
 }

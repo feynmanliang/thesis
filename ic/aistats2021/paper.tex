@@ -1,5 +1,5 @@
 % \documentclass[twoside]{article}
-\documentclass[thesis.tex]{subfiles}
+\documentclass[../../thesis.tex]{subfiles}
 
 %\usepackage{aistats2021}
 % \usepackage[accepted]{aistats2021}
@@ -60,21 +60,32 @@
 
 % \runningauthor{Liang, Arora, Tehrani, Li, Tingley, Meijer}
 % \begin{abstract}
-  In order to construct accurate proposers for Metropolis-Hastings Markov
-  Chain Monte Carlo, we integrate ideas from probabilistic graphical models
-  and neural networks in a framework we call Lightweight
-  Inference Compilation (LIC). LIC implements amortized inference within an
-  open-universe declarative probabilistic programming language (PPL).
-  Graph neural networks are used to parameterize proposal distributions
-  as functions of Markov blankets, which during ``compilation'' are optimized
-  to approximate single-site Gibbs sampling distributions. Unlike prior work
-  in inference compilation (IC), LIC forgoes importance sampling of linear
-  execution traces in favor of operating directly on Bayesian networks.
-  Through using a declarative PPL, the Markov blankets of nodes (which may be
-  non-static) are queried at inference-time to produce proposers. Experimental
-  results show LIC can produce proposers which have less parameters, greater
-  robustness to nuisance random variables, and improved posterior sampling in
-  a Bayesian logistic regression and $n$-schools inference application.
+
+\chapter{Accelerating Metropolis-hastings with lightweight inference compilation}
+\label{ch:lic}
+
+While the subsequent chapters depart from a previously common theme of DPPs,
+they continue our study of statistical applications of randomized methods.
+In this chapter,
+we are concerned with the problem of sampling intractable posteriors of
+Bayesian graphical models.
+In order to construct accurate proposers for Metropolis-Hastings Markov
+Chain Monte Carlo, we integrate ideas from probabilistic graphical models
+and neural networks in a framework we call Lightweight
+Inference Compilation (LIC). LIC implements amortized inference within an
+open-universe declarative probabilistic programming language (PPL).
+Graph neural networks are used to parameterize proposal distributions
+as functions of Markov blankets, which during ``compilation'' are optimized
+to approximate single-site Gibbs sampling distributions. Unlike prior work
+in inference compilation (IC), LIC forgoes importance sampling of linear
+execution traces in favor of operating directly on Bayesian networks.
+Through using a declarative PPL, the Markov blankets of nodes (which may be
+non-static) are queried at inference-time to produce proposers. Experimental
+results show LIC can produce proposers which have less parameters, greater
+robustness to nuisance random variables, and improved posterior sampling in
+a Bayesian logistic regression and $n$-schools inference application.
+Parts of this chapter were originally published in
+\fullcite{lic}.
 % \end{abstract}
 
 \section{Background}
@@ -447,7 +458,7 @@ of desired behaviors and relevant applications. In particular:
 \end{figure*}
 
 A reference implementation for LIC and code to reproduce our experiments
-have been made publically available \citep{lic2020}.
+have been made publically available\footnote{\url{https://github.com/facebookresearch/lightweight-inference-compilation}}.
 
 \subsection{GMM mode escape}
 \label{ssec:gmm}
@@ -594,7 +605,7 @@ differences in model architecture, \texttt{pyprob}'s resulting models were over 
 larger than those of LIC. Furthermore, despite requiring more than $10\times$ longer
 time to train, the resulting sampler produced by \texttt{pyprob} yields
 an effective sample size almost $5\times$ smaller than that produced by LIC.
-\begin{figure}
+\begin{table}
   \centering
   \begin{tabular}{lccc}
     \toprule
@@ -608,13 +619,13 @@ an effective sample size almost $5\times$ smaller than that produced by LIC.
     for inference compilation in LIC (this work)
     versus \citep{pyprob2020}
   }\label{fig:nuisance}
-\end{figure}
+\end{table}
 
 \subsection{Bayesian Logistic Regression}
 \label{ssec:blr}
 
 Consider a Bayesian logistic regression model over $d$ covariates
-with prior distribution 
+with prior distribution
 $\vec{\beta} \sim \cN_{d+1}(\vec{0}_{d+1}, \diag(10, 2.5\vec{1}_{d}))$
 and likelihood $y_i \mid \vx_i \simiid \text{Bernoulli}(\sigma(\vec{\beta}^\top \vx_i))$
 where $\sigma(t) = (1 + e^{-t})^{-1}$ is the logistic function.
