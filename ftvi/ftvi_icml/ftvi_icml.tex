@@ -578,7 +578,7 @@ as these results only apply in the infinite-dimensional limit. Indeed, certain e
 
 Note that $\overline{\cL^p_\alpha} \supset \cE^q_\beta$ for all $p,q,\alpha,\beta$, so \Cref{thm:distn_class_closed}
 by itself does not preclude transformations of fat-tailed base distributions to light-tailed targets.
-Under additional assumptions on $f_\theta$, we further establish a partial converse that a fat-tailed base distribution's tail parameter is unaffected after pushfoward,
+Under additional assumptions on $f_\theta$, we further establish a partial converse that a fat-tailed base distribution's tail parameter is unaffected after pushforward,
 hence heavy-to-light transformations are impossible. Note here there is no ascending union over
 tail parameters (i.e., $\cL^p_\alpha$ instead of $\overline{\cL^p_\alpha}$).
 
@@ -627,7 +627,7 @@ include polynomial flows such as sum-of-squares flows \citep{jaini2019sum}.
   Let $X \in \cE^p_\alpha$.
   By considering sufficiently large $X$ such that leading powers dominate, it suffices to consider monomials $Y = X^k$.
   Notice $\PP(Y \geq x) = \PP(X \geq x^{1/k}) = \Theta(e^{-\alpha x^{p/k}})$, and so
-  $Y \in \cE^{p/k}_\alpha$. The result follows by disjointness of $\mathcal{E}$ and $\mathcal{L}$.
+  $Y \in \cE^{p/k}_\alpha$. The result follows by disjointedness of $\mathcal{E}$ and $\mathcal{L}$.
 \end{proof}
 
 % Suffices to show for k \in \RR_{> 0}, this covers inverse powers
@@ -1097,7 +1097,7 @@ at the end of training.
 For \cref{tab:diamonds} and \cref{tab:eight_schools}, the flow transform $\Phi_{\text{Flow}}$ used for ADVI, TAF, and ATAF
 is comprised of two hidden layers of 32 units each. NUTS uses no such flow transform. Variational parameters for each normalizing flow were initialized
 using \texttt{torch}'s default Kaiming initialization \citep{he2015delving} Additionally, the tail parameters $\nu_i$
-used in ATAF were initialized to all be equal to the tail parameters learned from training TAF. We empkkirically observed
+used in ATAF were initialized to all be equal to the tail parameters learned from training TAF. We empirically observed
 this resulted in more stable results (less variation in ELBO / $\log p(y)$ across trials), which may be due to
 the absence of outliers when using a Gaussian base distribution resulting in more stable ELBO gradients. This suggests
 other techniques for handling outliers such as winsorization may also be helpful, and we leave further investigation
@@ -1313,7 +1313,7 @@ parameters are identical to \Cref{ssec:diamonds}, and results are reported in \C
 
 \subsection{Financial and Actuarial Applications}
 
-To examine the advantage of tail-anisotropic modelling in practice, we considered two benchmark datasets from financial (daily log returns for five industry indices during 1926--2021 \citep{fama2015five}) and actuarial (per-patient inpatient and outpatient cumulative Medicare/Medicid (CMS) claims during 2008--2010 \citep{cms}) applications where practitioners actively seek to model fat-tails and account for black-swan events. Identical flow architectures and optimizers were used in both cases, with log-likelihoods presented in \Cref{tab:density-estimation}. Both datasets exhibited superior fits after allowing for heavier tails, with a further improved fit using ATAF for the CMS claims dataset.
+To examine the advantage of tail-anisotropic modelling in practice, we considered two benchmark datasets from financial (daily log returns for five industry indices during 1926--2021 \citep{fama2015five}) and actuarial (per-patient inpatient and outpatient cumulative Medicare/Medicaid (CMS) claims during 2008--2010 \citep{cms}) applications where practitioners actively seek to model fat-tails and account for black-swan events. Identical flow architectures and optimizers were used in both cases, with log-likelihoods presented in \Cref{tab:density-estimation}. Both datasets exhibited superior fits after allowing for heavier tails, with a further improved fit using ATAF for the CMS claims dataset.
 %Using identical flow architectures and optimizers, the log likelihoods in \Cref{tab:density-estimation} suggest that models permitting tail-anisotropy (ATAF) yield significantly superior fits.
 
 

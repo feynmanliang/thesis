@@ -1,0 +1,28 @@
+add-tex-command addbibresource p
+add-tex-command defcounter pp
+add-tex-command usebibmacro p
+add-tex-command DeclareNameAlias p
+add-tex-command thefield p
+add-tex-command lstset p
+add-tex-command definecolor ppp
+add-tex-command color pp
+add-tex-command crefname ppp
+add-tex-command Crefname ppp
+add-tex-command subfile p
+add-tex-command fullcite p
+add-tex-command cref p
+add-tex-command citep p
+add-tex-command Cref p
+add-tex-command eqref p
+add-tex-command begin pop
+add-tex-command citet p
+
+# # add-tex-command cref p
+# # add-tex-command captionsetup op
+
+# # add-tex-command frac pp
+# add-tex-command citep op
+# add-tex-command citet op
+
+
+

@@ -61,7 +61,7 @@
 % \runningauthor{Liang, Arora, Tehrani, Li, Tingley, Meijer}
 % \begin{abstract}
 
-\chapter{Accelerating Metropolis-hastings with lightweight inference compilation}
+\chapter{Accelerating Metropolis-Hastings with lightweight inference compilation}
 \label{ch:lic}
 
 While the subsequent chapters depart from a previously common theme of DPPs,
@@ -458,7 +458,7 @@ of desired behaviors and relevant applications. In particular:
 \end{figure*}
 
 A reference implementation for LIC and code to reproduce our experiments
-have been made publically available\footnote{\url{https://github.com/facebookresearch/lightweight-inference-compilation}}.
+have been made publicly available\footnote{\url{https://github.com/facebookresearch/lightweight-inference-compilation}}.
 
 \subsection{GMM mode escape}
 \label{ssec:gmm}
@@ -635,7 +635,7 @@ knowledge about the regression coefficients $\vec{\beta}$ are available.
 \Cref{fig:blr} shows the results of performing inference using LIC compared
 against other MCMC inference methods. Results for existing IC approaches
 \citep{le2017inference} are omitted because they are not comparable due to
-lack of support for vector-valued random variables in the publically
+lack of support for vector-valued random variables in the publicly
 available reference implementation \citep{pyprob2020}. All methods yield
 similar predictive log-likelihoods on held-out test data, but LIC and NUTS
 yield significantly higher ESS and $\widehat{R}$s closer to $1.0$ suggesting

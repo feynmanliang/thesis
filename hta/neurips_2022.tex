@@ -155,7 +155,7 @@ distributions with non-trivial bulks \citep{papamakarios2021normalizing} and non
 Continuing this line of work, here we
 we consider how to statically analyze a probabilistic program in order to automate the inference of
 tail behavior for any
-random variables present. At present, correct inference of tail behaviour for target distributions remains an outstanding issue \citep{yao2018yes,wang2018variational}, which causes challenges for downstream Monte Carlo tasks. For example, importance sampling estimators can exhibit infinite variance if the tail of the approximating density is lighter than the target. Most prominant black-box variational inference methods are incapable of changing their tail behaviour from an initial proposal distribution \citep{jaini2020tails,ftvi}. MCMC algorithms may also lose ergodicity when the tail of the target density falls outside of a particular family \citep{roberts1996exponential}. All of these issues could be avoided if the tail of the target is known before runtime.
+random variables present. At present, correct inference of tail behaviour for target distributions remains an outstanding issue \citep{yao2018yes,wang2018variational}, which causes challenges for downstream Monte Carlo tasks. For example, importance sampling estimators can exhibit infinite variance if the tail of the approximating density is lighter than the target. Most prominent black-box variational inference methods are incapable of changing their tail behaviour from an initial proposal distribution \citep{jaini2020tails,ftvi}. MCMC algorithms may also lose ergodicity when the tail of the target density falls outside of a particular family \citep{roberts1996exponential}. All of these issues could be avoided if the tail of the target is known before runtime.
 
 To classify tail asymptotics and define calibration, we propose a three-parameter
 family based on the generalized Gamma distribution (\cref{eq:GenGammaDensity})
@@ -243,7 +243,7 @@ the resulting combination is a flexible density approximator with provably calib
 For studying heavy tails, methods based on subexponential distributions
 \citep{goldie1998subexponential} and generalized Pareto distributions (GPD) or
 equivalently regularly varying distributions \citep{tajvidi2003confidence}
-have recieved attention historically. \citet{mikosch} presents closure theorems for regularly varying which are special cases of \Cref{prop:gga_add} and \Cref{lem:lipschitz}.
+have received attention historically. \citet{mikosch} presents closure theorems for regularly varying which are special cases of \Cref{prop:gga_add} and \Cref{lem:lipschitz}.
 Heavy tails can impact probabilistic machine learning methods in a number of ways.
 The observation that density ratios $\frac{p(x)}{q(x)}$ tend to be heavy tailed
 has resulted in new methods for smoothing importance sampling \citep{vehtari2015pareto},
@@ -282,8 +282,8 @@ Static analysis utilizes the abstract syntax tree (AST)
 representation of a program in order to compute invariants
 (e.g. the return type of a function, the number of classes implementing a trait)
 without executing the underlying program.
-As dynamic analysis in PPs is less reliable due to non-determinism, static analysis
-methods for PPs become increasingly important.
+As dynamic analysis in PPLs is less reliable due to non-determinism, static analysis
+methods for PPLs become increasingly important.
 
 Within PPLs, static analysis has traditionally been applied in the context of formalizing
 semantics \citep{kozen1979semantics} and has been used to verify probabilistic
@@ -918,7 +918,7 @@ preserving the tail correctness guarantees attained by the GGA.
 \section{Experiments}\label{sec:hta:experiments}
 
 In this section we demonstrate that GGA-based density estimation yields improvements across a variety of metrics.
-We consider the parametric family defined in \Cref{ssec:repr_dist} and compare against pushfowards of Normal distributions. To understand the individual
+We consider the parametric family defined in \Cref{ssec:repr_dist} and compare against pushforwards of Normal distributions. To understand the individual
 effect of using a GGA base distribution over standard normals versus more expressive pushforward maps \citep{durkan2019neural}, we also report ablation results where
 normalizing flows are replaced by affine transforms as originally
 proposed in \citep{kucukelbir2017automatic}. All experiments are repeated for 50 trials, trained to convergence using the Adam optimizer with manually tuned learning rate,

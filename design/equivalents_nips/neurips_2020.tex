@@ -512,7 +512,7 @@ depending on how the sketch is applied to the Hessian matrix, and
 whether or not it is applied to the gradient as well. The class of
 methods discussed in Section \ref{s:newton}, including Randomized
 Subspace Newton and the Generalized Kaczmarz method, relies on
-projecting the Hessian downto a low-dimensional subspace, which makes our
+projecting the Hessian down to a low-dimensional subspace, which makes our
 results directly applicable. A related family of methods uses
 the so-called Iterative Hessian Sketch (IHS) approach \citep{pilanci2016iterative,lacotte2019faster}. The
 similarities between IHS and the Subspace Newton-type methods (see
@@ -1900,7 +1900,7 @@ We complement the results of Section \ref{s:experiments} with
 empirical results on four additional libsvm datasets \citep{libsvm} (bringing
 the total number of benchmark datasets to eight), which further
 establish the accuracy of our surrogate expressions for the low-rank approximation
-error. Similary as in Figure \ref{f:nystrom}, we use the sketched
+error. Similarly as in Figure \ref{f:nystrom}, we use the sketched
 Nystr\"om method \citep{revisiting-nystrom} with the RBF kernel
 $k(\a_i,\a_j)=\exp(-\|\a_i-\a_j\|^2/(2\sigma^2))$, for several values
 of the parameter $\sigma$. The values of $\sigma$ were chosen so as to
